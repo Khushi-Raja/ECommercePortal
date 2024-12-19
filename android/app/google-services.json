@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "909482431750",
+    "project_id": "vehicle-manager-25ce5",
+    "storage_bucket": "vehicle-manager-25ce5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:909482431750:android:0205e9873885c56231fa87",
+        "android_client_info": {
+          "package_name": "com.example.link"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "909482431750-mmg0tp01k3cgfamiunep7c046li8871c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCIYT6fQBSDEIRMHoyzwMki17myQ7lLFwo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "909482431750-j1ok93t15j7h8r4oeiguat29e2ua70oo.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "909482431750-6vhhrb8rrg5mv228es5ovt4tasadkojn.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.vehiclemanager.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
