@@ -128,7 +128,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         style: TextStyle(color: Colors.white, fontSize: 20),
                       ),
                       Text(
-                        firebaseAuth.currentUser!.email ?? "No email",
+                        firebaseAuth.currentUser?.email ?? "No email",
                         style: TextStyle(
                           color: Colors.grey[200],
                           fontSize: 14,
