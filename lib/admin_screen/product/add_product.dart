@@ -253,7 +253,8 @@ class _AddProductState extends State<AddProduct> {
     try {
       int? lastID =
           await getLastID(collectionName: "product", primaryKey: "productID");
-      int newID = lastID! + 1;
+      print(lastID);
+      int newID = (lastID ?? 0) + 1; // Use a fallback value if lastID is null
       final productImageURL = await uploadImageFile(imageFile!);
       await FirebaseFirestore.instance.collection('product').add({
         "productID": newID.toString(),
@@ -269,6 +270,7 @@ class _AddProductState extends State<AddProduct> {
         'isDisabled': false,
       });
     } catch (e) {
+      print(e.toString());
       throw ('Error adding product: $e');
     }
   }
@@ -277,7 +279,8 @@ class _AddProductState extends State<AddProduct> {
     try {
       int? lastID =
       await getLastID(collectionName: "product", primaryKey: "productID");
-      int newID = lastID! + 1;
+      print(lastID);
+      int newID = (lastID ?? 0) + 1; // Use a fallback value if lastID is null
       final productImageURL = await uploadImageBytes(_imageBytes!);
       await FirebaseFirestore.instance.collection('product').add({
         "productID": newID.toString(),
