@@ -14,6 +14,7 @@ class ProductList extends StatefulWidget {
 }
 
 class _ProductListState extends State<ProductList> {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -154,6 +155,16 @@ class _ProductListState extends State<ProductList> {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
+
+                  Text(
+                    data['discount'] ?? "No discount available",
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.shade600,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
               ),
             ),
@@ -171,9 +182,9 @@ class _ProductListState extends State<ProductList> {
                     String productID = data['productID'];
                     String productName = data['productName'];
                     String description = data['description'];
-                    double price = data['price'];
+                    double price = double.tryParse(data['price'].toString()) ?? 0.0;
                     String code = data['code'];
-                    double discount = data['discount'];
+                    double discount = double.tryParse(data['discount']?.toString() ?? '0') ?? 0.0;
                     String displayImage = data['displayImage'];
                     String categoryID = data['categoryID'];
                     Navigator.push(
@@ -202,7 +213,7 @@ class _ProductListState extends State<ProductList> {
                   onPressed: () {
                     FirebaseFirestore.instance
                         .collection('product')
-                        .doc(data['productID'])
+                        .doc(document.id)
                         .delete();
                   },
                 ),

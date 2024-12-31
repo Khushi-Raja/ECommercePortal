@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../components/custom_button.dart';
+import '../../components/custom_circular_progress_indicator.dart';
 import '../../components/custom_snackbar.dart';
 import '../../components/custom_textfiled.dart';
 import '../../components/dateFormat.dart';
@@ -51,11 +52,19 @@ class _AddProductState extends State<AddProduct> {
 
   String? selectedCategoryId; // To store the selected category ID
   List<Map<String, dynamic>> categories = []; // List to hold categories
-  bool isLoading = true; // For showing loading indicator while fetching categories
+  bool isLoading =
+      true; // For showing loading indicator while fetching categories
 
   @override
   void initState() {
     super.initState();
+    productNameController.text = widget.productName;
+    descriptionController.text = widget.description;
+    priceController.text = widget.price.toString();
+    codeController.text = widget.code;
+    discountController.text = widget.discount.toString();
+    selectedCategoryId =
+        widget.categoryID; // Initialize with the passed category ID
     fetchCategories();
   }
 
@@ -160,15 +169,39 @@ class _AddProductState extends State<AddProduct> {
                 labelText: 'Product Discount',
                 obscureText: false,
               ),
-              isLoading
-                  ? const Center(
-                child: CircularProgressIndicator(),
-              )
-                  : Padding(
+
+              // Dropdown code
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('category')
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Center(
+                        child:
+                            CustomCupertinoActivityIndicator()); // Show loading indicator until data is fetched
+                  }
+                  List<DocumentSnapshot> categoryDocs = snapshot.data!.docs;
+                  List<Map<String, String>> categories =
+                      categoryDocs.map((doc) {
+                    return {
+                      'id': doc['categoryID'].toString(),
+                      // Assuming 'id' and 'name' fields are available in Firestore
+                      'name': doc['categoryName'].toString(),
+                    };
+                  }).toList();
+
+                  // Ensure that the selectedCategoryId is valid or null
+                  String? dropdownValue = categories.any(
+                          (category) => category['id'] == selectedCategoryId)
+                      ? selectedCategoryId
+                      : null;
+
+                  return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: DropdownButtonFormField<String>(
-                      value: selectedCategoryId,
-                      hint: const Text('Select Category',style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),),
+                      value: dropdownValue,
+                      hint: const Text('Select Category', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),),
                       items: categories.map((category) {
                         return DropdownMenuItem<String>(
                           value: category['id'],
@@ -180,29 +213,28 @@ class _AddProductState extends State<AddProduct> {
                           selectedCategoryId = value;
                         });
                       },
-                      decoration: const InputDecoration(
-                        filled: false,
-                        fillColor: null,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(10), // Rounded border for the dropdown field
-                          ),
-                        ), // Label text for the dropdown
-                        labelStyle: TextStyle(
-                          color: Colors.black, // Label text color
-                          fontSize: 15, // Label text font size
-                          fontWeight: FontWeight.bold, // Label text boldness
-                        ),
-                        // prefixIcon: Icon(Icons.category), // Optional prefix icon
-                      ),
                       validator: (value) {
                         if (value == null) {
                           return "Please select a category";
                         }
                         return null;
                       },
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: CupertinoColors.activeBlue),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: CupertinoColors.activeGreen),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                     ),
-                  ),
+                  );
+                },
+              ),
+
               const SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.all(15),
@@ -278,7 +310,7 @@ class _AddProductState extends State<AddProduct> {
   Future<void> addProductWithBytes() async {
     try {
       int? lastID =
-      await getLastID(collectionName: "product", primaryKey: "productID");
+          await getLastID(collectionName: "product", primaryKey: "productID");
       print(lastID);
       int newID = (lastID ?? 0) + 1; // Use a fallback value if lastID is null
       final productImageURL = await uploadImageBytes(_imageBytes!);
@@ -378,12 +410,50 @@ class _AddProductState extends State<AddProduct> {
     }
   }
 
+  // Future<List<Map<String, String>>> fetchDataFromCollection(String collectionName) async {
+  //   try {
+  //     final snapshot = await FirebaseFirestore.instance.collection(collectionName).get();
+  //
+  //     // Check if the collection is not empty
+  //     if (snapshot.docs.isNotEmpty) {
+  //       return snapshot.docs.map((doc) {
+  //         return {
+  //           'id': doc.id,
+  //           'name': doc['categoryName'].toString(), // Replace 'categoryName' with the field you're targeting
+  //         };
+  //       }).toList();
+  //     } else {
+  //       return [];
+  //     }
+  //   } catch (e) {
+  //     print("Error fetching data from $collectionName: $e");
+  //     return [];
+  //   }
+  // }
+  //
+  // Future<void> fetchCategories() async {
+  //   setState(() {
+  //     isLoading = true;
+  //   });
+  //   try {
+  //     // Fetch data from the 'category' collection
+  //     final categoriesData = await fetchDataFromCollection('category');
+  //     setState(() {
+  //       categories = categoriesData;
+  //       isLoading = false;
+  //     });
+  //   } catch (e) {
+  //     print("Error fetching categories: $e");
+  //     setState(() {
+  //       isLoading = false;
+  //     });
+  //   }
+  // }
 
   Future<void> fetchCategories() async {
     try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('category')
-          .get();
+      final snapshot =
+          await FirebaseFirestore.instance.collection('category').get();
 
       setState(() {
         categories = snapshot.docs.map((doc) {
