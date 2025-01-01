@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';  // Importing Cupertino package for iOS styles
+import 'package:flutter/material.dart';
 
 // Constant color used for the app bar background
-const kAppBarColor = Color(0xFF224390); // Dark blue color
+const kAppBarColor = Colors.orange; // Dark blue color
 
 // Constant color used for buttons throughout the app
 const kButtonColor = Color(0xFFffa300); // Bright orange color

@@ -7,6 +7,7 @@ import 'package:link/components/custom_snackbar.dart';
 import 'package:link/components/custom_textfiled.dart';
 import 'package:link/components/dateFormat.dart';
 import 'package:link/constants/generate_id.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -54,6 +55,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
         'role': 'user', // Default role
         'createdAt': getFormattedDateTime()
       });
+
+      // Save login state in SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', true);
+      await prefs.setString('role', 'user');
 
       SnackBarUtil.show(
           context: context, message: "Account created successfully!");

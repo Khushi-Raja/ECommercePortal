@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:link/admin_screen/product/product_list.dart';
 import 'package:link/auth/signin_screen.dart';
 import 'package:link/components/custom_circular_progress_indicator.dart';
 import 'package:link/constants/color.dart';
@@ -161,6 +162,30 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 ),
               ),
             ),
+
+            ListTile(
+              leading: Icon(
+                Icons.ac_unit,
+                color: kAppBarColor,
+              ),
+              onTap: () async {
+                await FirebaseAuth.instance.signOut();
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return ProductList();
+                    },
+                  ),
+                );
+              },
+              title: Text(
+                'Product',
+                style: TextStyle(
+                  color: CupertinoColors.black,
+                ),
+              ),
+            ),
+
             ListTile(
               leading: Icon(
                 Icons.login_rounded,

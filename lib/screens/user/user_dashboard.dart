@@ -136,28 +136,6 @@ class _UserDashboardState extends State<UserDashboard> {
                 ),
               ),
             ),
-            ListTile(
-              leading: Icon(
-                Icons.login_rounded,
-                color: kAppBarColor,
-              ),
-              onTap: () async {
-                await FirebaseAuth.instance.signOut();
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return SignInScreen();
-                    },
-                  ),
-                );
-              },
-              title: Text(
-                'Logout',
-                style: TextStyle(
-                  color: CupertinoColors.black,
-                ),
-              ),
-            ),
           ],
         ),
       ),

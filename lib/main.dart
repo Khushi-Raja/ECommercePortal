@@ -12,7 +12,7 @@ void main() async {
   );
   runApp(
     MaterialApp(
-      home: ProductList(),
+      home: Splash(),
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
