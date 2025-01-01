@@ -20,11 +20,11 @@ class _UserDashboardState extends State<UserDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        iconTheme: IconThemeData(
+        iconTheme: const IconThemeData(
           color: CupertinoColors.white,
         ),
         backgroundColor: kAppBarColor,
-        title: Text(
+        title: const Text(
           'User Dashboard',
           style: TextStyle(
             fontSize: 20,
@@ -38,7 +38,7 @@ class _UserDashboardState extends State<UserDashboard> {
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
+              return const Center(
                 child: CustomCupertinoActivityIndicator(),
               );
             }
@@ -47,7 +47,7 @@ class _UserDashboardState extends State<UserDashboard> {
                 'Logged in as ${snapshot.data!.email}',
               );
             }
-            return Text(
+            return const Text(
               'Not logged in',
             );
           },
@@ -55,13 +55,13 @@ class _UserDashboardState extends State<UserDashboard> {
       ),
       drawer: Drawer(
         child: ListView(
-          padding: EdgeInsets.all(0),
+          padding: const EdgeInsets.all(0),
           children: [
             FutureBuilder(
               future: getUserDisplayName(),
               builder: (context, AsyncSnapshot<String> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return DrawerHeader(
+                  return const DrawerHeader(
                     child: Center(
                       child: CustomCupertinoActivityIndicator(),
                     ),
@@ -78,7 +78,7 @@ class _UserDashboardState extends State<UserDashboard> {
                   color: kAppBarColor,
                   width: double.infinity,
                   height: 200,
-                  padding: EdgeInsets.only(top: 20.0),
+                  padding: const EdgeInsets.only(top: 20.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -91,7 +91,7 @@ class _UserDashboardState extends State<UserDashboard> {
                             snapshot.data != null
                                 ? snapshot.data![0].toUpperCase()
                                 : "?",
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 30,
                               color: Colors.black,
                             ),
@@ -100,10 +100,10 @@ class _UserDashboardState extends State<UserDashboard> {
                       ),
                       Text(
                         snapshot.data ?? "Loading...",
-                        style: TextStyle(color: Colors.white, fontSize: 20),
+                        style: const TextStyle(color: Colors.white, fontSize: 20),
                       ),
                       Text(
-                        firebaseAuth.currentUser!.email ?? "No email",
+                        firebaseAuth.currentUser?.email ?? "No email",
                         style: TextStyle(
                           color: Colors.grey[200],
                           fontSize: 14,
@@ -115,7 +115,7 @@ class _UserDashboardState extends State<UserDashboard> {
               },
             ),
             ListTile(
-              leading: Icon(
+              leading: const Icon(
                 Icons.login_rounded,
                 color: kAppBarColor,
               ),
@@ -124,12 +124,12 @@ class _UserDashboardState extends State<UserDashboard> {
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
                     builder: (context) {
-                      return SignInScreen();
+                      return const SignInScreen();
                     },
                   ),
                 );
               },
-              title: Text(
+              title: const Text(
                 'Logout',
                 style: TextStyle(
                   color: CupertinoColors.black,

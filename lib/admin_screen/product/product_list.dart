@@ -76,11 +76,11 @@ class _ProductListState extends State<ProductList> {
             ),
           );
         },
+        backgroundColor: kAppBarColor,
         child: const Icon(
           CupertinoIcons.add,
           color: CupertinoColors.white,
         ),
-        backgroundColor: kAppBarColor,
       ),
     );
   }

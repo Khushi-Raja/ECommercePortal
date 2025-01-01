@@ -71,11 +71,11 @@ class _CategoryListState extends State<CategoryList> {
             ),
           );
         },
+        backgroundColor: kAppBarColor,
         child: const Icon(
           CupertinoIcons.add,
           color: CupertinoColors.white,
         ),
-        backgroundColor: kAppBarColor,
       ),
     );
   }

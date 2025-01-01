@@ -46,11 +46,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        iconTheme: IconThemeData(
+        iconTheme: const IconThemeData(
           color: CupertinoColors.white,
         ),
         backgroundColor: kAppBarColor,
-        title: Text(
+        title: const Text(
           'Admin Dashboard',
           style: TextStyle(
             fontSize: 20,
@@ -64,7 +64,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
+              return const Center(
                 child: CustomCupertinoActivityIndicator(),
               );
             }
@@ -73,7 +73,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 'Logged in as ${snapshot.data!.email}',
               );
             }
-            return Text(
+            return const Text(
               'Not logged in',
             );
           },
@@ -81,13 +81,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
       ),
       drawer: Drawer(
         child: ListView(
-          padding: EdgeInsets.all(0),
+          padding: const EdgeInsets.all(0),
           children: [
             FutureBuilder(
               future: getUserDisplayName(),
               builder: (context, AsyncSnapshot<String> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return DrawerHeader(
+                  return const DrawerHeader(
                     child: Center(
                       child: CustomCupertinoActivityIndicator(),
                     ),
@@ -104,7 +104,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   color: kAppBarColor,
                   width: double.infinity,
                   height: 200,
-                  padding: EdgeInsets.only(top: 20.0),
+                  padding: const EdgeInsets.only(top: 20.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -117,7 +117,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             snapshot.data != null
                                 ? snapshot.data![0].toUpperCase()
                                 : "?",
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 30,
                               color: Colors.black,
                             ),
@@ -126,7 +126,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       ),
                       Text(
                         snapshot.data ?? "Loading...",
-                        style: TextStyle(color: Colors.white, fontSize: 20),
+                        style: const TextStyle(color: Colors.white, fontSize: 20),
                       ),
                       Text(
                         firebaseAuth.currentUser?.email ?? "No email",
@@ -141,7 +141,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               },
             ),
             ListTile(
-              leading: Icon(
+              leading: const Icon(
                 Icons.ac_unit,
                 color: kAppBarColor,
               ),
@@ -150,12 +150,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) {
-                      return CategoryList();
+                      return const CategoryList();
                     },
                   ),
                 );
               },
-              title: Text(
+              title: const Text(
                 'Category',
                 style: TextStyle(
                   color: CupertinoColors.black,
@@ -164,7 +164,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
 
             ListTile(
-              leading: Icon(
+              leading: const Icon(
                 Icons.ac_unit,
                 color: kAppBarColor,
               ),
@@ -173,12 +173,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) {
-                      return ProductList();
+                      return const ProductList();
                     },
                   ),
                 );
               },
-              title: Text(
+              title: const Text(
                 'Product',
                 style: TextStyle(
                   color: CupertinoColors.black,
@@ -187,7 +187,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
 
             ListTile(
-              leading: Icon(
+              leading: const Icon(
                 Icons.login_rounded,
                 color: kAppBarColor,
               ),
@@ -196,12 +196,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
                     builder: (context) {
-                      return SignInScreen();
+                      return const SignInScreen();
                     },
                   ),
                 );
               },
-              title: Text(
+              title: const Text(
                 'Logout',
                 style: TextStyle(
                   color: CupertinoColors.black,

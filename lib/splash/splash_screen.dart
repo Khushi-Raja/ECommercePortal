@@ -2,10 +2,6 @@ import 'dart:async';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:link/auth/signin_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import '../screens/admin/admin_dashboard.dart';
-import '../screens/user/user_dashboard.dart';
 
 class Splash extends StatefulWidget {
   Splash({super.key});
@@ -18,8 +14,7 @@ class _SplashState extends State<Splash> {
   @override
   void initState() {
     super.initState();
-    checkLoginState();
-    // initializeFirstLaunch();
+    initializeFirstLaunch();
   }
 
   @override
@@ -30,7 +25,7 @@ class _SplashState extends State<Splash> {
         child: Container(
           width: double.infinity,
           height: MediaQuery.of(context).size.height,
-          padding: EdgeInsets.symmetric(
+          padding: const EdgeInsets.symmetric(
             horizontal: 30,
             vertical: 50,
           ),
@@ -41,10 +36,10 @@ class _SplashState extends State<Splash> {
               Column(
                 children: <Widget>[
                   FadeInUp(
-                    duration: Duration(
+                    duration: const Duration(
                       milliseconds: 1000,
                     ),
-                    child: Text(
+                    child: const Text(
                       "Welcome",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -52,11 +47,9 @@ class _SplashState extends State<Splash> {
                       ),
                     ),
                   ),
-                  SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 20),
                   FadeInUp(
-                    duration: Duration(
+                    duration: const Duration(
                       milliseconds: 1200,
                     ),
                     child: Text(
@@ -68,9 +61,7 @@ class _SplashState extends State<Splash> {
                       ),
                     ),
                   ),
-                  SizedBox(
-                    height: 100,
-                  ),
+                  const SizedBox(height: 100),
                 ],
               ),
             ],
@@ -80,48 +71,18 @@ class _SplashState extends State<Splash> {
     );
   }
 
-  // void initializeFirstLaunch() {
-  //   Timer(
-  //     Duration(seconds: 5),
-  //     () {
-  //       Navigator.of(context).pushReplacement(
-  //         MaterialPageRoute(
-  //           builder: (context) {
-  //             return SignInScreen();
-  //           },
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
-
-
-  Future<void> checkLoginState() async {
-    // Wait for the splash screen animation to complete
-    await Future.delayed(const Duration(seconds: 5));
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-    String? role = prefs.getString('role');
-
-    // Navigate based on login state
-    if (isLoggedIn) {
-      if (role == "admin") {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => AdminDashboard()),
+  void initializeFirstLaunch() {
+    Timer(
+      Duration(seconds: 5),
+      () {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) {
+              return SignInScreen();
+            },
+          ),
         );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => UserDashboard()),
-        );
-      }
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => SignInScreen()),
-      );
-    }
+      },
+    );
   }
 }

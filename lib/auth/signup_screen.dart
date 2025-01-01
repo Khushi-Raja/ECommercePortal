@@ -56,11 +56,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
         'createdAt': getFormattedDateTime()
       });
 
-      // Save login state in SharedPreferences
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('isLoggedIn', true);
-      await prefs.setString('role', 'user');
-
       SnackBarUtil.show(
           context: context, message: "Account created successfully!");
       Navigator.pop(context); // Navigate back to Sign In
@@ -88,15 +83,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
         key: formSignUpKey,
         child: Column(
           children: <Widget>[
-            Text(
+            const Text(
               "Sign Up",
               style: TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 20),
-            Text(
+            const SizedBox(height: 20),
+            const Text(
               "Create a new account",
               style: TextStyle(
                 fontSize: 15,

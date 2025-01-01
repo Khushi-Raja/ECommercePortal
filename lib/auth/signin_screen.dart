@@ -1,4 +1,4 @@
-import 'dart:convert';
+// import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,7 +9,6 @@ import 'package:link/components/custom_snackbar.dart';
 import 'package:link/components/custom_textfiled.dart';
 import 'package:link/screens/admin/admin_dashboard.dart';
 import 'package:link/screens/user/user_dashboard.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -78,11 +77,6 @@ class _SignInScreenState extends State<SignInScreen> {
             docSnapshot.data() as Map<String, dynamic>;
 
         final role = docSnapshot.get('role');
-
-        // Save login state in SharedPreferences
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('isLoggedIn', true);
-        await prefs.setString('role', role);
 
         Navigator.pushAndRemoveUntil(
           context,
@@ -172,15 +166,15 @@ class _SignInScreenState extends State<SignInScreen> {
         key: formSignInKey,
         child: Column(
           children: <Widget>[
-            Text(
+            const Text(
               "Login",
               style: TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 20),
-            Text(
+            const SizedBox(height: 20),
+            const Text(
               "Login to your account",
               style: TextStyle(
                 fontSize: 15,

@@ -222,11 +222,11 @@ class _AddProductState extends State<AddProduct> {
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                           borderSide:
-                              BorderSide(color: CupertinoColors.activeBlue),
+                          const BorderSide(color: CupertinoColors.activeBlue),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: CupertinoColors.activeGreen),
+                          borderSide: const BorderSide(color: CupertinoColors.activeGreen),
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
