@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:link/auth/signin_screen.dart';
 import 'package:link/components/custom_circular_progress_indicator.dart';
 import 'package:link/constants/color.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserDashboard extends StatefulWidget {
   UserDashboard({Key? key});
@@ -121,6 +122,8 @@ class _UserDashboardState extends State<UserDashboard> {
               ),
               onTap: () async {
                 await FirebaseAuth.instance.signOut();
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                await prefs.clear();
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
                     builder: (context) {

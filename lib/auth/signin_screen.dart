@@ -9,6 +9,7 @@ import 'package:link/components/custom_snackbar.dart';
 import 'package:link/components/custom_textfiled.dart';
 import 'package:link/screens/admin/admin_dashboard.dart';
 import 'package:link/screens/user/user_dashboard.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -30,6 +31,7 @@ class _SignInScreenState extends State<SignInScreen> {
   void initState() {
     super.initState();
     _isMounted = true;
+    checkLoginStatus();
   }
 
   @override
@@ -39,6 +41,29 @@ class _SignInScreenState extends State<SignInScreen> {
     forgetEmailController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    final userRole = prefs.getString('userRole') ?? '';
+
+    if (isLoggedIn) {
+      // Redirect to the appropriate dashboard
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+          userRole == "admin" ? AdminDashboard() : UserDashboard(),
+        ),
+      );
+    }
+  }
+
+  Future<void> saveLoginState(String role) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLoggedIn', true);
+    await prefs.setString('userRole', role);
   }
 
   Future<void> resetPassword(String email) async {
@@ -77,6 +102,9 @@ class _SignInScreenState extends State<SignInScreen> {
             docSnapshot.data() as Map<String, dynamic>;
 
         final role = docSnapshot.get('role');
+
+        // Save login state and role
+        await saveLoginState(role);
 
         Navigator.pushAndRemoveUntil(
           context,

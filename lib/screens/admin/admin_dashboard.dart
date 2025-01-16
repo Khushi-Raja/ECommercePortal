@@ -30,10 +30,29 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   Future<void> fetchUserData() async {
-    // Check if user data is already cached
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? cachedName = prefs.getString('displayName');
     String? cachedEmail = prefs.getString('userEmail');
+
+    if (cachedName == null || cachedEmail == null) {
+      // Fetch from Firestore if not cached
+      User? user = firebaseAuth.currentUser;
+      if (user != null) {
+        DocumentSnapshot<Map<String, dynamic>> snapshot =
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(user.uid)
+                .get();
+        if (snapshot.exists) {
+          cachedName = snapshot.data()?['name'] ?? "User";
+          cachedEmail = user.email;
+
+          // Cache the fetched data
+          await prefs.setString('displayName', cachedName!);
+          await prefs.setString('userEmail', cachedEmail!);
+        }
+      }
+    }
 
     setState(() {
       displayName = cachedName;
@@ -59,26 +78,28 @@ class _AdminDashboardState extends State<AdminDashboard> {
           ),
         ),
       ),
-      body: Center(
-        child: StreamBuilder<User?>(
-          stream: FirebaseAuth.instance.authStateChanges(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CustomCupertinoActivityIndicator(),
-              );
-            }
-            if (snapshot.hasData && snapshot.data != null) {
-              return Text(
-                'Logged in as ${snapshot.data!.email}',
-              );
-            }
-            return const Text(
-              'Not logged in',
-            );
-          },
-        ),
-      ),
+      body: isLoading
+          ? const Center(child: CustomCupertinoActivityIndicator())
+          : Center(
+              child: StreamBuilder<User?>(
+                stream: FirebaseAuth.instance.authStateChanges(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CustomCupertinoActivityIndicator(),
+                    );
+                  }
+                  if (snapshot.hasData && snapshot.data != null) {
+                    return Text(
+                      'Logged in as ${snapshot.data!.email}',
+                    );
+                  }
+                  return const Text(
+                    'Not logged in',
+                  );
+                },
+              ),
+            ),
       drawer: Drawer(
         child: ListView(
           padding: const EdgeInsets.all(0),
@@ -126,7 +147,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       ),
                       Text(
                         snapshot.data ?? "Loading...",
-                        style: const TextStyle(color: Colors.white, fontSize: 20),
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 20),
                       ),
                       Text(
                         firebaseAuth.currentUser?.email ?? "No email",
@@ -162,7 +184,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 ),
               ),
             ),
-
             ListTile(
               leading: const Icon(
                 Icons.ac_unit,
@@ -185,7 +206,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 ),
               ),
             ),
-
             ListTile(
               leading: const Icon(
                 Icons.login_rounded,
@@ -193,6 +213,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
               ),
               onTap: () async {
                 await FirebaseAuth.instance.signOut();
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                await prefs.clear();
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
                     builder: (context) {

@@ -7,7 +7,6 @@ import 'package:link/components/custom_snackbar.dart';
 import 'package:link/components/custom_textfiled.dart';
 import 'package:link/components/dateFormat.dart';
 import 'package:link/constants/generate_id.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
