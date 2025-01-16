@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:link/auth/signin_screen.dart';
 import 'package:link/components/custom_button.dart';
 import 'package:link/components/custom_snackbar.dart';
 import 'package:link/components/custom_textfiled.dart';
@@ -81,22 +82,24 @@ class _SignUpScreenState extends State<SignUpScreen> {
       body: Form(
         key: formSignUpKey,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
+            Image.asset("images/ecommerce1.webp", height: 150,width: 150,),
             const Text(
-              "Sign Up",
+              "Get On Board,",
               style: TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 20),
             const Text(
-              "Create a new account",
+              "Create account to start your journey with us!",
               style: TextStyle(
                 fontSize: 15,
                 color: Colors.grey,
               ),
             ),
+            const SizedBox(height: 20),
             Column(
               children: <Widget>[
                 CustomTextFormField(
@@ -107,6 +110,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ? "Name is required"
                       : null,
                   keyboardType: TextInputType.text,
+                  prefixIcon: const Icon(Icons.person),
                 ),
                 CustomTextFormField(
                   labelText: "Email",
@@ -116,6 +120,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ? "Email is required"
                       : null,
                   keyboardType: TextInputType.text,
+                  prefixIcon: const Icon(Icons.email),
                 ),
                 CustomTextFormField(
                   labelText: "Password",
@@ -127,14 +132,50 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ? "Password must be at least 6 characters"
                           : null,
                   keyboardType: TextInputType.text,
+                  prefixIcon: const Icon(Icons.key),
                 ),
               ],
             ),
+            const SizedBox(height: 20),
             CustomButton(
               onPressed: registerUser,
               backgroundColor: CupertinoColors.black,
               textColor: CupertinoColors.white,
               buttonName: "Sign Up",
+            ),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SignInScreen(),
+                  ),
+                );
+              },
+              style: ButtonStyle(
+                overlayColor: MaterialStateProperty.resolveWith<Color?>((states) => Colors.transparent),
+                splashFactory: NoSplash.splashFactory,
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Already have an account? ",
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  Text(
+                    "Sign In",
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.blue,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

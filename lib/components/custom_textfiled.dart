@@ -36,7 +36,7 @@ class CustomTextFormField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10),
       child: TextFormField(
         enabled: enabled,
         // Whether the field is enabled or disabled
@@ -65,19 +65,27 @@ class CustomTextFormField extends StatelessWidget {
         cursorWidth: 2,
         // Custom cursor width
         decoration: InputDecoration(
-          border: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(10), // Rounded border for the input field
+            border: const OutlineInputBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(10), // Rounded border for the input field
+              ),
             ),
-          ),
-          labelText: labelText, // Label text displayed inside the input field
-          labelStyle: const TextStyle(
-            color: Colors.black, // Label text color
-            fontSize: 15, // Label text font size
-            fontWeight: FontWeight.bold, // Label text boldness
-          ),
-          prefixIcon: prefixIcon, // Optional prefix icon
-        ),
+            focusedBorder: const OutlineInputBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(10),
+              ),
+              borderSide: BorderSide(color: Colors.black),
+            ),
+            labelText: labelText,
+            // Label text displayed inside the input field
+            labelStyle: const TextStyle(
+              color: Colors.grey, // Label text color
+              fontSize: 15, // Label text font size
+              fontWeight: FontWeight.w600, // Label text boldness
+            ),
+            prefixIcon: prefixIcon,
+            // Optional prefix icon
+            prefixIconColor: Colors.grey),
       ),
     );
   }

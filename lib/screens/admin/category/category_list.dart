@@ -80,6 +80,8 @@ class _CategoryListState extends State<CategoryList> {
     );
   }
 
+
+
   Widget buildCard(BuildContext context, DocumentSnapshot document,
       Map<String, dynamic> data) {
     return Card(

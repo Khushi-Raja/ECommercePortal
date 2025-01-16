@@ -24,7 +24,7 @@ class CustomButton extends StatelessWidget {
         width: double.infinity, // Full width to stretch across available space
         decoration: BoxDecoration(
           color: backgroundColor, // Set the background color of the button
-          borderRadius: BorderRadius.circular(0), // No border radius for a rectangular button
+          borderRadius: BorderRadius.circular(10), // No border radius for a rectangular button
         ),
         child: TextButton(
           style: ButtonStyle(
