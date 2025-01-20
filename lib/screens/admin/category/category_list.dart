@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:link/constants/color.dart';
 import 'package:link/screens/admin/category/add_category.dart';
 
+import '../../../components/custom_circular_progress_indicator.dart';
+import '../../../components/custom_confirmation_popup.dart';
+
 class CategoryList extends StatefulWidget {
   const CategoryList({super.key});
 
@@ -36,7 +39,7 @@ class _CategoryListState extends State<CategoryList> {
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CustomCupertinoActivityIndicator());
           }
 
           List<DocumentSnapshot> categoryDocs = snapshot.data!.docs;
@@ -120,10 +123,28 @@ class _CategoryListState extends State<CategoryList> {
                         ),
                       );
                     } else if (value == 'Delete') {
-                      FirebaseFirestore.instance
-                          .collection('category')
-                          .doc(document.id)
-                          .delete();
+                      ConfirmationPopup.show(
+                        context: context,
+                        title: 'Delete Confirmation',
+                        content: 'Are you sure you want to delete this category?',
+                        yesFunction: () {
+                          FirebaseFirestore.instance
+                              .collection('category')
+                              .doc(document.id)
+                              .delete()
+                              .then((_) {
+                            Navigator.pop(context, true); // Close the dialog
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Category deleted successfully!')),
+                            );
+                          }).catchError((error) {
+                            Navigator.pop(context, false); // Close the dialog
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Error deleting category: $error')),
+                            );
+                          });
+                        },
+                      );
                     }
                   },
                   itemBuilder: (BuildContext context) {
@@ -181,4 +202,5 @@ class _CategoryListState extends State<CategoryList> {
       ),
     );
   }
+
 }

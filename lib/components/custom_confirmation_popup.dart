@@ -1,59 +1,54 @@
 import 'package:flutter/cupertino.dart';
 
+/// A utility class to show a confirmation popup using CupertinoAlertDialog.
 class ConfirmationPopup {
-  // A method to display a confirmation popup using CupertinoAlertDialog
   static Future<bool> show({
-    required BuildContext context, // BuildContext is required for showing the popup
-    required VoidCallback yesFunction, // Function to execute when "Yes" is clicked
-    required String title, // Title text for the popup
-    required String content, // Content or message text for the popup
+    required BuildContext context,
+    required VoidCallback yesFunction,
+    required String title,
+    required String content,
   }) async {
     return await showCupertinoModalPopup(
-      context: context, // The context is passed for modal rendering
+      context: context,
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
-          // The dynamic title for the confirmation dialog
           title: Text(
             title,
             style: const TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 15,
-              fontFamily: 'SF-Pro',
+              fontSize: 16,
             ),
           ),
-          // The dynamic content for the confirmation dialog
           content: Text(
             content,
             style: const TextStyle(
-              fontWeight: FontWeight.w500,
-              fontFamily: 'SF-Pro',
+              fontWeight: FontWeight.w400,
+              fontSize: 14,
             ),
           ),
-          // Actions for the popup
           actions: <CupertinoDialogAction>[
+            // "Yes" button
             CupertinoDialogAction(
               isDefaultAction: true,
-              onPressed: yesFunction, // Executes the provided yesFunction
+              onPressed: yesFunction,
               child: const Text(
-                "Yes",
+                "Yes, Delete",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: CupertinoColors.destructiveRed,
-                  fontFamily: 'SF-Pro',
                 ),
               ),
             ),
+            // "No" button
             CupertinoDialogAction(
-              isDestructiveAction: true,
               onPressed: () {
-                Navigator.pop(context, false); // Closes the dialog and returns false
+                Navigator.pop(context, false);
               },
               child: const Text(
                 "No",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: CupertinoColors.activeGreen,
-                  fontFamily: 'SF-Pro',
                 ),
               ),
             ),

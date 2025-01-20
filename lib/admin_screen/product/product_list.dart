@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:link/admin_screen/product/add_product.dart';
 import '../../components/custom_circular_progress_indicator.dart';
+import '../../components/custom_confirmation_popup.dart';
 import '../../constants/color.dart';
 
 class ProductList extends StatefulWidget {
@@ -43,7 +44,7 @@ class _ProductListState extends State<ProductList> {
             );
           }
 
-          // List fetched from Firestore, already sorted as per our query
+          // List fetched from FireStore, already sorted as per our query
           List<DocumentSnapshot> skillDocs = snapshot.data!.docs;
 
           return ListView.builder(
@@ -140,11 +141,30 @@ class _ProductListState extends State<ProductList> {
                           ),
                         ),
                       );
-                    } else if (value == 'Delete') {
-                      FirebaseFirestore.instance
-                          .collection('product')
-                          .doc(document.id)
-                          .delete();
+                    }
+                    else if (value == 'Delete') {
+                      ConfirmationPopup.show(
+                        context: context,
+                        title: 'Delete Confirmation',
+                        content: 'Are you sure you want to delete this product?',
+                        yesFunction: () {
+                          FirebaseFirestore.instance
+                              .collection('product')
+                              .doc(document.id)
+                              .delete()
+                              .then((_) {
+                            Navigator.pop(context, true); // Close the dialog
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Product deleted successfully!')),
+                            );
+                          }).catchError((error) {
+                            Navigator.pop(context, false); // Close the dialog
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Error deleting category: $error')),
+                            );
+                          });
+                        },
+                      );
                     }
                   },
                   itemBuilder: (BuildContext context) {
@@ -239,11 +259,11 @@ class _ProductListState extends State<ProductList> {
                       ),
                     const Spacer(),
                     Text(
-                      '₹ ${data['price']}',
+                      '₹${data['price']}',
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: Colors.grey,
+                        color: Colors.black,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
