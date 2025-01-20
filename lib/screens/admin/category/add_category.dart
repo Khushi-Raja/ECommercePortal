@@ -105,6 +105,7 @@ class _AddCategoryState extends State<AddCategory> {
                   }
                   return null;
                 },
+                maxLines: 5,
                 keyboardType: TextInputType.name,
                 labelText: 'Category Description',
                 obscureText: false,

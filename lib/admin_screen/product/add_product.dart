@@ -129,6 +129,7 @@ class _AddProductState extends State<AddProduct> {
                   }
                   return null;
                 },
+                maxLines: 5,
                 keyboardType: TextInputType.name,
                 labelText: 'Product Description',
                 obscureText: false,
@@ -409,46 +410,6 @@ class _AddProductState extends State<AddProduct> {
       throw ('Error updating product with bytes: $e');
     }
   }
-
-  // Future<List<Map<String, String>>> fetchDataFromCollection(String collectionName) async {
-  //   try {
-  //     final snapshot = await FirebaseFirestore.instance.collection(collectionName).get();
-  //
-  //     // Check if the collection is not empty
-  //     if (snapshot.docs.isNotEmpty) {
-  //       return snapshot.docs.map((doc) {
-  //         return {
-  //           'id': doc.id,
-  //           'name': doc['categoryName'].toString(), // Replace 'categoryName' with the field you're targeting
-  //         };
-  //       }).toList();
-  //     } else {
-  //       return [];
-  //     }
-  //   } catch (e) {
-  //     print("Error fetching data from $collectionName: $e");
-  //     return [];
-  //   }
-  // }
-  //
-  // Future<void> fetchCategories() async {
-  //   setState(() {
-  //     isLoading = true;
-  //   });
-  //   try {
-  //     // Fetch data from the 'category' collection
-  //     final categoriesData = await fetchDataFromCollection('category');
-  //     setState(() {
-  //       categories = categoriesData;
-  //       isLoading = false;
-  //     });
-  //   } catch (e) {
-  //     print("Error fetching categories: $e");
-  //     setState(() {
-  //       isLoading = false;
-  //     });
-  //   }
-  // }
 
   Future<void> fetchCategories() async {
     try {

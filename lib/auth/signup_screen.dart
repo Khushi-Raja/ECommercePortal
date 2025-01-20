@@ -84,7 +84,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Image.asset("images/ecommerce1.webp", height: 150,width: 150,),
+            Image.asset("assets/images/ecommerce1.webp", height: 150,width: 150,),
             const Text(
               "Get On Board,",
               style: TextStyle(
