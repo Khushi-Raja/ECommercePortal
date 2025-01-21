@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:link/components/custom_textfiled.dart';
 import '../../components/custom_circular_progress_indicator.dart';
 import '../../constants/color.dart';
 
@@ -12,6 +13,9 @@ class UserProductList extends StatefulWidget {
 }
 
 class _UserProductListState extends State<UserProductList> {
+  TextEditingController searchController = TextEditingController();
+  String searchQuery = "";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,37 +35,66 @@ class _UserProductListState extends State<UserProductList> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('product')
-              .orderBy('productName')
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const Center(
-                child: CustomCupertinoActivityIndicator(),
-              );
-            }
-
-            List<DocumentSnapshot> skillDocs = snapshot.data!.docs;
-
-            return GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.75
-              ),
-              itemCount: skillDocs.length,
-              itemBuilder: (context, index) {
-                DocumentSnapshot doc = skillDocs[index];
-                Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-                return buildCard(context, doc, data);
+        child: Column(
+          children: [
+            // Search Bar
+            CustomTextFormField(
+              controller: searchController,
+              obscureText: false,
+              keyboardType: TextInputType.name,
+              labelText: "Search Products",
+              onChanged: (value) {
+                setState(() {
+                  searchQuery = value.toLowerCase(); // Update the search query
+                });
               },
-            );
-          },
+              validator: (value) => null, // No validation for the search field
+            ),
+
+            // Grid View for Products
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('product')
+                    .orderBy('productName')
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Center(
+                      child: CustomCupertinoActivityIndicator(),
+                    );
+                  }
+
+                  // Filter the data based on the search query
+                  List<DocumentSnapshot> skillDocs = snapshot.data!.docs.where((doc) {
+                    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+                    return data['productName']
+                        .toString()
+                        .toLowerCase()
+                        .contains(searchQuery); // Match search query
+                  }).toList();
+
+                  return GridView.builder(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.75,
+                    ),
+                    itemCount: skillDocs.length,
+                    itemBuilder: (context, index) {
+                      DocumentSnapshot doc = skillDocs[index];
+                      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+                      return buildCard(context, doc, data);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
+
 
   Widget buildCard(BuildContext context, DocumentSnapshot document,
       Map<String, dynamic> data) {
@@ -82,6 +115,8 @@ class _UserProductListState extends State<UserProductList> {
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(12),
                     topRight: Radius.circular(12),
+                    bottomLeft: Radius.circular(12),
+                    bottomRight: Radius.circular(12),
                   ),
                   child: Image.network(
                     data['displayImage'],
@@ -143,13 +178,12 @@ class _UserProductListState extends State<UserProductList> {
                 Text(
                   data['code'],
                   style: const TextStyle(
-                    color: Colors.black,
+                    color: Colors.grey,
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
                   ),
                 ),
 
-                const SizedBox(height: 2),
                 // Price and Discount Row
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -114,7 +114,7 @@ class _ProductListState extends State<ProductList> {
                 top: 8,
                 right: 8,
                 child: PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert, color: Colors.grey),
+                  icon: Icon(Icons.more_vert, color: Colors.grey.shade900),
                   onSelected: (String value) {
                     if (value == 'Edit') {
                       String productID = data['productID'];
@@ -199,9 +199,9 @@ class _ProductListState extends State<ProductList> {
               children: [
                 Text(
                   data['productName'],
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
-                    color: Colors.grey,
+                    color: Colors.grey.shade900,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

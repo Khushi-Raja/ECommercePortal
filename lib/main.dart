@@ -11,8 +11,8 @@ void main() async {
   );
   runApp(
     MaterialApp(
-      home: Splash(),
-      // home: UserProductList(),
+      // home: Splash(),
+      home: UserProductList(),
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,

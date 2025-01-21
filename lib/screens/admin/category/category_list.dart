@@ -108,7 +108,7 @@ class _CategoryListState extends State<CategoryList> {
                 top: 8,
                 right: 8,
                 child: PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert, color: Colors.grey),
+                  icon: Icon(Icons.more_vert, color: Colors.grey.shade900),
                   onSelected: (String value) {
                     if (value == 'Edit') {
                       Navigator.push(
@@ -179,9 +179,9 @@ class _CategoryListState extends State<CategoryList> {
               children: [
                 Text(
                   data['categoryName'],
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
-                    color: Colors.grey,
+                    color: Colors.grey.shade900,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

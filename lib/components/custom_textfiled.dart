@@ -16,9 +16,10 @@ class CustomTextFormField extends StatelessWidget {
   final int? maxLength; // Max length for the input (optional)
   final int? maxLines; // Max lines allowed in the input field (optional)
   final String? initialValue; // Initial value for the input field (optional)
+  void Function(String)? onChanged;
 
   // Constructor to initialize the required parameters
-  const CustomTextFormField({
+  CustomTextFormField({
     super.key,
     required this.validator,
     required this.controller,
@@ -31,6 +32,7 @@ class CustomTextFormField extends StatelessWidget {
     this.maxLength,
     this.maxLines = 1, // Default is single line
     this.initialValue,
+    this.onChanged
   });
 
   @override
@@ -38,6 +40,7 @@ class CustomTextFormField extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10),
       child: TextFormField(
+        onChanged: onChanged,
         enabled: enabled,
         // Whether the field is enabled or disabled
         initialValue: initialValue,
