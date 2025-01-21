@@ -21,9 +21,7 @@ class _UserProductListState extends State<UserProductList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        iconTheme: const IconThemeData(
-          color: CupertinoColors.white,
-        ),
+        iconTheme: const IconThemeData(color: CupertinoColors.white),
         backgroundColor: kAppBarColor,
         title: const Text(
           'Products',
@@ -50,35 +48,16 @@ class _UserProductListState extends State<UserProductList> {
                     labelText: "Search Products",
                     onChanged: (value) {
                       setState(() {
-                        searchQuery = value.toLowerCase(); // Update the search query
+                        searchQuery = value.toLowerCase();
                       });
                     },
-                    validator: (value) => null, // No validation for the search field
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.shopping_cart_outlined,
-                    color: Colors.grey, // Lighter grey shade
+                    validator: (value) => null,
                   ),
                 ),
                 const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.notifications_none,
-                    color: Colors.grey, // Lighter grey shade
-                  ),
-                ),
+                _buildIcon(Icons.shopping_cart_outlined),
+                const SizedBox(width: 8),
+                _buildIcon(Icons.notifications_none),
               ],
             ),
 
@@ -97,24 +76,23 @@ class _UserProductListState extends State<UserProductList> {
                   }
 
                   // Filter the data based on the search query
-                  List<DocumentSnapshot> skillDocs = snapshot.data!.docs.where((doc) {
-                    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-                    return data['productName']
-                        .toString()
-                        .toLowerCase()
-                        .contains(searchQuery); // Match search query
-                  }).toList();
+                  List<DocumentSnapshot> filteredDocs = snapshot.data!.docs
+                      .where((doc) => (doc.data() as Map<String, dynamic>)['productName']
+                      .toString()
+                      .toLowerCase()
+                      .contains(searchQuery))
+                      .toList();
 
                   return GridView.builder(
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       childAspectRatio: 0.75,
                     ),
-                    itemCount: skillDocs.length,
+                    itemCount: filteredDocs.length,
                     itemBuilder: (context, index) {
-                      DocumentSnapshot doc = skillDocs[index];
-                      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-                      return buildCard(context, doc, data);
+                      final doc = filteredDocs[index];
+                      final data = doc.data() as Map<String, dynamic>;
+                      return ProductCard(data: data);
                     },
                   );
                 },
@@ -126,12 +104,45 @@ class _UserProductListState extends State<UserProductList> {
     );
   }
 
+  Widget _buildIcon(IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade200,
+        shape: BoxShape.circle,
+      ),
+      child: Icon(icon, color: Colors.grey),
+    );
+  }
+}
 
-  Widget buildCard(BuildContext context, DocumentSnapshot document,
-      Map<String, dynamic> data) {
+class ProductCard extends StatelessWidget {
+  final Map<String, dynamic> data;
+
+  const ProductCard({Key? key, required this.data}) : super(key: key);
+
+  Future<String> getCategoryName(String categoryID) async {
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('category')
+          .where('categoryID', isEqualTo: categoryID)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        final categoryData = querySnapshot.docs.first.data() as Map<String, dynamic>?;
+        return categoryData?["categoryName"] ?? "Unknown Category";
+      } else {
+        return "Unknown Category";
+      }
+    } catch (e) {
+      return "Error fetching category";
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Navigate to Product Details Page
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -148,7 +159,7 @@ class _UserProductListState extends State<UserProductList> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image Section with Greyish Background
+            // Image Section
             Flexible(
               child: Stack(
                 children: [
@@ -156,8 +167,6 @@ class _UserProductListState extends State<UserProductList> {
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(12),
                       topRight: Radius.circular(12),
-                      bottomLeft: Radius.circular(12),
-                      bottomRight: Radius.circular(12),
                     ),
                     child: Image.network(
                       data['displayImage'],
@@ -169,85 +178,64 @@ class _UserProductListState extends State<UserProductList> {
                   Positioned(
                     top: 8,
                     right: 8,
-                    child: GestureDetector(
-                      onTap: () {
-                        // Handle favorite toggle logic here
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.favorite,
-                          color: Colors.grey.shade300, // Lighter grey shade
-                        ),
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
                       ),
+                      child: const Icon(Icons.favorite_border, color: Colors.grey),
                     ),
                   ),
                 ],
               ),
             ),
-
-            // Text Section with Lighter Background
+            // Details Section
             Container(
-              decoration: const BoxDecoration(
-                color: Color(0xFFF5F5F5),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(12),
-                  bottomRight: Radius.circular(12),
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4), // Reduced padding
+              padding: const EdgeInsets.all(6),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Product Name
                   Text(
                     data['productName'],
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-
+                  FutureBuilder<String>(
+                    future: getCategoryName(data['categoryID']),
+                    builder: (context, snapshot) {
+                      return Text(
+                        snapshot.data ?? "Loading...",
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 4),
                   Text(
-                    data['code'],
+                    '₹${data['price']}',
                     style: const TextStyle(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w600,
                       fontSize: 14,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-
-                  // Price and Discount Row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '₹${data['price']}',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
-                        ),
+                  if (data['discount'] != null)
+                    Text(
+                      '${data['discount']}% OFF',
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
                       ),
-                      if (data['discount'] != null)
-                        Text(
-                          '${data['discount']}% OFF',
-                          style: const TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12,
-                          ),
-                        ),
-                    ],
-                  ),
+                    ),
                 ],
               ),
             ),
