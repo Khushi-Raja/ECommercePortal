@@ -104,7 +104,7 @@ class _ProductListState extends State<ProductList> {
                 ),
                 child: Image.network(
                   data['displayImage'],
-                  height: 150,
+                  height: 200,
                   width: double.infinity,
                   fit: BoxFit.cover,
                 ),

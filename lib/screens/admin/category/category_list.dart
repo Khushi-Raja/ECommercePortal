@@ -98,7 +98,7 @@ class _CategoryListState extends State<CategoryList> {
                 ),
                 child: Image.network(
                   data['categoryImage'],
-                  height: 150,
+                  height: 200,
                   width: double.infinity,
                   fit: BoxFit.cover,
                 ),
