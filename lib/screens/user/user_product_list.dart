@@ -38,17 +38,47 @@ class _UserProductListState extends State<UserProductList> {
         child: Column(
           children: [
             // Search Bar
-            CustomTextFormField(
-              controller: searchController,
-              obscureText: false,
-              keyboardType: TextInputType.name,
-              labelText: "Search Products",
-              onChanged: (value) {
-                setState(() {
-                  searchQuery = value.toLowerCase(); // Update the search query
-                });
-              },
-              validator: (value) => null, // No validation for the search field
+            Row(
+              children: [
+                Expanded(
+                  child: CustomTextFormField(
+                    controller: searchController,
+                    prefixIcon: const Icon(Icons.search),
+                    obscureText: false,
+                    keyboardType: TextInputType.name,
+                    labelText: "Search Products",
+                    onChanged: (value) {
+                      setState(() {
+                        searchQuery = value.toLowerCase(); // Update the search query
+                      });
+                    },
+                    validator: (value) => null, // No validation for the search field
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.shopping_cart_outlined,
+                    color: Colors.grey, // Lighter grey shade
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.notifications_none,
+                    color: Colors.grey, // Lighter grey shade
+                  ),
+                ),
+              ],
             ),
 
             // Grid View for Products
