@@ -192,7 +192,7 @@ class ProductCard extends StatelessWidget {
             ),
             // Details Section
             Container(
-              padding: const EdgeInsets.all(6),
+              padding: const EdgeInsets.all(8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -220,22 +220,28 @@ class ProductCard extends StatelessWidget {
                     },
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    '₹${data['price']}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  if (data['discount'] != null)
-                    Text(
-                      '${data['discount']}% OFF',
-                      style: const TextStyle(
-                        color: Colors.red,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '₹${data['price']}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
+                      if (data['discount'] != null)
+                        Text(
+                          '${data['discount']}% OFF',
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                    ],
+                  ),
+
                 ],
               ),
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 class ProductDetail extends StatelessWidget {
   final Map<String, dynamic> productData;
 
@@ -18,7 +19,7 @@ class ProductDetail extends StatelessWidget {
                 children: [
                   Image.network(
                     productData['displayImage'],
-                    height: 350,
+                    height: 300,
                     width: double.infinity,
                     fit: BoxFit.cover,
                   ),
@@ -31,19 +32,17 @@ class ProductDetail extends StatelessWidget {
                       },
                       child: const Icon(
                         Icons.arrow_back,
-                        color: Colors.grey,
+                        color: Colors.white,
                       ),
                     ),
                   ),
-
                   Positioned(
                     top: 10,
-                    right: 10,
+                    right: 15,
                     child: _buildIcon(Icons.favorite_outline_rounded),
                   ),
                 ],
               ),
-              const SizedBox(height: 50), // Spacer below the image
             ],
           ),
           // Curved detail card
@@ -51,7 +50,7 @@ class ProductDetail extends StatelessWidget {
             alignment: Alignment.bottomCenter,
             child: Container(
               width: double.infinity,
-              height: MediaQuery.of(context).size.height * 0.6,
+              height: MediaQuery.of(context).size.height * 0.61,
               decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
@@ -66,43 +65,60 @@ class ProductDetail extends StatelessWidget {
                   ),
                 ],
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               child: Column(
-                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 10),
                   Text(
                     productData['productName'],
                     style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        // fontWeight: FontWeight.w600,
+                        color: Colors.grey),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'No Ratings',
+                    style: TextStyle(
+                      fontSize: 14,
                     ),
                   ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Text(
+                        '₹${productData['price']}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      if (productData['discount'] != null)
+                        Text(
+                          '  ${productData['discount']}% OFF',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.red,
+                          ),
+                        ),
+                    ],
+                  ),
                   const SizedBox(height: 10),
-                  Text(
-                    productData['description'] ?? 'No description available',
-                    style: const TextStyle(
+                  const Text(
+                    'Description',
+                    style: TextStyle(
                       fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    productData['description'],
+                    style: const TextStyle(
+                      fontSize: 14,
                       color: Colors.grey,
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Price: ₹${productData['price']}',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
-                    ),
-                  ),
-                  if (productData['discount'] != null)
-                    Text(
-                      'Discount: ${productData['discount']}%',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.red,
-                      ),
-                    ),
                 ],
               ),
             ),
