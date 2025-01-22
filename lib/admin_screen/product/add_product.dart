@@ -91,24 +91,34 @@ class _AddProductState extends State<AddProduct> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              const SizedBox(height: 10),
               GestureDetector(
                 onTap: pickImage,
-                child: CircleAvatar(
-                  radius: 50,
-                  backgroundImage: _imageBytes != null
-                      ? MemoryImage(_imageBytes!)
-                      : imageFile != null
+                child: Container(
+                  width: 150, // Width of the square box
+                  height: 150, // Height of the square box
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15), // Rounded corners
+                    border: Border.all(color: Colors.grey.shade400, width: 2), // Border style
+                    image: _imageBytes != null || imageFile != null || widget.productID.isNotEmpty
+                        ? DecorationImage(
+                      image: _imageBytes != null
+                          ? MemoryImage(_imageBytes!)
+                          : imageFile != null
                           ? FileImage(imageFile!)
-                          : widget.productID.isNotEmpty
-                              ? NetworkImage(widget.displayImage)
-                              : null,
-                  child: _imageBytes == null &&
-                          imageFile == null &&
-                          widget.productID.isEmpty
-                      ? const Icon(Icons.add_a_photo, size: 30)
+                          : NetworkImage(widget.displayImage) as ImageProvider,
+                      fit: BoxFit.cover, // Fill the box with the image
+                    )
+                        : null,
+                  ),
+                  child: (_imageBytes == null && imageFile == null && widget.productID.isEmpty)
+                      ? const Center(
+                    child: Icon(Icons.camera_alt, color: Colors.grey)
+                  )
                       : null,
                 ),
               ),
+              const SizedBox(height: 10),
               CustomTextFormField(
                 controller: productNameController,
                 validator: (value) {
@@ -236,17 +246,14 @@ class _AddProductState extends State<AddProduct> {
                 },
               ),
 
-              const SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.all(15),
-                child: CustomButton(
-                  buttonName: widget.productName.isNotEmpty
-                      ? 'Update Category'
-                      : 'Add Category',
-                  onPressed: submit,
-                  backgroundColor: CupertinoColors.black,
-                  textColor: CupertinoColors.white,
-                ),
+              const SizedBox(height: 5),
+              CustomButton(
+                buttonName: widget.productName.isNotEmpty
+                    ? 'Update Category'
+                    : 'Add Category',
+                onPressed: submit,
+                backgroundColor: CupertinoColors.black,
+                textColor: CupertinoColors.white,
               ),
             ],
           ),

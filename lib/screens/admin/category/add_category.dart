@@ -67,24 +67,34 @@ class _AddCategoryState extends State<AddCategory> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              const SizedBox(height: 10),
               GestureDetector(
                 onTap: pickImage,
-                child: CircleAvatar(
-                  radius: 50,
-                  backgroundImage: _imageBytes != null
-                      ? MemoryImage(_imageBytes!)
-                      : imageFile != null
+                child: Container(
+                  width: 150,
+                  height: 150,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15), // Rounded corners
+                    border: Border.all(color: Colors.grey.shade400, width: 2), // Border style
+                    image: _imageBytes != null || imageFile != null || widget.categoryID.isNotEmpty
+                        ? DecorationImage(
+                      image: _imageBytes != null
+                          ? MemoryImage(_imageBytes!)
+                          : imageFile != null
                           ? FileImage(imageFile!)
-                          : widget.categoryID.isNotEmpty
-                              ? NetworkImage(widget.categoryImage)
-                              : null,
-                  child: _imageBytes == null &&
-                          imageFile == null &&
-                          widget.categoryID.isEmpty
-                      ? const Icon(Icons.add_a_photo, size: 30)
+                          : NetworkImage(widget.categoryImage) as ImageProvider,
+                      fit: BoxFit.cover, // Fill the box with the image
+                    )
+                        : null,
+                  ),
+                  child: (_imageBytes == null && imageFile == null && widget.categoryID.isEmpty)
+                      ? const Center(
+                    child: Icon(Icons.camera_alt, color: Colors.grey)
+                  )
                       : null,
                 ),
               ),
+              const SizedBox(height: 10),
               CustomTextFormField(
                 controller: categoryNameController,
                 validator: (value) {
@@ -110,17 +120,14 @@ class _AddCategoryState extends State<AddCategory> {
                 labelText: 'Category Description',
                 obscureText: false,
               ),
-              const SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.all(15),
-                child: CustomButton(
-                  buttonName: widget.categoryName.isNotEmpty
-                      ? 'Update Category'
-                      : 'Add Category',
-                  onPressed: submit,
-                  backgroundColor: CupertinoColors.black,
-                  textColor: CupertinoColors.white,
-                ),
+              const SizedBox(height: 5),
+              CustomButton(
+                buttonName: widget.categoryName.isNotEmpty
+                    ? 'Update Category'
+                    : 'Add Category',
+                onPressed: submit,
+                backgroundColor: CupertinoColors.black,
+                textColor: CupertinoColors.white,
               ),
             ],
           ),
