@@ -66,60 +66,62 @@ class ProductDetail extends StatelessWidget {
                 ],
               ),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 10),
-                  Text(
-                    productData['productName'],
-                    style: const TextStyle(
-                        fontSize: 18,
-                        // fontWeight: FontWeight.w600,
-                        color: Colors.grey),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'No Ratings',
-                    style: TextStyle(
-                      fontSize: 14,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 10),
+                    Text(
+                      productData['productName'],
+                      style: const TextStyle(
+                          fontSize: 18,
+                          // fontWeight: FontWeight.w600,
+                          color: Colors.grey),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Text(
-                        '₹${productData['price']}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'No Ratings',
+                      style: TextStyle(
+                        fontSize: 14,
                       ),
-                      if (productData['discount'] != null)
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
                         Text(
-                          '  ${productData['discount']}% OFF',
+                          '₹${productData['price']}',
                           style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.red,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Description',
-                    style: TextStyle(
-                      fontSize: 16,
+                        if (productData['discount'] != null)
+                          Text(
+                            '  ${productData['discount']}% OFF',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.red,
+                            ),
+                          ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    productData['description'],
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
+                    const SizedBox(height: 10),
+                    const Text(
+                      'Description',
+                      style: TextStyle(
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 4),
+                    Text(
+                      productData['description'],
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
