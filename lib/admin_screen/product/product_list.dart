@@ -14,6 +14,25 @@ class ProductList extends StatefulWidget {
 }
 
 class _ProductListState extends State<ProductList> {
+
+  Future<String> getCategoryName(String categoryID) async {
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('category')
+          .where('categoryID', isEqualTo: categoryID)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        final categoryData = querySnapshot.docs.first.data() as Map<String, dynamic>?;
+        return categoryData?["categoryName"] ?? "Unknown Category";
+      } else {
+        return "Unknown Category";
+      }
+    } catch (e) {
+      return "Error fetching category";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -204,6 +223,20 @@ class _ProductListState extends State<ProductList> {
                     color: Colors.grey.shade900,
                     fontWeight: FontWeight.bold,
                   ),
+                ),
+                const SizedBox(height: 4),
+                FutureBuilder<String>(
+                  future: getCategoryName(data['categoryID']),
+                  builder: (context, snapshot) {
+                    return Text(
+                      snapshot.data ?? "Loading...",
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 4),
                 if (data['description'] != null)
