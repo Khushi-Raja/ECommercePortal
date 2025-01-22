@@ -115,6 +115,7 @@ class ProductDetail extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       productData['description'],
+                      textAlign: TextAlign.justify,
                       style: const TextStyle(
                         fontSize: 14,
                         color: Colors.grey,

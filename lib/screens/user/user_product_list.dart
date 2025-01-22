@@ -45,7 +45,7 @@ class _UserProductListState extends State<UserProductList> {
                     prefixIcon: const Icon(Icons.search),
                     obscureText: false,
                     keyboardType: TextInputType.name,
-                    labelText: "Search Products",
+                    labelText: "Search Products or Categories",
                     onChanged: (value) {
                       setState(() {
                         searchQuery = value.toLowerCase();
@@ -75,24 +75,46 @@ class _UserProductListState extends State<UserProductList> {
                     );
                   }
 
-                  // Filter the data based on the search query
-                  List<DocumentSnapshot> filteredDocs = snapshot.data!.docs
-                      .where((doc) => (doc.data() as Map<String, dynamic>)['productName']
-                      .toString()
-                      .toLowerCase()
-                      .contains(searchQuery))
-                      .toList();
+                  final allDocs = snapshot.data!.docs;
+                  List<DocumentSnapshot> filteredDocs = [];
 
-                  return GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.75,
-                    ),
-                    itemCount: filteredDocs.length,
-                    itemBuilder: (context, index) {
-                      final doc = filteredDocs[index];
-                      final data = doc.data() as Map<String, dynamic>;
-                      return ProductCard(data: data);
+                  return FutureBuilder<List<DocumentSnapshot>>(
+                    future: _filterProducts(allDocs),
+                    builder: (context, filterSnapshot) {
+                      if (!filterSnapshot.hasData) {
+                        return const Center(
+                          child: CustomCupertinoActivityIndicator(),
+                        );
+                      }
+
+                      filteredDocs = filterSnapshot.data!;
+                      return GridView.builder(
+                        gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.75,
+                        ),
+                        itemCount: filteredDocs.length,
+                        itemBuilder: (context, index) {
+                          final doc = filteredDocs[index];
+                          final data = doc.data() as Map<String, dynamic>;
+
+                          return FutureBuilder<String>(
+                            future: getCategoryName(data['categoryID']),
+                            builder: (context, categorySnapshot) {
+                              if (!categorySnapshot.hasData) {
+                                return const CustomCupertinoActivityIndicator();
+                              }
+
+                              final categoryName = categorySnapshot.data!;
+                              return ProductCard(
+                                data: data,
+                                categoryName: categoryName,
+                              );
+                            },
+                          );
+                        },
+                      );
                     },
                   );
                 },
@@ -102,6 +124,46 @@ class _UserProductListState extends State<UserProductList> {
         ),
       ),
     );
+  }
+
+  /// Filters products based on search query
+  Future<List<DocumentSnapshot>> _filterProducts(
+      List<DocumentSnapshot> allDocs) async {
+    List<DocumentSnapshot> filteredDocs = [];
+
+    for (var doc in allDocs) {
+      final data = doc.data() as Map<String, dynamic>;
+      final categoryName = await getCategoryName(data['categoryID']);
+
+      if (data['productName']
+          .toString()
+          .toLowerCase()
+          .contains(searchQuery) ||
+          categoryName.toLowerCase().contains(searchQuery)) {
+        filteredDocs.add(doc);
+      }
+    }
+
+    return filteredDocs;
+  }
+
+  /// Fetches category name based on categoryID
+  Future<String> getCategoryName(String categoryID) async {
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('category')
+          .where('categoryID', isEqualTo: categoryID)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        final categoryData = querySnapshot.docs.first.data() as Map<String, dynamic>?;
+        return categoryData?['categoryName'] ?? "Unknown Category";
+      } else {
+        return "Unknown Category";
+      }
+    } catch (e) {
+      return "Error fetching category";
+    }
   }
 
   Widget _buildIcon(IconData icon) {
@@ -118,26 +180,10 @@ class _UserProductListState extends State<UserProductList> {
 
 class ProductCard extends StatelessWidget {
   final Map<String, dynamic> data;
+  final String categoryName;
 
-  const ProductCard({Key? key, required this.data}) : super(key: key);
-
-  Future<String> getCategoryName(String categoryID) async {
-    try {
-      final querySnapshot = await FirebaseFirestore.instance
-          .collection('category')
-          .where('categoryID', isEqualTo: categoryID)
-          .get();
-
-      if (querySnapshot.docs.isNotEmpty) {
-        final categoryData = querySnapshot.docs.first.data() as Map<String, dynamic>?;
-        return categoryData?["categoryName"] ?? "Unknown Category";
-      } else {
-        return "Unknown Category";
-      }
-    } catch (e) {
-      return "Error fetching category";
-    }
-  }
+  const ProductCard({Key? key, required this.data, required this.categoryName})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -192,7 +238,7 @@ class ProductCard extends StatelessWidget {
             ),
             // Details Section
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(6),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -206,42 +252,31 @@ class ProductCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  FutureBuilder<String>(
-                    future: getCategoryName(data['categoryID']),
-                    builder: (context, snapshot) {
-                      return Text(
-                        snapshot.data ?? "Loading...",
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                      );
-                    },
+                  Text(
+                    categoryName,
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
                   ),
                   const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '₹${data['price']}',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      if (data['discount'] != null)
-                        Text(
-                          '${data['discount']}% OFF',
-                          style: const TextStyle(
-                            color: Colors.red,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                    ],
+                  Text(
+                    '₹${data['price']}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-
+                  if (data['discount'] != null)
+                    Text(
+                      '${data['discount']}% OFF',
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                 ],
               ),
             ),
