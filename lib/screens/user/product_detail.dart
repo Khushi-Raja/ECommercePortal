@@ -1,4 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import '../../constants/color.dart';
 
 class ProductDetail extends StatelessWidget {
   final Map<String, dynamic> productData;
@@ -8,6 +11,20 @@ class ProductDetail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        iconTheme: const IconThemeData(
+          color: CupertinoColors.white,
+        ),
+        backgroundColor: kAppBarColor,
+        title: Text(
+          productData['productName'],
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: CupertinoColors.white,
+          ),
+        ),
+      ),
       body: Stack(
         children: [
           // Background content
@@ -22,19 +39,6 @@ class ProductDetail extends StatelessWidget {
                     height: 300,
                     width: double.infinity,
                     fit: BoxFit.cover,
-                  ),
-                  Positioned(
-                    top: 10,
-                    left: 10,
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: const Icon(
-                        Icons.arrow_back,
-                        color: Colors.white,
-                      ),
-                    ),
                   ),
                   Positioned(
                     top: 10,
