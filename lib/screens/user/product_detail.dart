@@ -1,22 +1,42 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../constants/color.dart';
-
-class ProductDetail extends StatelessWidget {
+class ProductDetail extends StatefulWidget {
   final Map<String, dynamic> productData;
 
   const ProductDetail({Key? key, required this.productData}) : super(key: key);
 
   @override
+  State<ProductDetail> createState() => _ProductDetailState();
+}
+
+class _ProductDetailState extends State<ProductDetail> {
+  int _cartQuantity = 0;
+
+  void _incrementQuantity() {
+    setState(() {
+      _cartQuantity++;
+    });
+    // Add logic to update Firestore or global state
+  }
+
+  void _decrementQuantity() {
+    if (_cartQuantity > 0) {
+      setState(() {
+        _cartQuantity--;
+      });
+      // Add logic to update Firestore or global state
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        iconTheme: const IconThemeData(
-          color: CupertinoColors.white,
-        ),
+        iconTheme: const IconThemeData(color: CupertinoColors.white),
         backgroundColor: kAppBarColor,
         title: Text(
-          productData['productName'],
+          widget.productData['productName'],
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -26,7 +46,6 @@ class ProductDetail extends StatelessWidget {
       ),
       body: Stack(
         children: [
-          // Background content
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -34,7 +53,7 @@ class ProductDetail extends StatelessWidget {
               Stack(
                 children: [
                   Image.network(
-                    productData['displayImage'],
+                    widget.productData['displayImage'],
                     height: 300,
                     width: double.infinity,
                     fit: BoxFit.cover,
@@ -48,7 +67,7 @@ class ProductDetail extends StatelessWidget {
               ),
             ],
           ),
-          // Curved detail card
+          // Curved Detail Card
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
@@ -75,33 +94,26 @@ class ProductDetail extends StatelessWidget {
                   children: [
                     const SizedBox(height: 10),
                     Text(
-                      productData['productName'],
+                      widget.productData['productName'],
                       style: const TextStyle(
-                          fontSize: 18,
-                          // fontWeight: FontWeight.w600,
-                          color: Colors.grey),
+                          fontSize: 18, color: Colors.grey),
                     ),
                     const SizedBox(height: 4),
                     const Text(
                       'No Ratings',
-                      style: TextStyle(
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(fontSize: 14),
                     ),
                     const SizedBox(height: 4),
                     Row(
                       children: [
                         const Text(
                           'Quantity',
-                          style: TextStyle(
-                            fontSize: 14,
-                          ),
+                          style: TextStyle(fontSize: 14),
                         ),
                         const Spacer(),
                         _customIcon(
-                          icon: Icons.plus_one,
-                          onTap: () {
-                          },
+                          icon: Icons.exposure_minus_1,
+                          onTap: _decrementQuantity,
                         ),
                         Container(
                           margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -111,17 +123,19 @@ class ProductDetail extends StatelessWidget {
                             color: Colors.grey.shade200,
                             borderRadius: BorderRadius.circular(5),
                           ),
-                          child: const Center( // Use Center instead of Align for centering the child
+                          child: Center(
                             child: Text(
-                              "0",
-                              style: TextStyle(fontSize: 30 * 0.8, color: Colors.grey),
-                              textAlign: TextAlign.center,
+                              "$_cartQuantity",
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey,
+                              ),
                             ),
                           ),
                         ),
                         _customIcon(
-                          icon: Icons.exposure_minus_1,
-                          onTap: () {},
+                          icon: Icons.plus_one,
+                          onTap: _incrementQuantity,
                         ),
                       ],
                     ),
@@ -129,15 +143,15 @@ class ProductDetail extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          '₹${productData['price']}',
+                          '₹${widget.productData['price']}',
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        if (productData['discount'] != null)
+                        if (widget.productData['discount'] != null)
                           Text(
-                            '  ${productData['discount']}% OFF',
+                            '  ${widget.productData['discount']}% OFF',
                             style: const TextStyle(
                               fontSize: 12,
                               color: Colors.red,
@@ -148,13 +162,11 @@ class ProductDetail extends StatelessWidget {
                     const SizedBox(height: 10),
                     const Text(
                       'Description',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
+                      style: TextStyle(fontSize: 16),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      productData['description'],
+                      widget.productData['description'],
                       textAlign: TextAlign.justify,
                       style: const TextStyle(
                         fontSize: 14,
@@ -184,8 +196,8 @@ class ProductDetail extends StatelessWidget {
 
   Widget _customIcon({
     required IconData icon,
-    double size = 23, // Default size
-    void Function()? onTap,
+    double size = 23,
+    required void Function()? onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -194,8 +206,9 @@ class ProductDetail extends StatelessWidget {
         height: size,
         width: size,
         decoration: BoxDecoration(
-            color: Colors.grey.shade200,
-            borderRadius: BorderRadius.circular(5)),
+          color: Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(5),
+        ),
         child: Icon(icon, color: Colors.grey, size: size * 0.8),
       ),
     );
