@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import '../../constants/color.dart';
 
 class ProductDetail extends StatelessWidget {
@@ -92,6 +91,43 @@ class ProductDetail extends StatelessWidget {
                     const SizedBox(height: 4),
                     Row(
                       children: [
+                        const Text(
+                          'Quantity',
+                          style: TextStyle(
+                            fontSize: 14,
+                          ),
+                        ),
+                        const Spacer(),
+                        _customIcon(
+                          icon: Icons.plus_one,
+                          onTap: () {
+                          },
+                        ),
+                        Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          height: 30,
+                          width: 30,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: const Center( // Use Center instead of Align for centering the child
+                            child: Text(
+                              "0",
+                              style: TextStyle(fontSize: 30 * 0.8, color: Colors.grey),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                        _customIcon(
+                          icon: Icons.exposure_minus_1,
+                          onTap: () {},
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
                         Text(
                           '₹${productData['price']}',
                           style: const TextStyle(
@@ -143,6 +179,25 @@ class ProductDetail extends StatelessWidget {
         shape: BoxShape.circle,
       ),
       child: Icon(icon, color: Colors.grey),
+    );
+  }
+
+  Widget _customIcon({
+    required IconData icon,
+    double size = 23, // Default size
+    void Function()? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        height: size,
+        width: size,
+        decoration: BoxDecoration(
+            color: Colors.grey.shade200,
+            borderRadius: BorderRadius.circular(5)),
+        child: Icon(icon, color: Colors.grey, size: size * 0.8),
+      ),
     );
   }
 }
