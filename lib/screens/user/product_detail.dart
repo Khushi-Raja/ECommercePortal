@@ -209,7 +209,7 @@ class _ProductDetailState extends State<ProductDetail> {
           color: Colors.grey.shade200,
           borderRadius: BorderRadius.circular(5),
         ),
-        child: Icon(icon, color: Colors.grey, size: size * 0.8),
+        child: Icon(icon, color: Colors.grey, size: size * 0.7),
       ),
     );
   }
