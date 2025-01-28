@@ -241,7 +241,7 @@ class _ProductDetailState extends State<ProductDetail> {
                                 Row(
                                   children: [
                                     _customIcon(
-                                      icon: Icons.exposure_minus_1,
+                                      icon: Icons.remove,
                                       onTap: _decrementQuantity,
                                     ),
                                     Container(
@@ -262,7 +262,7 @@ class _ProductDetailState extends State<ProductDetail> {
                                       ),
                                     ),
                                     _customIcon(
-                                      icon: Icons.plus_one,
+                                      icon: Icons.add,
                                       onTap: _incrementQuantity,
                                     ),
                                   ],

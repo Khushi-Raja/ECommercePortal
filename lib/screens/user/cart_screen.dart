@@ -18,25 +18,41 @@ class _CartScreenState extends State<CartScreen> {
     return user?.uid;
   }
 
+  Future<Map<String, dynamic>?> fetchProductDetails(String productID) async {
+    try {
+      // Ensure ProductID is a string
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('product')
+          .where('productID', isEqualTo: productID) // Match productID field
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        final data = querySnapshot.docs.first.data() as Map<String, dynamic>;
+        return {
+          'name': data['productName'] ?? "Unknown Product",
+          'image': data['displayImage'] ?? "https://via.placeholder.com/50"
+        };
+      }
+    } catch (e) {
+      debugPrint("Error fetching product details: $e");
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final userID = getUserID();
 
     if (userID == null) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text("Your Cart"),
-        ),
-        body: const Center(
-          child: Text("Please log in to view your cart."),
-        ),
+        appBar: AppBar(title: const Text("Your Cart")),
+        body: const Center(child: Text("Please log in to view your cart.")),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Your Cart"),
-      ),
+      appBar: AppBar(title: const Text("Your Cart")),
       body: StreamBuilder<QuerySnapshot>(
         stream: _firestore
             .collection('cart')
@@ -49,9 +65,7 @@ class _CartScreenState extends State<CartScreen> {
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(
-              child: Text("Your cart is empty!"),
-            );
+            return const Center(child: Text("Your cart is empty!"));
           }
 
           final cartItems = snapshot.data!.docs;
@@ -63,41 +77,62 @@ class _CartScreenState extends State<CartScreen> {
               final productID = cartItem['ProductID'];
               final quantity = cartItem['Quantity'];
 
-              return Card(
-                margin: const EdgeInsets.all(8.0),
-                child: ListTile(
-                  leading: const Icon(Icons.shopping_bag),
-                  title: Text("Product ID: $productID"),
-                  subtitle: Text("Quantity: $quantity"),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.remove),
-                        onPressed: () async {
-                          if (quantity > 1) {
-                            await cartItem.reference.update({
-                              'Quantity': quantity - 1,
-                              'Modified': FieldValue.serverTimestamp(),
-                            });
-                          } else {
-                            await cartItem.reference.delete();
-                          }
-                        },
+              return FutureBuilder<Map<String, dynamic>?>(
+                future: fetchProductDetails(productID),
+                builder: (context, productSnapshot) {
+                  if (productSnapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  final productData = productSnapshot.data;
+                  if (productData == null) {
+                    return const Card(
+                      child: ListTile(
+                        title: Text("Product details not found"),
                       ),
-                      Text("$quantity"),
-                      IconButton(
-                        icon: const Icon(Icons.add),
-                        onPressed: () async {
-                          await cartItem.reference.update({
-                            'Quantity': quantity + 1,
-                            'Modified': FieldValue.serverTimestamp(),
-                          });
-                        },
+                    );
+                  }
+
+                  final productName = productData['name'];
+                  final productImage = productData['image'];
+
+                  return Card(
+                    margin: const EdgeInsets.all(8.0),
+                    child: ListTile(
+                      leading: Image.network(productImage, width: 50, height: 50),
+                      title: Text(productName),
+                      subtitle: Text("Quantity: $quantity"),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.remove),
+                            onPressed: () async {
+                              if (quantity > 1) {
+                                await cartItem.reference.update({
+                                  'Quantity': quantity - 1,
+                                  'Modified': FieldValue.serverTimestamp(),
+                                });
+                              } else {
+                                await cartItem.reference.delete();
+                              }
+                            },
+                          ),
+                          Text("$quantity"),
+                          IconButton(
+                            icon: const Icon(Icons.add),
+                            onPressed: () async {
+                              await cartItem.reference.update({
+                                'Quantity': quantity + 1,
+                                'Modified': FieldValue.serverTimestamp(),
+                              });
+                            },
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               );
             },
           );
@@ -107,7 +142,6 @@ class _CartScreenState extends State<CartScreen> {
         padding: const EdgeInsets.all(16.0),
         child: ElevatedButton(
           onPressed: () {
-            // Add logic to handle checkout functionality
             showDialog(
               context: context,
               builder: (context) => AlertDialog(
@@ -122,10 +156,8 @@ class _CartScreenState extends State<CartScreen> {
               ),
             );
           },
+          style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
           child: const Text("Proceed to Checkout"),
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size.fromHeight(50),
-          ),
         ),
       ),
     );
