@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:link/constants/color.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({Key? key}) : super(key: key);
@@ -20,10 +22,9 @@ class _CartScreenState extends State<CartScreen> {
 
   Future<Map<String, dynamic>?> fetchProductDetails(String productID) async {
     try {
-      // Ensure ProductID is a string
       QuerySnapshot querySnapshot = await _firestore
           .collection('product')
-          .where('productID', isEqualTo: productID) // Match productID field
+          .where('productID', isEqualTo: productID)
           .limit(1)
           .get();
 
@@ -31,13 +32,136 @@ class _CartScreenState extends State<CartScreen> {
         final data = querySnapshot.docs.first.data() as Map<String, dynamic>;
         return {
           'name': data['productName'] ?? "Unknown Product",
-          'image': data['displayImage'] ?? "https://via.placeholder.com/50"
+          'image': data['displayImage'] ?? "https://via.placeholder.com/50",
         };
       }
     } catch (e) {
       debugPrint("Error fetching product details: $e");
     }
     return null;
+  }
+
+  Widget buildCartCard({
+    required String productName,
+    required String productImage,
+    required int quantity,
+    required VoidCallback onIncrement,
+    required VoidCallback onDecrement,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        height: 150,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              blurRadius: 5,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Product Image
+            Padding(
+              padding: const EdgeInsets.all(7.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: Image.network(
+                  productImage,
+                  height: 150,
+                  width: 150,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            const SizedBox(width: 10), // Spacing
+            // Product Details
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    productName,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    "Quantity: $quantity",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Quantity Controls
+            Padding(
+              padding: const EdgeInsets.only(right: 12.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _customIcon(
+                    icon: Icons.remove,
+                    onTap: onDecrement,
+                  ),
+                  const SizedBox(height: 6),
+                  Container(
+                    height: 30,
+                    width: 30,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Center(
+                      child: Text(
+                        "$quantity",
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  _customIcon(
+                    icon: Icons.add,
+                    onTap: onIncrement,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _customIcon({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 25,
+        width: 25,
+        decoration: BoxDecoration(
+          color: Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(5),
+        ),
+        child: Icon(icon, color: Colors.grey, size: 18),
+      ),
+    );
   }
 
   @override
@@ -52,7 +176,18 @@ class _CartScreenState extends State<CartScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Your Cart")),
+      appBar: AppBar(
+        iconTheme: const IconThemeData(color: CupertinoColors.white),
+        backgroundColor: kAppBarColor,
+        title: const Text(
+          "Your Cart",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: CupertinoColors.white,
+          ),
+        ),
+      ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _firestore
             .collection('cart')
@@ -86,79 +221,38 @@ class _CartScreenState extends State<CartScreen> {
 
                   final productData = productSnapshot.data;
                   if (productData == null) {
-                    return const Card(
-                      child: ListTile(
-                        title: Text("Product details not found"),
-                      ),
-                    );
+                    return const Center(child: Text("Product details not found."));
                   }
 
                   final productName = productData['name'];
                   final productImage = productData['image'];
 
-                  return Card(
-                    margin: const EdgeInsets.all(8.0),
-                    child: ListTile(
-                      leading: Image.network(productImage, width: 50, height: 50),
-                      title: Text(productName),
-                      subtitle: Text("Quantity: $quantity"),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.remove),
-                            onPressed: () async {
-                              if (quantity > 1) {
-                                await cartItem.reference.update({
-                                  'Quantity': quantity - 1,
-                                  'Modified': FieldValue.serverTimestamp(),
-                                });
-                              } else {
-                                await cartItem.reference.delete();
-                              }
-                            },
-                          ),
-                          Text("$quantity"),
-                          IconButton(
-                            icon: const Icon(Icons.add),
-                            onPressed: () async {
-                              await cartItem.reference.update({
-                                'Quantity': quantity + 1,
-                                'Modified': FieldValue.serverTimestamp(),
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
+                  return buildCartCard(
+                    productName: productName,
+                    productImage: productImage,
+                    quantity: quantity,
+                    onIncrement: () async {
+                      await cartItem.reference.update({
+                        'Quantity': quantity + 1,
+                        'Modified': FieldValue.serverTimestamp(),
+                      });
+                    },
+                    onDecrement: () async {
+                      if (quantity > 1) {
+                        await cartItem.reference.update({
+                          'Quantity': quantity - 1,
+                          'Modified': FieldValue.serverTimestamp(),
+                        });
+                      } else {
+                        await cartItem.reference.delete();
+                      }
+                    },
                   );
                 },
               );
             },
           );
         },
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ElevatedButton(
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text("Checkout"),
-                content: const Text("Proceed to checkout functionality coming soon!"),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text("OK"),
-                  ),
-                ],
-              ),
-            );
-          },
-          style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
-          child: const Text("Proceed to Checkout"),
-        ),
       ),
     );
   }
