@@ -164,8 +164,8 @@ class _CartScreenState extends State<CartScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 25,
-        width: 25,
+        height: 23,
+        width: 23,
         decoration: BoxDecoration(
           color: Colors.grey.shade200,
           borderRadius: BorderRadius.circular(5),
