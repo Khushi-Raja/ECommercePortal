@@ -1,6 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:link/screens/user/cart_screen.dart';
 import '../../constants/color.dart';
+
 class ProductDetail extends StatefulWidget {
   final Map<String, dynamic> productData;
 
@@ -11,21 +15,134 @@ class ProductDetail extends StatefulWidget {
 }
 
 class _ProductDetailState extends State<ProductDetail> {
-  int _cartQuantity = 0;
+  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  void _incrementQuantity() {
+  int _cartQuantity = 0;
+  bool _isInCart = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkCartStatus();
+  }
+
+  String? getUserID() {
+    final User? user = firebaseAuth.currentUser;
+    return user?.uid;
+  }
+
+  void _checkCartStatus() async {
+    final userID = getUserID();
+    if (userID == null) return;
+
+    final productID = widget.productData['productID'];
+
+    final snapshot = await firestore
+        .collection('cart')
+        .where('UserID', isEqualTo: userID)
+        .where('ProductID', isEqualTo: productID)
+        .limit(1)
+        .get();
+
+    if (snapshot.docs.isNotEmpty) {
+      setState(() {
+        _isInCart = true;
+        _cartQuantity = snapshot.docs.first['Quantity'];
+      });
+    }
+  }
+
+  void _addToCart() async {
+    final userID = getUserID();
+    if (userID == null) return;
+
+    final productID = widget.productData['productID'];
+
+    if (!_isInCart) {
+      await firestore.collection('cart').add({
+        'CartID': DateTime.now().millisecondsSinceEpoch.toString(),
+        'ProductID': productID,
+        'UserID': userID,
+        'Quantity': 1,
+        'isOrderDone': false,
+        'Created': FieldValue.serverTimestamp(),
+        'Modified': FieldValue.serverTimestamp(),
+      });
+      setState(() {
+        _isInCart = true;
+        _cartQuantity = 1;
+      });
+    }
+  }
+
+  void _incrementQuantity() async {
     setState(() {
       _cartQuantity++;
     });
-    // Add logic to update Firestore or global state
+
+    final userID = getUserID();
+    if (userID == null) return;
+
+    final productID = widget.productData['productID'];
+    final snapshot = await firestore
+        .collection('cart')
+        .where('UserID', isEqualTo: userID)
+        .where('ProductID', isEqualTo: productID)
+        .limit(1)
+        .get();
+
+    if (snapshot.docs.isNotEmpty) {
+      await snapshot.docs.first.reference.update({
+        'Quantity': _cartQuantity,
+        'Modified': FieldValue.serverTimestamp(),
+      });
+    }
   }
 
-  void _decrementQuantity() {
-    if (_cartQuantity > 0) {
+  void _decrementQuantity() async {
+    if (_cartQuantity > 1) {
       setState(() {
         _cartQuantity--;
       });
-      // Add logic to update Firestore or global state
+
+      final userID = getUserID();
+      if (userID == null) return;
+
+      final productID = widget.productData['productID'];
+      final snapshot = await firestore
+          .collection('cart')
+          .where('UserID', isEqualTo: userID)
+          .where('ProductID', isEqualTo: productID)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        await snapshot.docs.first.reference.update({
+          'Quantity': _cartQuantity,
+          'Modified': FieldValue.serverTimestamp(),
+        });
+      }
+    } else if (_cartQuantity == 1) {
+      final userID = getUserID();
+      if (userID == null) return;
+
+      final productID = widget.productData['productID'];
+      final snapshot = await firestore
+          .collection('cart')
+          .where('UserID', isEqualTo: userID)
+          .where('ProductID', isEqualTo: productID)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        await snapshot.docs.first.reference.delete();
+      }
+
+      setState(() {
+        _cartQuantity = 0;
+        _isInCart = false;
+      });
     }
   }
 
@@ -43,13 +160,29 @@ class _ProductDetailState extends State<ProductDetail> {
             color: CupertinoColors.white,
           ),
         ),
+        actions: [
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) {
+                    return const CartScreen();
+                  },
+                ),
+              );
+            },
+            child: const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Icon(Icons.shopping_cart),
+            ),
+          ),
+        ],
       ),
       body: Stack(
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Product Image
               Stack(
                 children: [
                   Image.network(
@@ -67,7 +200,6 @@ class _ProductDetailState extends State<ProductDetail> {
               ),
             ],
           ),
-          // Curved Detail Card
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
@@ -88,93 +220,137 @@ class _ProductDetailState extends State<ProductDetail> {
                 ],
               ),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 10),
-                    Text(
-                      widget.productData['productName'],
-                      style: const TextStyle(
-                          fontSize: 18, color: Colors.grey),
-                    ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      'No Ratings',
-                      style: TextStyle(fontSize: 14),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Text(
-                          'Quantity',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        const Spacer(),
-                        _customIcon(
-                          icon: Icons.exposure_minus_1,
-                          onTap: _decrementQuantity,
-                        ),
-                        Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          height: 30,
-                          width: 30,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: Center(
-                            child: Text(
-                              "$_cartQuantity",
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              Text(
+                                widget.productData['productName'],
+                                style: const TextStyle(
+                                    fontSize: 18, color: Colors.grey),
                               ),
-                            ),
+                              const Spacer(),
+                              if (_isInCart)
+                                Row(
+                                  children: [
+                                    _customIcon(
+                                      icon: Icons.exposure_minus_1,
+                                      onTap: _decrementQuantity,
+                                    ),
+                                    Container(
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 4),
+                                      height: 30,
+                                      width: 30,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade200,
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          "$_cartQuantity",
+                                          style: const TextStyle(
+                                              fontSize: 16, color: Colors.grey),
+                                        ),
+                                      ),
+                                    ),
+                                    _customIcon(
+                                      icon: Icons.plus_one,
+                                      onTap: _incrementQuantity,
+                                    ),
+                                  ],
+                                ),
+                            ],
                           ),
-                        ),
-                        _customIcon(
-                          icon: Icons.plus_one,
-                          onTap: _incrementQuantity,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Text(
-                          '₹${widget.productData['price']}',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                          const SizedBox(height: 4),
+                          const Text(
+                            'No Ratings',
+                            style: TextStyle(fontSize: 14),
                           ),
-                        ),
-                        if (widget.productData['discount'] != null)
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Text(
+                                '₹${widget.productData['price']}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              if (widget.productData['discount'] != null)
+                                Text(
+                                  '  ${widget.productData['discount']}% OFF',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          const Text(
+                            'Description',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          const SizedBox(height: 4),
                           Text(
-                            '  ${widget.productData['discount']}% OFF',
+                            widget.productData['description'],
+                            textAlign: TextAlign.justify,
                             style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.red,
+                              fontSize: 14,
+                              color: Colors.grey,
                             ),
                           ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Description',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      widget.productData['description'],
-                      textAlign: TextAlign.justify,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
+                        ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  if (!_isInCart)
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _addToCart,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: kAppBarColor,
+                        ),
+                        child: const Text(
+                          "Add to Cart",
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  if (_isInCart)
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return CartScreen();
+                              },
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: kAppBarColor,
+                        ),
+                        child: const Text(
+                          "Go to Cart",
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
