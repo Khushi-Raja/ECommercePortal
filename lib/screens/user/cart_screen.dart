@@ -4,6 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:link/constants/color.dart';
 
+import '../../components/custom_circular_progress_indicator.dart';
+
 class CartScreen extends StatefulWidget {
   const CartScreen({Key? key}) : super(key: key);
 
@@ -30,9 +32,15 @@ class _CartScreenState extends State<CartScreen> {
 
       if (querySnapshot.docs.isNotEmpty) {
         final data = querySnapshot.docs.first.data() as Map<String, dynamic>;
+
+        // Parse price as double
+        final price = data['price'];
+        final parsedPrice = price is String ? double.tryParse(price) ?? 0 : price;
+
         return {
           'name': data['productName'] ?? "Unknown Product",
           'image': data['displayImage'] ?? "https://via.placeholder.com/50",
+          'price': parsedPrice, // Ensure price is a double
         };
       }
     } catch (e) {
@@ -44,6 +52,7 @@ class _CartScreenState extends State<CartScreen> {
   Widget buildCartCard({
     required String productName,
     required String productImage,
+    required double price, // Accept price as double
     required int quantity,
     required VoidCallback onIncrement,
     required VoidCallback onDecrement,
@@ -95,7 +104,7 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                   const SizedBox(height: 5),
                   Text(
-                    "Quantity: $quantity",
+                    "₹${price.toStringAsFixed(2)}", // Display price
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey.shade700,
@@ -146,6 +155,8 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
+
+
   Widget _customIcon({
     required IconData icon,
     required VoidCallback onTap,
@@ -170,7 +181,18 @@ class _CartScreenState extends State<CartScreen> {
 
     if (userID == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text("Your Cart")),
+        appBar: AppBar(
+          iconTheme: const IconThemeData(color: CupertinoColors.white),
+          backgroundColor: kAppBarColor,
+          title: const Text(
+            "Your Cart",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: CupertinoColors.white,
+            ),
+          ),
+        ),
         body: const Center(child: Text("Please log in to view your cart.")),
       );
     }
@@ -196,7 +218,7 @@ class _CartScreenState extends State<CartScreen> {
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CustomCupertinoActivityIndicator());
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
@@ -216,7 +238,7 @@ class _CartScreenState extends State<CartScreen> {
                 future: fetchProductDetails(productID),
                 builder: (context, productSnapshot) {
                   if (productSnapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(child: CustomCupertinoActivityIndicator());
                   }
 
                   final productData = productSnapshot.data;
@@ -226,10 +248,12 @@ class _CartScreenState extends State<CartScreen> {
 
                   final productName = productData['name'];
                   final productImage = productData['image'];
+                  final price = productData['price'] as double; // Extract price
 
                   return buildCartCard(
                     productName: productName,
                     productImage: productImage,
+                    price: productData['price'], // Pass price here
                     quantity: quantity,
                     onIncrement: () async {
                       await cartItem.reference.update({
@@ -250,6 +274,7 @@ class _CartScreenState extends State<CartScreen> {
                   );
                 },
               );
+
             },
           );
         },
