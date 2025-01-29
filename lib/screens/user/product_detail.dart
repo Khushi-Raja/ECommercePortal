@@ -338,7 +338,11 @@ class _ProductDetailState extends State<ProductDetail> {
                                 return CartScreen();
                               },
                             ),
-                          );
+                          ).then((value) {
+                            setState(() {
+                              _checkCartStatus();
+                            });
+                          });
                         },
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
