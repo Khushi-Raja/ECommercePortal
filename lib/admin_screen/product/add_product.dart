@@ -295,8 +295,9 @@ class _AddProductState extends State<AddProduct> {
           await getLastID(collectionName: "product", primaryKey: "productID");
       int newID = (lastID ?? 0) + 1; // Use a fallback value if lastID is null
       final productImageURL = await uploadImageFile(imageFile!);
-      await FirebaseFirestore.instance.collection('product').add({
-        "productID": newID.toString(),
+      // Set document using newID as Firestore document ID
+      await FirebaseFirestore.instance.collection('product').doc(newID.toString()).set({
+        "productID": newID,
         'productName': productNameController.text.trim(),
         'description': descriptionController.text.trim(),
         'price': priceController.text.trim(),
