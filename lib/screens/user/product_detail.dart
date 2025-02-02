@@ -8,7 +8,6 @@ import '../../constants/generate_id.dart';
 
 class ProductDetail extends StatefulWidget {
   final Map<String, dynamic> productData;
-
   const ProductDetail({super.key, required this.productData});
 
   @override
@@ -46,14 +45,12 @@ class _ProductDetailState extends State<ProductDetail> {
         _cartQuantity = snapshot.docs.first['Quantity'];
       });
     } else {
-      // Reset state if the item is not in the cart
       setState(() {
         _isInCart = false;
         _cartQuantity = 0;
       });
     }
   }
-
 
   void _addToCart() async {
     try {
@@ -81,7 +78,6 @@ class _ProductDetailState extends State<ProductDetail> {
       print('Error adding to Cart: $e');
     }
   }
-
 
   void _incrementQuantity() async {
     setState(() {
@@ -126,19 +122,24 @@ class _ProductDetailState extends State<ProductDetail> {
           'Modified': FieldValue.serverTimestamp(),
         });
       } else {
+        // Delete the cart item
         await snapshot.docs.first.reference.delete();
 
-        // Check if the cart is now empty
+        // Check if there are any remaining cart items (excluding placeholders)
         final remainingCartItems = await FirebaseFirestore.instance
             .collection('cart')
             .where('UserID', isEqualTo: userID)
+            .where('Message', isEqualTo: null) // Exclude placeholders
             .get();
 
+        // If no items left, add a placeholder
         if (remainingCartItems.docs.isEmpty) {
-          // Add a placeholder document to keep the collection alive
-          await FirebaseFirestore.instance.collection('cart').doc('placeholder').set({
+          await FirebaseFirestore.instance
+              .collection('cart')
+              .doc('placeholder_$userID') // Unique ID per user
+              .set({
             'UserID': userID,
-            'Message': 'Cart is empty', // Placeholder field
+            'Message': 'Cart is empty',
             'Created': FieldValue.serverTimestamp(),
           });
         }

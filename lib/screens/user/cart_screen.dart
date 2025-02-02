@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:link/constants/color.dart';
-
 import '../../components/custom_circular_progress_indicator.dart';
 
 class CartScreen extends StatefulWidget {
@@ -14,17 +13,9 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  String? getUserID() {
-    final User? user = _auth.currentUser;
-    return user?.uid;
-  }
-
   Future<Map<String, dynamic>?> fetchProductDetails(String productID) async {
     try {
-      QuerySnapshot querySnapshot = await _firestore
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('product')
           .where('productID', isEqualTo: productID)
           .limit(1)
@@ -32,15 +23,10 @@ class _CartScreenState extends State<CartScreen> {
 
       if (querySnapshot.docs.isNotEmpty) {
         final data = querySnapshot.docs.first.data() as Map<String, dynamic>;
-
-        // Parse price as double
-        final price = data['price'];
-        final parsedPrice = price is String ? double.tryParse(price) ?? 0 : price;
-
         return {
           'name': data['productName'] ?? "Unknown Product",
           'image': data['displayImage'] ?? "https://via.placeholder.com/50",
-          'price': parsedPrice, // Ensure price is a double
+          'price': data['price'] is String ? double.tryParse(data['price']) ?? 0 : data['price'], // Ensure price is a double
         };
       }
     } catch (e) {
@@ -155,8 +141,6 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-
-
   Widget _customIcon({
     required IconData icon,
     required VoidCallback onTap,
@@ -177,7 +161,7 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final userID = getUserID();
+    final userID = FirebaseAuth.instance.currentUser?.uid;
 
     if (userID == null) {
       return Scaffold(
@@ -211,7 +195,7 @@ class _CartScreenState extends State<CartScreen> {
         ),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _firestore
+        stream: FirebaseFirestore.instance
             .collection('cart')
             .where('UserID', isEqualTo: userID)
             .where('isOrderDone', isEqualTo: false)
@@ -231,40 +215,33 @@ class _CartScreenState extends State<CartScreen> {
             itemCount: cartItems.length,
             itemBuilder: (context, index) {
               final cartItem = cartItems[index];
-              final productID = cartItem['ProductID'];
-              final quantity = cartItem['Quantity'];
 
               return FutureBuilder<Map<String, dynamic>?>(
-                future: fetchProductDetails(productID),
+                future: fetchProductDetails(cartItem['ProductID']),
                 builder: (context, productSnapshot) {
                   if (productSnapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CustomCupertinoActivityIndicator());
                   }
-
                   final productData = productSnapshot.data;
                   if (productData == null) {
                     return const Center(child: Text("Product details not found."));
                   }
 
-                  final productName = productData['name'];
-                  final productImage = productData['image'];
-                  final price = productData['price'] as double; // Extract price
-
                   return buildCartCard(
-                    productName: productName,
-                    productImage: productImage,
-                    price: productData['price'], // Pass price here
-                    quantity: quantity,
+                    productName: productData['name'],
+                    productImage: productData['image'],
+                    price: productData['price'] as double, // Pass price here
+                    quantity: cartItem['Quantity'],
                     onIncrement: () async {
                       await cartItem.reference.update({
-                        'Quantity': quantity + 1,
+                        'Quantity': cartItem['Quantity'] + 1,
                         'Modified': FieldValue.serverTimestamp(),
                       });
                     },
                     onDecrement: () async {
-                      if (quantity > 1) {
+                      if (cartItem['Quantity'] > 1) {
                         await cartItem.reference.update({
-                          'Quantity': quantity - 1,
+                          'Quantity': cartItem['Quantity'] - 1,
                           'Modified': FieldValue.serverTimestamp(),
                         });
                       } else {
@@ -274,7 +251,6 @@ class _CartScreenState extends State<CartScreen> {
                   );
                 },
               );
-
             },
           );
         },
