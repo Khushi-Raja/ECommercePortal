@@ -108,7 +108,7 @@ class _CategoryListState extends State<CategoryList> {
                 top: 8,
                 right: 8,
                 child: PopupMenuButton<String>(
-                  icon: Icon(Icons.more_vert, color: Colors.grey.shade900),
+                  icon: _buildIcon(Icons.more_vert),
                   onSelected: (String value) {
                     if (value == 'Edit') {
                       Navigator.push(
@@ -202,5 +202,14 @@ class _CategoryListState extends State<CategoryList> {
       ),
     );
   }
-
+  Widget _buildIcon(IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade200,
+        shape: BoxShape.circle,
+      ),
+      child: Icon(icon, color: Colors.grey),
+    );
+  }
 }
