@@ -291,13 +291,18 @@ class _AddProductState extends State<AddProduct> {
 
   Future<void> addProduct() async {
     try {
-      int? lastID =
-          await getLastID(collectionName: "product", primaryKey: "productID");
-      int newID = (lastID ?? 0) + 1; // Use a fallback value if lastID is null
+      int? lastID = await getLastID(collectionName: "product", primaryKey: "productID");
+      print("Last ID: $lastID");
+
+      int newID = (lastID ?? 0) + 1; // Generate next ID
+      String newIDString = newID.toString().padLeft(3, '0'); // Convert to zero-padded string
+
+      print("New ID: $newIDString");
+
       final productImageURL = await uploadImageFile(imageFile!);
-      // Set document using newID as Firestore document ID
-      await FirebaseFirestore.instance.collection('product').doc(newID.toString()).set({
-        "productID": newID,
+
+      await FirebaseFirestore.instance.collection('product').doc(newIDString).set({
+        "productID": newIDString, // Store as a string
         'productName': productNameController.text.trim(),
         'description': descriptionController.text.trim(),
         'price': priceController.text.trim(),
@@ -319,9 +324,10 @@ class _AddProductState extends State<AddProduct> {
       int? lastID =
           await getLastID(collectionName: "product", primaryKey: "productID");
       int newID = (lastID ?? 0) + 1; // Use a fallback value if lastID is null
+      String newIDString = newID.toString().padLeft(3, '0'); // Convert to zero-padded string
       final productImageURL = await uploadImageBytes(_imageBytes!);
-      await FirebaseFirestore.instance.collection('product').add({
-        "productID": newID.toString(),
+      await FirebaseFirestore.instance.collection('product').doc(newIDString).set({
+        "productID": newIDString,
         'productName': productNameController.text.trim(),
         'description': descriptionController.text.trim(),
         'price': priceController.text.trim(),

@@ -166,11 +166,14 @@ class _AddCategoryState extends State<AddCategory> {
   Future<void> addCategory() async {
     try {
       int? lastID =
-          await getLastID(collectionName: "category", primaryKey: "categoryID");
-      int newID = lastID! + 1;
+      await getLastID(collectionName: "category", primaryKey: "categoryID");
+      int newID = (lastID ?? 0) + 1; // Use a fallback value if lastID is null
+
+      String newIDString = newID.toString().padLeft(3, '0'); // Convert to zero-padded string
+
       final categoryImageURL = await uploadImageFile(imageFile!);
-      await FirebaseFirestore.instance.collection('category').add({
-        "categoryID": newID.toString(),
+      await FirebaseFirestore.instance.collection('category').doc(newIDString).set({
+        "categoryID": newIDString,
         'categoryName': categoryNameController.text.trim(),
         'categoryDescription': categoryDescriptionController.text.trim(),
         'categoryImage': categoryImageURL,
@@ -187,10 +190,11 @@ class _AddCategoryState extends State<AddCategory> {
     try {
       int? lastID =
           await getLastID(collectionName: "category", primaryKey: "categoryID");
-      int newID = lastID! + 1;
+      int newID = (lastID ?? 0) + 1; // Use a fallback value if lastID is null
+      String newIDString = newID.toString().padLeft(3, '0'); // Convert to zero-padded string
       final categoryImageURL = await uploadImageBytes(_imageBytes!);
-      await FirebaseFirestore.instance.collection('category').add({
-        "categoryID": newID.toString(),
+      await FirebaseFirestore.instance.collection('category').doc(newIDString).set({
+        "categoryID": newIDString,
         'categoryName': categoryNameController.text.trim(),
         'categoryDescription': categoryDescriptionController.text.trim(),
         'categoryImage': categoryImageURL,

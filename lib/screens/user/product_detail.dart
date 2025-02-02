@@ -45,6 +45,12 @@ class _ProductDetailState extends State<ProductDetail> {
         _isInCart = true;
         _cartQuantity = snapshot.docs.first['Quantity'];
       });
+    } else {
+      // Reset state if the item is not in the cart
+      setState(() {
+        _isInCart = false;
+        _cartQuantity = 0;
+      });
     }
   }
 
@@ -53,12 +59,12 @@ class _ProductDetailState extends State<ProductDetail> {
     try {
       int? lastID = await getLastID(collectionName: "cart", primaryKey: "CartID");
       int newID = (lastID ?? 0) + 1;
-
+      String newIDString = newID.toString().padLeft(3, '0'); // Convert to zero-padded string
       String? userID = firebaseAuth.currentUser?.uid; // Get only the UID
       if (userID == null) return; // Ensure user is logged in
 
-      await FirebaseFirestore.instance.collection('cart').add({
-        'CartID': newID.toString(),
+      await FirebaseFirestore.instance.collection('cart').doc(newIDString).set({
+        'CartID': newIDString,
         'ProductID': widget.productData['productID'],
         'UserID': userID, // Store only the UID as a string
         'Quantity': 1,
@@ -102,9 +108,12 @@ class _ProductDetailState extends State<ProductDetail> {
     if (_cartQuantity <= 0) return;
 
     final productID = widget.productData['productID'];
+    final userID = firebaseAuth.currentUser?.uid;
+    if (userID == null) return;
+
     final snapshot = await FirebaseFirestore.instance
         .collection('cart')
-        .where('UserID', isEqualTo: firebaseAuth.currentUser?.uid)
+        .where('UserID', isEqualTo: userID)
         .where('ProductID', isEqualTo: productID)
         .limit(1)
         .get();
@@ -118,6 +127,22 @@ class _ProductDetailState extends State<ProductDetail> {
         });
       } else {
         await snapshot.docs.first.reference.delete();
+
+        // Check if the cart is now empty
+        final remainingCartItems = await FirebaseFirestore.instance
+            .collection('cart')
+            .where('UserID', isEqualTo: userID)
+            .get();
+
+        if (remainingCartItems.docs.isEmpty) {
+          // Add a placeholder document to keep the collection alive
+          await FirebaseFirestore.instance.collection('cart').doc('placeholder').set({
+            'UserID': userID,
+            'Message': 'Cart is empty', // Placeholder field
+            'Created': FieldValue.serverTimestamp(),
+          });
+        }
+
         setState(() {
           _cartQuantity = 0;
           _isInCart = false;
@@ -125,7 +150,6 @@ class _ProductDetailState extends State<ProductDetail> {
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -173,22 +197,24 @@ class _ProductDetailState extends State<ProductDetail> {
                   children: [
                     Row(
                       children: [
-                        Text(
-                          widget.productData['productName'],
-                          style: const TextStyle(
-                              fontSize: 18, color: Colors.grey),
+                        Expanded( // Ensures the product name does not overflow
+                          child: Text(
+                            widget.productData['productName'],
+                            overflow: TextOverflow.ellipsis, // Truncate long names
+                            style: const TextStyle(fontSize: 18, color: Colors.grey),
+                          ),
                         ),
-                        const Spacer(),
+                        const SizedBox(width: 8), // Space between name and counter
                         if (_isInCart)
                           Row(
+                            mainAxisSize: MainAxisSize.min, // Prevents stretching
                             children: [
                               _customIcon(
                                 icon: Icons.remove,
                                 onTap: _decrementQuantity,
                               ),
                               Container(
-                                margin: const EdgeInsets.symmetric(
-                                    horizontal: 4),
+                                margin: const EdgeInsets.symmetric(horizontal: 4),
                                 height: 30,
                                 width: 30,
                                 decoration: BoxDecoration(
@@ -198,8 +224,7 @@ class _ProductDetailState extends State<ProductDetail> {
                                 child: Center(
                                   child: Text(
                                     "$_cartQuantity",
-                                    style: const TextStyle(
-                                        fontSize: 16, color: Colors.grey),
+                                    style: const TextStyle(fontSize: 16, color: Colors.grey),
                                   ),
                                 ),
                               ),

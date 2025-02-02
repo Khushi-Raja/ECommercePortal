@@ -217,14 +217,6 @@ class _ProductListState extends State<ProductList> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  data['productID'],
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey.shade900,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
                   data['productName'],
                   style: TextStyle(
                     fontSize: 16,
