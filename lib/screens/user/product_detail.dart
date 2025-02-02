@@ -4,10 +4,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:link/constants/color.dart';
 import 'package:link/screens/user/cart_screen.dart';
+import '../../components/custom_button.dart';
 import '../../constants/generate_id.dart';
 
 class ProductDetail extends StatefulWidget {
   final Map<String, dynamic> productData;
+
   const ProductDetail({super.key, required this.productData});
 
   @override
@@ -54,9 +56,11 @@ class _ProductDetailState extends State<ProductDetail> {
 
   void _addToCart() async {
     try {
-      int? lastID = await getLastID(collectionName: "cart", primaryKey: "CartID");
+      int? lastID =
+          await getLastID(collectionName: "cart", primaryKey: "CartID");
       int newID = (lastID ?? 0) + 1;
-      String newIDString = newID.toString().padLeft(3, '0'); // Convert to zero-padded string
+      String newIDString =
+          newID.toString().padLeft(3, '0'); // Convert to zero-padded string
       String? userID = firebaseAuth.currentUser?.uid; // Get only the UID
       if (userID == null) return; // Ensure user is logged in
 
@@ -198,24 +202,30 @@ class _ProductDetailState extends State<ProductDetail> {
                   children: [
                     Row(
                       children: [
-                        Expanded( // Ensures the product name does not overflow
+                        Expanded(
+                          // Ensures the product name does not overflow
                           child: Text(
                             widget.productData['productName'],
-                            overflow: TextOverflow.ellipsis, // Truncate long names
-                            style: const TextStyle(fontSize: 18, color: Colors.grey),
+                            overflow: TextOverflow.ellipsis,
+                            // Truncate long names
+                            style: const TextStyle(
+                                fontSize: 18, color: Colors.grey),
                           ),
                         ),
-                        const SizedBox(width: 8), // Space between name and counter
+                        const SizedBox(width: 8),
+                        // Space between name and counter
                         if (_isInCart)
                           Row(
-                            mainAxisSize: MainAxisSize.min, // Prevents stretching
+                            mainAxisSize: MainAxisSize.min,
+                            // Prevents stretching
                             children: [
                               _customIcon(
                                 icon: Icons.remove,
                                 onTap: _decrementQuantity,
                               ),
                               Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 4),
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 4),
                                 height: 30,
                                 width: 30,
                                 decoration: BoxDecoration(
@@ -225,7 +235,8 @@ class _ProductDetailState extends State<ProductDetail> {
                                 child: Center(
                                   child: Text(
                                     "$_cartQuantity",
-                                    style: const TextStyle(fontSize: 16, color: Colors.grey),
+                                    style: const TextStyle(
+                                        fontSize: 16, color: Colors.grey),
                                   ),
                                 ),
                               ),
@@ -277,28 +288,26 @@ class _ProductDetailState extends State<ProductDetail> {
           if (!_isInCart)
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
+              child: CustomButton(
+                buttonName: "Add to Cart",
+                backgroundColor: kAppBarColor,
+                textColor: Colors.white,
                 onPressed: _addToCart,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: kAppBarColor,
-                ),
-                child: const Text(
-                  "Add to Cart",
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
               ),
             ),
-
           if (_isInCart)
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
+              child:
+              CustomButton(
+                buttonName: "Go to Cart",
+                backgroundColor: kAppBarColor,
+                textColor: Colors.white,
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) {
-                        return CartScreen();
+                        return const CartScreen();
                       },
                     ),
                   ).then((value) {
@@ -307,14 +316,6 @@ class _ProductDetailState extends State<ProductDetail> {
                     });
                   });
                 },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: kAppBarColor,
-                ),
-                child: const Text(
-                  "Go to Cart",
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
               ),
             ),
         ],
