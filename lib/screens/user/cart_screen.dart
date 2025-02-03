@@ -14,186 +14,184 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
+  @override
+  Widget build(BuildContext context) {
+    final userID = FirebaseAuth.instance.currentUser?.uid;
+    if (userID == null) return _buildLoginMessage();
+
+    return Scaffold(
+      appBar: _buildAppBar(),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('cart')
+            .where('UserID', isEqualTo: userID)
+            .where('isOrderDone', isEqualTo: false)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child:CustomCupertinoActivityIndicator());
+          }
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text("Your cart is empty!"));
+          }
+
+          final cartItems = snapshot.data!.docs;
+          return _buildCartList(cartItems);
+        },
+      ),
+    );
+  }
+
+  Widget _buildCartList(List<QueryDocumentSnapshot> cartItems) {
+    return Stack(
+      children: [
+        ListView.builder(
+          padding: const EdgeInsets.only(bottom: 150),
+          itemCount: cartItems.length,
+          itemBuilder: (context, index) => CartItemWidget(
+            cartDocId: cartItems[index].id,
+            key: ValueKey(cartItems[index].id),
+          ),
+        ),
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: Column(
+            children: [
+
+              _buildTotalSummary(cartItems),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTotalSummary(List<QueryDocumentSnapshot> cartItems) {
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: _getAllProductDetails(cartItems),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const SizedBox.shrink();
+
+        double originalTotal = 0;
+        double discountTotal = 0;
+        for (int i = 0; i < cartItems.length; i++) {
+          final productData = snapshot.data![i];
+          final quantity = cartItems[i]['Quantity'] as int;
+          final price = productData['price'] as double;
+          final discount = productData['discount'] as double;
+
+          originalTotal += price * quantity;
+          discountTotal += (price * (discount / 100)) * quantity;
+        }
+
+        return _buildTotalContainer(
+          originalTotal: originalTotal,
+          discountTotal: discountTotal,
+          finalAmount: originalTotal - discountTotal,
+        );
+      },
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> _getAllProductDetails(
+      List<QueryDocumentSnapshot> cartItems) async {
+    List<Map<String, dynamic>> productDetails = [];
+    for (final cartItem in cartItems) {
+      final productID = cartItem['ProductID'];
+      final product = await fetchProductDetails(productID);
+      if (product != null) productDetails.add(product);
+    }
+    return productDetails;
+  }
+
   Future<Map<String, dynamic>?> fetchProductDetails(String productID) async {
     try {
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+      final snapshot = await FirebaseFirestore.instance
           .collection('product')
           .where('productID', isEqualTo: productID)
           .limit(1)
           .get();
 
-      if (querySnapshot.docs.isNotEmpty) {
-        final data = querySnapshot.docs.first.data() as Map<String, dynamic>;
-        return {
-          'name': data['productName'] ?? "Unknown Product",
-          'image': data['displayImage'] ?? "https://via.placeholder.com/50",
-          'price': data['price'] is String
-              ? double.tryParse(data['price']) ?? 0
-              : data['price'],
-          'discount': data['discount'] is String
-              ? double.tryParse(data['discount']) ?? 0
-              : data['discount'] ?? 0,
-        };
-      }
+      if (snapshot.docs.isEmpty) return null;
+      final data = snapshot.docs.first.data();
+
+      return {
+        'name': data['productName'] ?? "Unknown Product",
+        'image': data['displayImage'] ?? "https://via.placeholder.com/50",
+        'price': data['price'] is String
+            ? double.tryParse(data['price']) ?? 0
+            : data['price'],
+        'discount': data['discount'] is String
+            ? double.tryParse(data['discount']) ?? 0
+            : data['discount'] ?? 0,
+      };
     } catch (e) {
-      debugPrint("Error fetching product details: $e");
+      debugPrint("Error fetching product: $e");
+      return null;
     }
-    return null;
   }
 
-  Widget buildCartCard({
-    required String productName,
-    required String productImage,
-    required double price,
-    required int quantity,
-    required VoidCallback onIncrement,
-    required VoidCallback onDecrement,
+  // Keep all your existing helper widgets below...
+  Widget _buildLoginMessage() {
+    return Scaffold(
+      appBar: AppBar(
+        iconTheme: const IconThemeData(color: CupertinoColors.white),
+        backgroundColor: kAppBarColor,
+        title: const Text(
+          "Your Cart",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: CupertinoColors.white,
+          ),
+        ),
+      ),
+      body: const Center(child: Text("Please log in to view your cart.")),
+    );
+  }
+
+  AppBar _buildAppBar() {
+    return AppBar(
+      iconTheme: const IconThemeData(color: CupertinoColors.white),
+      backgroundColor: kAppBarColor,
+      title: const Text(
+        "Your Cart",
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: CupertinoColors.white,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTotalContainer({
+    required double originalTotal,
+    required double discountTotal,
+    required double finalAmount,
   }) {
     return Container(
-      height: 130,
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.1),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
+            blurRadius: 10,
+            offset: const Offset(0, -4),
           ),
         ],
       ),
-      child: Row(
+      child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.network(
-                productImage,
-                width: 100,
-                height: 100,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    productName,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    '$quantity x ₹${price.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    "₹${(quantity * price).toStringAsFixed(2)}",
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.green,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _customIcon(icon: Icons.remove, onTap: onDecrement),
-                const SizedBox(height: 8),
-                Container(
-                  width: 30,
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    '$quantity',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                _customIcon(icon: Icons.add, onTap: onIncrement),
-              ],
-            ),
-          ),
+          _buildPricingRow('Original Price', originalTotal),
+          _buildPricingRow('Discount', -discountTotal),
+          const Divider(height: 20, thickness: 1),
+          _buildPricingRow('Total Price', finalAmount, isFinal: true),
         ],
-      ),
-    );
-  }
-
-  Widget _buildCartItem({
-    required BuildContext context,
-    required String productName,
-    required String productImage,
-    required double price,
-    required double discount,
-    required int quantity,
-    required VoidCallback onIncrement,
-    required VoidCallback onDecrement,
-    required VoidCallback onDelete,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8),
-      child: Slidable(
-        endActionPane: ActionPane(
-          motion: const DrawerMotion(),
-          children: [
-            SlidableAction(
-              onPressed: (_) => onDelete(),
-              backgroundColor: Colors.red,
-              icon: Icons.delete_rounded,
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ],
-        ),
-        child: buildCartCard(
-          productName: productName,
-          productImage: productImage,
-          price: price,
-          quantity: quantity,
-          onIncrement: onIncrement,
-          onDecrement: onDecrement,
-        ),
-      ),
-    );
-  }
-
-  Widget _customIcon({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 23,
-        width: 23,
-        decoration: BoxDecoration(
-          color: Colors.grey.shade200,
-          borderRadius: BorderRadius.circular(5),
-        ),
-        child: Icon(icon, color: Colors.grey, size: 18),
       ),
     );
   }
@@ -213,7 +211,7 @@ class _CartScreenState extends State<CartScreen> {
             ),
           ),
           Text(
-            '₹${value.abs().toStringAsFixed(2)}',
+            '₹${value.toStringAsFixed(2)}',
             style: TextStyle(
               fontSize: isFinal ? 16 : 14,
               fontWeight: isFinal ? FontWeight.w600 : FontWeight.normal,
@@ -224,168 +222,203 @@ class _CartScreenState extends State<CartScreen> {
       ),
     );
   }
+}
+
+class CartItemWidget extends StatefulWidget {
+  final String cartDocId;
+
+  const CartItemWidget({super.key, required this.cartDocId});
+
+  @override
+  State<CartItemWidget> createState() => _CartItemWidgetState();
+}
+
+class _CartItemWidgetState extends State<CartItemWidget>
+    with AutomaticKeepAliveClientMixin {
+  late final Stream<DocumentSnapshot> _cartStream;
+  late final Future<Map<String, dynamic>?> _productFuture;
+  DocumentReference? _cartDocRef;
+
+  @override
+  void initState() {
+    super.initState();
+    _cartStream = FirebaseFirestore.instance
+        .collection('cart')
+        .doc(widget.cartDocId)
+        .snapshots();
+    _productFuture = _fetchProductDetails();
+  }
+
+  Future<Map<String, dynamic>?> _fetchProductDetails() async {
+    final cartDoc = await _cartStream.first;
+    _cartDocRef = cartDoc.reference;
+    final productID = cartDoc['ProductID'];
+    return _CartScreenState().fetchProductDetails(productID);
+  }
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
-    final userID = FirebaseAuth.instance.currentUser?.uid;
+    super.build(context);
+    return StreamBuilder<DocumentSnapshot>(
+      stream: _cartStream,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const SizedBox.shrink();
 
-    if (userID == null) {
-      return Scaffold(
-        appBar: AppBar(
-          iconTheme: const IconThemeData(color: CupertinoColors.white),
-          backgroundColor: kAppBarColor,
-          title: const Text(
-            "Your Cart",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: CupertinoColors.white,
-            ),
-          ),
-        ),
-        body: const Center(child: Text("Please log in to view your cart.")),
-      );
-    }
+        final quantity = snapshot.data!['Quantity'] as int;
+        return FutureBuilder<Map<String, dynamic>?>(
+          future: _productFuture,
+          builder: (context, productSnapshot) {
+            if (!productSnapshot.hasData) return const SizedBox.shrink();
 
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: CupertinoColors.white),
-        backgroundColor: kAppBarColor,
-        title: const Text(
-          "Your Cart",
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: CupertinoColors.white,
+            final productData = productSnapshot.data!;
+            return _buildSlidableItem(productData, quantity);
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildSlidableItem(Map<String, dynamic> productData, int quantity) {
+    return Slidable(
+      endActionPane: ActionPane(
+        motion: const DrawerMotion(),
+        children: [
+          SlidableAction(
+            onPressed: (_) => _cartDocRef?.delete(),
+            backgroundColor: Colors.red,
+            icon: Icons.delete_rounded,
+            borderRadius: BorderRadius.circular(12),
           ),
-        ),
+        ],
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('cart')
-            .where('UserID', isEqualTo: userID)
-            .where('isOrderDone', isEqualTo: false)
-            .snapshots(),
-        builder: (context, cartSnapshot) {
-          if (cartSnapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CustomCupertinoActivityIndicator());
-          }
+      child: _buildCartCard(productData, quantity),
+    );
+  }
 
-          if (!cartSnapshot.hasData || cartSnapshot.data!.docs.isEmpty) {
-            return const Center(child: Text("Your cart is empty!"));
-          }
-
-          final cartItems = cartSnapshot.data!.docs;
-          final productFutures = cartItems
-              .map((doc) => fetchProductDetails(doc['ProductID']))
-              .toList();
-
-          return FutureBuilder<List<Map<String, dynamic>?>>(
-            future: Future.wait(productFutures),
-            builder: (context, productSnapshot) {
-              if (productSnapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CustomCupertinoActivityIndicator());
-              }
-
-              if (productSnapshot.hasError || !productSnapshot.hasData) {
-                return const Center(child: Text("Error loading products"));
-              }
-
-              final productDetails = productSnapshot.data!;
-              final List<Widget> cartCards = [];
-              double originalTotal = 0.0;
-              double discountTotal = 0.0;
-
-              for (int i = 0; i < cartItems.length; i++) {
-                final cartItem = cartItems[i];
-                final details = productDetails[i];
-                if (details == null) continue;
-
-                final price = details['price'] as double;
-                final discount = details['discount'] as double;
-                final quantity = cartItem['Quantity'] as int;
-                final itemPrice = price * quantity;
-                final itemDiscount = (price * (discount / 100)) * quantity;
-
-                originalTotal += itemPrice;
-                discountTotal += itemDiscount;
-
-                cartCards.add(
-                  _buildCartItem(
-                    context: context,
-                    productName: details['name'],
-                    productImage: details['image'],
-                    price: price,
-                    discount: discount,
-                    quantity: quantity,
-                    onIncrement: () async {
-                      await cartItem.reference.update({
-                        'Quantity': quantity + 1,
-                        'Modified': FieldValue.serverTimestamp(),
-                      });
-                    },
-                    onDecrement: () async {
-                      if (quantity > 1) {
-                        await cartItem.reference.update({
-                          'Quantity': quantity - 1,
-                          'Modified': FieldValue.serverTimestamp(),
-                        });
-                      } else {
-                        await cartItem.reference.delete();
-                      }
-                    },
-                    onDelete: () async {
-                      await cartItem.reference.delete();
-                    },
-                  ),
-                );
-              }
-
-              final double finalAmount = originalTotal - discountTotal;
-
-              return Stack(
-                children: [
-                  ListView(
-                    padding: const EdgeInsets.only(bottom: 150),
-                    children: cartCards,
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.1),
-                            blurRadius: 10,
-                            offset: const Offset(0, -4),
-                          ),
-                        ],
+  Widget _buildCartCard(Map<String, dynamic> productData, int quantity) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8),
+      child: Container(
+        height: 130,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.network(
+                  productData['image'],
+                  width: 100,
+                  height: 100,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      productData['name'],
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
                       ),
-                      child: Column(
-                        children: [
-                          _buildPricingRow('Original Price', originalTotal),
-                          if (discountTotal > 0)
-                            _buildPricingRow('Discount', -discountTotal),
-                          _buildPricingRow(
-                            'Final Amount',
-                            finalAmount,
-                            isFinal: true,
-                          ),
-                        ],
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '$quantity x ₹${productData['price'].toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade600,
                       ),
                     ),
+                    const SizedBox(height: 5),
+                    Text(
+                      "₹${(quantity * productData['price']).toStringAsFixed(2)}",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.green,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildIconButton(Icons.remove, () => _updateQuantity(quantity - 1)),
+                  const SizedBox(height: 8),
+                  Container(
+                    width: 30,
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      '$quantity',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 14),
+                    ),
                   ),
+                  const SizedBox(height: 8),
+                  _buildIconButton(Icons.add, () => _updateQuantity(quantity + 1)),
                 ],
-              );
-            },
-          );
-        },
+              ),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  Widget _buildIconButton(IconData icon, VoidCallback onPressed) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        height: 23,
+        width: 23,
+        decoration: BoxDecoration(
+          color: Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(5),
+        ),
+        child: Icon(icon, color: Colors.grey, size: 18),
+      ),
+    );
+  }
+
+  void _updateQuantity(int newQuantity) {
+    if (newQuantity < 1) {
+      _cartDocRef?.delete();
+    } else {
+      _cartDocRef?.update({
+        'Quantity': newQuantity,
+        'Modified': FieldValue.serverTimestamp(),
+      });
+    }
   }
 }
