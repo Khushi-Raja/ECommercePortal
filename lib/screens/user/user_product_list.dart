@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +14,42 @@ class UserProductList extends StatefulWidget {
   @override
   State<UserProductList> createState() => _UserProductListState();
 }
-
 class _UserProductListState extends State<UserProductList> {
-  TextEditingController searchController = TextEditingController();
-  String searchQuery = "";
+  final TextEditingController _searchController = TextEditingController();
+  final Debouncer _searchDebouncer = Debouncer(milliseconds: 500);
+  String _searchQuery = "";
+  late Future<Map<String, String>> _categoryMap;
+
+  @override
+  void initState() {
+    super.initState();
+    _categoryMap = _loadCategories();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<Map<String, String>> _loadCategories() async {
+    try {
+      final querySnapshot =
+          await FirebaseFirestore.instance.collection('category').get();
+
+      return {
+        for (var doc in querySnapshot.docs)
+          doc['categoryID']: doc['categoryName'] ?? 'Unnamed Category'
+      };
+    } catch (e) {
+      debugPrint("Error loading categories: $e");
+      return {};
+    }
+  }
+
+  String _getCategoryName(String categoryID, Map<String, String> categories) {
+    return categories[categoryID] ?? 'Unknown Category';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,19 +70,19 @@ class _UserProductListState extends State<UserProductList> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            // Search Bar
             Row(
               children: [
                 Expanded(
                   child: CustomTextFormField(
-                    controller: searchController,
+                    controller: _searchController,
                     prefixIcon: const Icon(Icons.search),
                     obscureText: false,
                     keyboardType: TextInputType.name,
                     labelText: "Search Products or Categories",
                     onChanged: (value) {
-                      setState(() {
-                        searchQuery = value.toLowerCase();
+                      _searchDebouncer.run(() {
+                        setState(
+                            () => _searchQuery = value.trim().toLowerCase());
                       });
                     },
                     validator: (value) => null,
@@ -58,74 +91,38 @@ class _UserProductListState extends State<UserProductList> {
                 const SizedBox(width: 8),
                 _buildIcon(
                   Icons.shopping_cart_outlined,
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return const CartScreen();
-                        },
-                      ),
-                    );
-                  },
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const CartScreen()),
+                  ),
                 ),
                 const SizedBox(width: 8),
                 _buildIcon(Icons.notifications_none),
               ],
             ),
-
-            // Grid View for Products
+            const SizedBox(height: 8),
             Expanded(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('product')
-                    .orderBy('productName')
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const Center(
-                      child: CustomCupertinoActivityIndicator(),
-                    );
+              child: FutureBuilder<Map<String, String>>(
+                future: _categoryMap,
+                builder: (context, categorySnapshot) {
+                  if (!categorySnapshot.hasData) {
+                    return const CustomCupertinoActivityIndicator();
                   }
 
-                  final allDocs = snapshot.data!.docs;
-                  List<DocumentSnapshot> filteredDocs = [];
-
-                  return FutureBuilder<List<DocumentSnapshot>>(
-                    future: _filterProducts(allDocs),
-                    builder: (context, filterSnapshot) {
-                      if (!filterSnapshot.hasData) {
-                        return const Center(
-                          child: CustomCupertinoActivityIndicator(),
-                        );
+                  return StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('product')
+                        .orderBy('productName')
+                        .snapshots(),
+                    builder: (context, productSnapshot) {
+                      if (!productSnapshot.hasData) {
+                        return const CustomCupertinoActivityIndicator();
                       }
 
-                      filteredDocs = filterSnapshot.data!;
-                      return GridView.builder(
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 0.75,
-                        ),
-                        itemCount: filteredDocs.length,
-                        itemBuilder: (context, index) {
-                          final doc = filteredDocs[index];
-                          final data = doc.data() as Map<String, dynamic>;
-
-                          return FutureBuilder<String>(
-                            future: getCategoryName(data['categoryID']),
-                            builder: (context, categorySnapshot) {
-                              if (!categorySnapshot.hasData) {
-                                return const CustomCupertinoActivityIndicator();
-                              }
-
-                              final categoryName = categorySnapshot.data!;
-                              return ProductCard(
-                                data: data,
-                                categoryName: categoryName,
-                              );
-                            },
-                          );
-                        },
+                      final products = productSnapshot.data!.docs;
+                      return _buildProductGrid(
+                        products: products,
+                        categories: categorySnapshot.data!,
                       );
                     },
                   );
@@ -138,45 +135,41 @@ class _UserProductListState extends State<UserProductList> {
     );
   }
 
-  /// Filters products based on search query
-  Future<List<DocumentSnapshot>> _filterProducts(
-      List<DocumentSnapshot> allDocs) async {
-    List<DocumentSnapshot> filteredDocs = [];
+  Widget _buildProductGrid(
+      {required List<QueryDocumentSnapshot> products,
+      required Map<String, String> categories}) {
+    final filteredProducts = _searchQuery.isEmpty
+        ? products
+        : products.where((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            final productName =
+                data['productName']?.toString().toLowerCase() ?? '';
+            final categoryName =
+                _getCategoryName(data['categoryID'], categories).toLowerCase();
+            return productName.contains(_searchQuery) ||
+                categoryName.contains(_searchQuery);
+          }).toList();
 
-    for (var doc in allDocs) {
-      final data = doc.data() as Map<String, dynamic>;
-      final categoryName = await getCategoryName(data['categoryID']);
-
-      if (data['productName'].toString().toLowerCase().contains(searchQuery) ||
-          categoryName.toLowerCase().contains(searchQuery)) {
-        filteredDocs.add(doc);
-      }
-    }
-
-    return filteredDocs;
+    return GridView.builder(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.75,
+      ),
+      itemCount: filteredProducts.length,
+      itemBuilder: (context, index) {
+        final doc = filteredProducts[index];
+        final data = doc.data() as Map<String, dynamic>;
+        final categoryID = data['categoryID']?.toString() ?? '';
+        final categoryName = _getCategoryName(categoryID, categories);
+        return ProductCard(
+          data: data,
+          categoryName: categoryName,
+        );
+      },
+    );
   }
 
-  /// Fetches category name based on categoryID
-  Future<String> getCategoryName(String categoryID) async {
-    try {
-      final querySnapshot = await FirebaseFirestore.instance
-          .collection('category')
-          .where('categoryID', isEqualTo: categoryID)
-          .get();
-
-      if (querySnapshot.docs.isNotEmpty) {
-        final categoryData =
-            querySnapshot.docs.first.data() as Map<String, dynamic>?;
-        return categoryData?['categoryName'] ?? "Unknown Category";
-      } else {
-        return "Unknown Category";
-      }
-    } catch (e) {
-      return "Error fetching category";
-    }
-  }
-
-  Widget _buildIcon(IconData icon, {void Function()? onTap}) {
+  Widget _buildIcon(IconData icon, {VoidCallback? onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -195,43 +188,41 @@ class ProductCard extends StatelessWidget {
   final Map<String, dynamic> data;
   final String categoryName;
 
-  const ProductCard({Key? key, required this.data, required this.categoryName})
-      : super(key: key);
+  const ProductCard(
+      {super.key, required this.data, required this.categoryName});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ProductDetail(productData: data),
-          ),
-        );
-      },
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ProductDetail(productData: data),
+        ),
+      ),
       child: Card(
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image Section
             Flexible(
               child: Stack(
                 children: [
                   ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12),
-                    ),
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(8)),
                     child: Image.network(
                       data['displayImage'],
                       height: 150,
                       width: double.infinity,
                       fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return const Center(
+                            child: CustomCupertinoActivityIndicator());
+                      },
                     ),
                   ),
                   Positioned(
@@ -250,9 +241,8 @@ class ProductCard extends StatelessWidget {
                 ],
               ),
             ),
-            // Details Section
-            Container(
-              padding: const EdgeInsets.all(6),
+            Padding(
+              padding: const EdgeInsets.all(8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -299,4 +289,14 @@ class ProductCard extends StatelessWidget {
       ),
     );
   }
+}
+class Debouncer {
+  final int milliseconds;
+  Timer? _timer;
+  Debouncer({required this.milliseconds});
+  void run(VoidCallback action) {
+    _timer?.cancel(); // Cancel the existing timer
+    _timer = Timer(Duration(milliseconds: milliseconds), action);
+  }
+  void cancel() => _timer?.cancel();
 }
