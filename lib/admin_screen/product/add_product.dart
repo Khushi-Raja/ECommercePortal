@@ -249,10 +249,10 @@ class _AddProductState extends State<AddProduct> {
               const SizedBox(height: 5),
               CustomButton(
                 buttonName: widget.productName.isNotEmpty
-                    ? 'Update Category'
-                    : 'Add Category',
+                    ? 'Update Product'
+                    : 'Add Product',
                 onPressed: submit,
-                backgroundColor: CupertinoColors.black,
+                backgroundColor: Colors.purple,
                 textColor: CupertinoColors.white,
               ),
             ],

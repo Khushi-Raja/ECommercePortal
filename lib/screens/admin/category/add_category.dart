@@ -126,7 +126,7 @@ class _AddCategoryState extends State<AddCategory> {
                     ? 'Update Category'
                     : 'Add Category',
                 onPressed: submit,
-                backgroundColor: CupertinoColors.black,
+                backgroundColor: Colors.purple,
                 textColor: CupertinoColors.white,
               ),
             ],

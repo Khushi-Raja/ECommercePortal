@@ -79,7 +79,7 @@ class _ProductDetailState extends State<ProductDetail> {
         _cartQuantity = 1;
       });
     } catch (e) {
-      print('Error adding to Cart: $e');
+      throw('Error adding to Cart: $e');
     }
   }
 

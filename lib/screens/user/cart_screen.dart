@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:link/components/custom_button.dart';
 import 'package:link/constants/color.dart';
 import '../../components/custom_circular_progress_indicator.dart';
 
@@ -29,7 +30,7 @@ class _CartScreenState extends State<CartScreen> {
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child:CustomCupertinoActivityIndicator());
+            return const Center(child: CustomCupertinoActivityIndicator());
           }
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(child: Text("Your cart is empty!"));
@@ -46,7 +47,7 @@ class _CartScreenState extends State<CartScreen> {
     return Stack(
       children: [
         ListView.builder(
-          padding: const EdgeInsets.only(bottom: 150),
+          padding: const EdgeInsets.only(bottom: 200),
           itemCount: cartItems.length,
           itemBuilder: (context, index) => CartItemWidget(
             cartDocId: cartItems[index].id,
@@ -59,7 +60,6 @@ class _CartScreenState extends State<CartScreen> {
           right: 0,
           child: Column(
             children: [
-
               _buildTotalSummary(cartItems),
             ],
           ),
@@ -191,6 +191,12 @@ class _CartScreenState extends State<CartScreen> {
           _buildPricingRow('Discount', -discountTotal),
           const Divider(height: 20, thickness: 1),
           _buildPricingRow('Total Price', finalAmount, isFinal: true),
+          CustomButton(
+            buttonName: "Proceed to Checkout",
+            backgroundColor: Colors.purple,
+            textColor: Colors.white,
+            onPressed: () {},
+          )
         ],
       ),
     );
@@ -215,7 +221,9 @@ class _CartScreenState extends State<CartScreen> {
             style: TextStyle(
               fontSize: isFinal ? 16 : 14,
               fontWeight: isFinal ? FontWeight.w600 : FontWeight.normal,
-              color: value < 0 ? Colors.red : (isFinal ? Colors.green : Colors.black),
+              color: value < 0
+                  ? Colors.red
+                  : (isFinal ? Colors.green : Colors.black),
             ),
           ),
         ],
@@ -370,7 +378,8 @@ class _CartItemWidgetState extends State<CartItemWidget>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildIconButton(Icons.remove, () => _updateQuantity(quantity - 1)),
+                  _buildIconButton(
+                      Icons.remove, () => _updateQuantity(quantity - 1)),
                   const SizedBox(height: 8),
                   Container(
                     width: 30,
@@ -386,7 +395,8 @@ class _CartItemWidgetState extends State<CartItemWidget>
                     ),
                   ),
                   const SizedBox(height: 8),
-                  _buildIconButton(Icons.add, () => _updateQuantity(quantity + 1)),
+                  _buildIconButton(
+                      Icons.add, () => _updateQuantity(quantity + 1)),
                 ],
               ),
             ),
