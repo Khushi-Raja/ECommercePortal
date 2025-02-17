@@ -57,6 +57,38 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     cityController.text = widget.city;
     selectedState = widget.state;
   }
+
+  final List<String> statesList = [
+    'Andhra Pradesh',
+    'Arunachal Pradesh',
+    'Assam',
+    'Bihar',
+    'Chhattisgarh',
+    'Goa',
+    'Gujarat',
+    'Haryana',
+    'Himachal Pradesh',
+    'Jharkhand',
+    'Karnataka',
+    'Kerala',
+    'Madhya Pradesh',
+    'Maharashtra',
+    'Manipur',
+    'Meghalaya',
+    'Mizoram',
+    'Nagaland',
+    'Odisha',
+    'Punjab',
+    'Rajasthan',
+    'Sikkim',
+    'Tamil Nadu',
+    'Telangana',
+    'Tripura',
+    'Uttar Pradesh',
+    'Uttarakhand',
+    'West Bengal',
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -151,6 +183,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                 labelText: 'Town/City',
                 obscureText: false,
               ),
+              // In your build method
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: DropdownButtonFormField<String>(
@@ -162,73 +195,26 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                   },
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: CupertinoColors.black),
+                      borderSide: const BorderSide(color: CupertinoColors.black),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: CupertinoColors.black),
+                      borderSide: const BorderSide(color: CupertinoColors.black),
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-
-                  value: selectedState ?? null,
+                  // Ensure that the selectedState is valid or null
+                  value: statesList.contains(selectedState) ? selectedState : null,
                   hint: const Text(
                     'Select State',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.black),
+                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                   ),
-                  items: const [
-                    // Add states here
-                    DropdownMenuItem(
-                        value: 'Andhra Pradesh', child: Text('Andhra Pradesh')),
-                    DropdownMenuItem(
-                        value: 'Arunachal Pradesh',
-                        child: Text('Arunachal Pradesh')),
-                    DropdownMenuItem(value: 'Assam', child: Text('Assam')),
-                    DropdownMenuItem(value: 'Bihar', child: Text('Bihar')),
-                    DropdownMenuItem(
-                        value: 'Chhattisgarh', child: Text('Chhattisgarh')),
-                    DropdownMenuItem(value: 'Goa', child: Text('Goa')),
-                    DropdownMenuItem(value: 'Gujarat', child: Text('Gujarat')),
-                    DropdownMenuItem(value: 'Haryana', child: Text('Haryana')),
-                    DropdownMenuItem(
-                        value: 'Himachal Pradesh',
-                        child: Text('Himachal Pradesh')),
-                    DropdownMenuItem(
-                        value: 'Jharkhand', child: Text('Jharkhand')),
-                    DropdownMenuItem(
-                        value: 'Karnataka', child: Text('Karnataka')),
-                    DropdownMenuItem(value: 'Kerala', child: Text('Kerala')),
-                    DropdownMenuItem(
-                        value: 'Madhya Pradesh', child: Text('Madhya Pradesh')),
-                    DropdownMenuItem(
-                        value: 'Maharashtra', child: Text('Maharashtra')),
-                    DropdownMenuItem(value: 'Manipur', child: Text('Manipur')),
-                    DropdownMenuItem(
-                        value: 'Meghalaya', child: Text('Meghalaya')),
-                    DropdownMenuItem(value: 'Mizoram', child: Text('Mizoram')),
-                    DropdownMenuItem(
-                        value: 'Nagaland', child: Text('Nagaland')),
-                    DropdownMenuItem(value: 'Odisha', child: Text('Odisha')),
-                    DropdownMenuItem(value: 'Punjab', child: Text('Punjab')),
-                    DropdownMenuItem(
-                        value: 'Rajasthan', child: Text('Rajasthan')),
-                    DropdownMenuItem(value: 'Sikkim', child: Text('Sikkim')),
-                    DropdownMenuItem(
-                        value: 'Tamil Nadu', child: Text('Tamil Nadu')),
-                    DropdownMenuItem(
-                        value: 'Telangana', child: Text('Telangana')),
-                    DropdownMenuItem(value: 'Tripura', child: Text('Tripura')),
-                    DropdownMenuItem(
-                        value: 'Uttar Pradesh', child: Text('Uttar Pradesh')),
-                    DropdownMenuItem(
-                        value: 'Uttarakhand', child: Text('Uttarakhand')),
-                    DropdownMenuItem(
-                        value: 'West Bengal', child: Text('West Bengal')),
-                    // Add more states as needed
-                  ],
+                  items: statesList.map((state) {
+                    return DropdownMenuItem(
+                      value: state,
+                      child: Text(state),
+                    );
+                  }).toList(),
                   onChanged: (value) {
                     setState(() {
                       selectedState = value;
