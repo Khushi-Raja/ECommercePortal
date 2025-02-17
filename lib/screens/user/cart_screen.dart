@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:link/components/custom_button.dart';
 import 'package:link/constants/color.dart';
+import 'package:link/screens/user/shipping_address_screen.dart';
 import '../../components/custom_circular_progress_indicator.dart';
 
 class CartScreen extends StatefulWidget {
@@ -193,9 +194,17 @@ class _CartScreenState extends State<CartScreen> {
           _buildPricingRow('Total Price', finalAmount, isFinal: true),
           CustomButton(
             buttonName: "Proceed to Checkout",
-            backgroundColor: Colors.purple,
+            backgroundColor: kAppBarColor,
             textColor: Colors.white,
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) {
+                    return ShippingAddressScreen();
+                  },
+                ),
+              );
+            },
           )
         ],
       ),

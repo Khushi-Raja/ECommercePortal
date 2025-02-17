@@ -252,7 +252,7 @@ class _AddProductState extends State<AddProduct> {
                     ? 'Update Product'
                     : 'Add Product',
                 onPressed: submit,
-                backgroundColor: Colors.purple,
+                backgroundColor: kAppBarColor,
                 textColor: CupertinoColors.white,
               ),
             ],
