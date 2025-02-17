@@ -29,7 +29,8 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
         .get();
 
     setState(() {
-      addresses = snapshot.docs.map((doc) => Address.fromFirestore(doc)).toList();
+      addresses =
+          snapshot.docs.map((doc) => Address.fromFirestore(doc)).toList();
     });
   }
 
@@ -52,15 +53,11 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
     ).then((_) => _fetchAddresses());
   }
 
-  void _removeAddress(String addressID) async {
-    await FirebaseFirestore.instance.collection('address').doc(addressID).delete();
-    _fetchAddresses();
-  }
-
   Widget _buildAddressSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const Divider(thickness: 1),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: Text(
@@ -77,7 +74,6 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
             onPressed: () => _navigateToAddAddress(null),
           ),
         ),
-        const Divider(thickness: 1, height: 40),
       ],
     );
   }
@@ -90,7 +86,10 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
         iconTheme: const IconThemeData(color: Colors.white),
         title: const Text(
           'Select a delivery address',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: CupertinoColors.white),
+          style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: CupertinoColors.white),
         ),
       ),
       body: SingleChildScrollView(
@@ -98,19 +97,28 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.all(20),
-              child: Text('All addresses (${addresses.length})', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+              child: Text('All addresses (${addresses.length})',
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold)),
             ),
             const Divider(thickness: 1),
             if (addresses.isEmpty) ...[
               const Padding(
                 padding: EdgeInsets.all(20),
-                child: Text('No saved addresses found. Please add a delivery address.', style: TextStyle(fontSize: 16)),
+                child: Text(
+                    'No saved addresses found. Please add a delivery address.',
+                    style: TextStyle(fontSize: 16)),
               ),
               _buildAddressSection(),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: CustomButton(backgroundColor: Colors.grey[300]!, textColor: Colors.black, buttonName: 'Back to cart', onPressed: () => Navigator.pop(context)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: CustomButton(
+                    backgroundColor: Colors.grey[300]!,
+                    textColor: Colors.black,
+                    buttonName: 'Back to cart',
+                    onPressed: () => Navigator.pop(context)),
               )
             ] else ...[
               ListView.builder(
@@ -120,7 +128,8 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
                 itemBuilder: (context, index) {
                   final address = addresses[index];
                   return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                    margin: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 15),
                     elevation: 4,
                     child: Padding(
                       padding: const EdgeInsets.all(15),
@@ -132,26 +141,36 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
                               Radio<String>(
                                 value: address.id,
                                 groupValue: selectedAddressID,
-                                onChanged: (value) => setState(() => selectedAddressID = value!),
+                                onChanged: (value) =>
+                                    setState(() => selectedAddressID = value!),
                               ),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(address.fullAddress, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                                    Text(address.mobileNumber, style: const TextStyle(fontSize: 14)),
+                                    Text(address.fullAddress,
+                                        style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold)),
+                                    Text(address.mobileNumber,
+                                        style: const TextStyle(fontSize: 14)),
                                   ],
                                 ),
                               ),
                             ],
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              TextButton(child: const Text('Edit'), onPressed: () => _navigateToAddAddress(address)),
-                              const SizedBox(width: 10),
-                              TextButton(onPressed: () => _removeAddress(address.id), child: const Text('Remove', style: TextStyle(color: Colors.red))),
-                            ],
+                          CustomButton(
+                            buttonName: 'Deliver to this Address',
+                            backgroundColor: Colors.yellow,
+                            textColor: Colors.black,
+                            onPressed: () {},
+                          ),
+                          const SizedBox(height: 5),
+                          CustomButton(
+                            buttonName: 'Edit Address',
+                            backgroundColor: Colors.white,
+                            textColor: Colors.black,
+                            onPressed: () => _navigateToAddAddress(address),
                           ),
                         ],
                       ),
@@ -160,10 +179,6 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
                 },
               ),
               _buildAddressSection(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: CustomButton(backgroundColor: Colors.grey[300]!, textColor: Colors.black, buttonName: 'Back to cart', onPressed: () => Navigator.pop(context)),
-              ),
             ]
           ],
         ),
@@ -173,7 +188,15 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
 }
 
 class Address {
-  final String id, country, mobileNumber, flatHouseNo, areaStreet, pinCode, townCity, state, userID;
+  final String id,
+      country,
+      mobileNumber,
+      flatHouseNo,
+      areaStreet,
+      pinCode,
+      townCity,
+      state,
+      userID;
 
   Address({
     required this.id,
@@ -202,5 +225,6 @@ class Address {
     );
   }
 
-  String get fullAddress => '$flatHouseNo, $areaStreet, $townCity, $state, $pinCode';
+  String get fullAddress =>
+      '$flatHouseNo, $areaStreet, $townCity, $state, $pinCode';
 }

@@ -28,10 +28,7 @@ class CustomButton extends StatelessWidget {
         ),
         child: TextButton(
           style: ButtonStyle(
-            // Setting the overlay color when the button is pressed
-            overlayColor: WidgetStateProperty.resolveWith(
-                  (states) => Colors.black12, // Light black color on press
-            ),
+            overlayColor: MaterialStateProperty.all(Colors.transparent), // Remove the overlay effect
           ),
           onPressed: onPressed, // The action performed when the button is pressed
           child: Text(
