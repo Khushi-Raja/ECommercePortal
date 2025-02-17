@@ -9,6 +9,29 @@ import '../../constants/color.dart';
 import '../../constants/generate_id.dart';
 
 class AddAddressScreen extends StatefulWidget {
+  final String addressID;
+  final String countryName;
+  final String mobileNumber;
+  final String flatHouseNumber;
+  final String areaStreet;
+  final String pinCode;
+  final String city;
+  final String state;
+  final String userID;
+
+  const AddAddressScreen({
+    super.key,
+    required this.addressID,
+    required this.countryName,
+    required this.mobileNumber,
+    required this.flatHouseNumber,
+    required this.areaStreet,
+    required this.pinCode,
+    required this.city,
+    required this.state,
+    required this.userID,
+  });
+
   @override
   _AddAddressScreenState createState() => _AddAddressScreenState();
 }
@@ -23,6 +46,17 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   TextEditingController cityController = TextEditingController();
   String? selectedState;
 
+  @override
+  void initState() {
+    super.initState();
+    countryNameController.text = widget.countryName;
+    mobileNumberController.text = widget.mobileNumber;
+    flatHouseNumberController.text = widget.flatHouseNumber;
+    areaStreetController.text = widget.areaStreet;
+    pinCodeController.text = widget.pinCode;
+    cityController.text = widget.city;
+    selectedState = widget.state;
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -129,49 +163,76 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderSide:
-                      const BorderSide(color: CupertinoColors.black),
+                          const BorderSide(color: CupertinoColors.black),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: CupertinoColors.black),
+                      borderSide:
+                          const BorderSide(color: CupertinoColors.black),
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  hint: const Text('Select State', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),),
+
+                  value: selectedState ?? null,
+                  hint: const Text(
+                    'Select State',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.black),
+                  ),
                   items: const [
                     // Add states here
-                    DropdownMenuItem(value: 'Andhra Pradesh', child: Text('Andhra Pradesh')),
-                    DropdownMenuItem(value: 'Arunachal Pradesh', child: Text('Arunachal Pradesh')),
+                    DropdownMenuItem(
+                        value: 'Andhra Pradesh', child: Text('Andhra Pradesh')),
+                    DropdownMenuItem(
+                        value: 'Arunachal Pradesh',
+                        child: Text('Arunachal Pradesh')),
                     DropdownMenuItem(value: 'Assam', child: Text('Assam')),
                     DropdownMenuItem(value: 'Bihar', child: Text('Bihar')),
-                    DropdownMenuItem(value: 'Chhattisgarh', child: Text('Chhattisgarh')),
+                    DropdownMenuItem(
+                        value: 'Chhattisgarh', child: Text('Chhattisgarh')),
                     DropdownMenuItem(value: 'Goa', child: Text('Goa')),
                     DropdownMenuItem(value: 'Gujarat', child: Text('Gujarat')),
                     DropdownMenuItem(value: 'Haryana', child: Text('Haryana')),
-                    DropdownMenuItem(value: 'Himachal Pradesh', child: Text('Himachal Pradesh')),
-                    DropdownMenuItem(value: 'Jharkhand', child: Text('Jharkhand')),
-                    DropdownMenuItem(value: 'Karnataka', child: Text('Karnataka')),
+                    DropdownMenuItem(
+                        value: 'Himachal Pradesh',
+                        child: Text('Himachal Pradesh')),
+                    DropdownMenuItem(
+                        value: 'Jharkhand', child: Text('Jharkhand')),
+                    DropdownMenuItem(
+                        value: 'Karnataka', child: Text('Karnataka')),
                     DropdownMenuItem(value: 'Kerala', child: Text('Kerala')),
-                    DropdownMenuItem(value: 'Madhya Pradesh', child: Text('Madhya Pradesh')),
-                    DropdownMenuItem(value: 'Maharashtra', child: Text('Maharashtra')),
+                    DropdownMenuItem(
+                        value: 'Madhya Pradesh', child: Text('Madhya Pradesh')),
+                    DropdownMenuItem(
+                        value: 'Maharashtra', child: Text('Maharashtra')),
                     DropdownMenuItem(value: 'Manipur', child: Text('Manipur')),
-                    DropdownMenuItem(value: 'Meghalaya', child: Text('Meghalaya')),
+                    DropdownMenuItem(
+                        value: 'Meghalaya', child: Text('Meghalaya')),
                     DropdownMenuItem(value: 'Mizoram', child: Text('Mizoram')),
-                    DropdownMenuItem(value: 'Nagaland', child: Text('Nagaland')),
+                    DropdownMenuItem(
+                        value: 'Nagaland', child: Text('Nagaland')),
                     DropdownMenuItem(value: 'Odisha', child: Text('Odisha')),
                     DropdownMenuItem(value: 'Punjab', child: Text('Punjab')),
-                    DropdownMenuItem(value: 'Rajasthan', child: Text('Rajasthan')),
+                    DropdownMenuItem(
+                        value: 'Rajasthan', child: Text('Rajasthan')),
                     DropdownMenuItem(value: 'Sikkim', child: Text('Sikkim')),
-                    DropdownMenuItem(value: 'Tamil Nadu', child: Text('Tamil Nadu')),
-                    DropdownMenuItem(value: 'Telangana', child: Text('Telangana')),
+                    DropdownMenuItem(
+                        value: 'Tamil Nadu', child: Text('Tamil Nadu')),
+                    DropdownMenuItem(
+                        value: 'Telangana', child: Text('Telangana')),
                     DropdownMenuItem(value: 'Tripura', child: Text('Tripura')),
-                    DropdownMenuItem(value: 'Uttar Pradesh', child: Text('Uttar Pradesh')),
-                    DropdownMenuItem(value: 'Uttarakhand', child: Text('Uttarakhand')),
-                    DropdownMenuItem(value: 'West Bengal', child: Text('West Bengal')),
+                    DropdownMenuItem(
+                        value: 'Uttar Pradesh', child: Text('Uttar Pradesh')),
+                    DropdownMenuItem(
+                        value: 'Uttarakhand', child: Text('Uttarakhand')),
+                    DropdownMenuItem(
+                        value: 'West Bengal', child: Text('West Bengal')),
                     // Add more states as needed
                   ],
                   onChanged: (value) {
-                    selectedState = value!;
+                    setState(() {
+                      selectedState = value;
+                    });
                   },
                 ),
               ),
@@ -191,15 +252,21 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
 
   Future<void> addAddress() async {
     try {
-      int? lastID = await getLastID(collectionName: "address", primaryKey: "addressID");
+      int? lastID =
+          await getLastID(collectionName: "address", primaryKey: "addressID");
       int newID = (lastID ?? 0) + 1; // Generate next ID
-      String newIDString = newID.toString().padLeft(3, '0'); // Convert to zero-padded string
+      String newIDString =
+          newID.toString().padLeft(3, '0'); // Convert to zero-padded string
       final userID = FirebaseAuth.instance.currentUser?.uid;
-      await FirebaseFirestore.instance.collection('address').doc(newIDString).set({
+      await FirebaseFirestore.instance
+          .collection('address')
+          .doc(newIDString)
+          .set({
         "addressID": newIDString, // Store as a string
         'Country/Region': countryNameController.text.trim(),
         'Mobile number': mobileNumberController.text.trim(),
-        'Flat, House no., Building, Company, Apartment': flatHouseNumberController.text.trim(),
+        'Flat, House no., Building, Company, Apartment':
+            flatHouseNumberController.text.trim(),
         'Area, Street, Village': areaStreetController.text.trim(),
         'Pin code': pinCodeController.text.trim(),
         'Town City': cityController.text.trim(),
@@ -215,36 +282,36 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     }
   }
 
-  // Future<void> updateProduct() async {
-  //   try {
-  //     final querySnapshot = await FirebaseFirestore.instance
-  //         .collection('address')
-  //         .where('addressID', isEqualTo: widget.addressID)
-  //         .get();
-  //
-  //     if (querySnapshot.docs.isNotEmpty) {
-  //       final addressSnapShot = querySnapshot.docs.first;
-  //       final addressData = addressSnapShot.data() as Map<String, dynamic>?;
-  //
-  //       if (addressData != null) {
-  //         await addressSnapShot.reference.update({
-  //           'Country/Region': countryNameController.text.trim(),
-  //           'Mobile number': mobileNumberController.text.trim(),
-  //           'Flat, House no., Building, Company, Apartment': flatHouseNumberController.text.trim(),
-  //           'Area, Street, Village': areaStreetController.text.trim(),
-  //           'Pin code': pinCodeController.text.trim(),
-  //           'Town City': cityController.text.trim(),
-  //           'State': selectedState,
-  //           'modifiedAt': getFormattedDateTime(),
-  //         });
-  //       } else {
-  //         throw ('Document data is null or empty');
-  //       }
-  //     } else {
-  //       throw ('Address with ID ${widget.addressID} not found.');
-  //     }
-  //   } catch (e) {
-  //     throw ('Error updating Address details: $e');
-  //   }
-  // }
+// Future<void> updateProduct() async {
+//   try {
+//     final querySnapshot = await FirebaseFirestore.instance
+//         .collection('address')
+//         .where('addressID', isEqualTo: widget.addressID)
+//         .get();
+//
+//     if (querySnapshot.docs.isNotEmpty) {
+//       final addressSnapShot = querySnapshot.docs.first;
+//       final addressData = addressSnapShot.data() as Map<String, dynamic>?;
+//
+//       if (addressData != null) {
+//         await addressSnapShot.reference.update({
+//           'Country/Region': countryNameController.text.trim(),
+//           'Mobile number': mobileNumberController.text.trim(),
+//           'Flat, House no., Building, Company, Apartment': flatHouseNumberController.text.trim(),
+//           'Area, Street, Village': areaStreetController.text.trim(),
+//           'Pin code': pinCodeController.text.trim(),
+//           'Town City': cityController.text.trim(),
+//           'State': selectedState,
+//           'modifiedAt': getFormattedDateTime(),
+//         });
+//       } else {
+//         throw ('Document data is null or empty');
+//       }
+//     } else {
+//       throw ('Address with ID ${widget.addressID} not found.');
+//     }
+//   } catch (e) {
+//     throw ('Error updating Address details: $e');
+//   }
+// }
 }
