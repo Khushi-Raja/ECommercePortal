@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:link/components/custom_button.dart';
+import '../../components/custom_snackbar.dart';
 import '../../components/custom_textfiled.dart';
 import '../../components/dateFormat.dart';
 import '../../constants/color.dart';
@@ -195,19 +196,23 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                   },
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
-                      borderSide: const BorderSide(color: CupertinoColors.black),
+                      borderSide:
+                          const BorderSide(color: CupertinoColors.black),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: CupertinoColors.black),
+                      borderSide:
+                          const BorderSide(color: CupertinoColors.black),
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   // Ensure that the selectedState is valid or null
-                  value: statesList.contains(selectedState) ? selectedState : null,
+                  value:
+                      statesList.contains(selectedState) ? selectedState : null,
                   hint: const Text(
                     'Select State',
-                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.black),
                   ),
                   items: statesList.map((state) {
                     return DropdownMenuItem(
@@ -226,8 +231,10 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
               CustomButton(
                 backgroundColor: kAppBarColor,
                 textColor: Colors.white,
-                buttonName: 'Save Address',
-                onPressed: addAddress,
+                buttonName: widget.countryName.isNotEmpty
+                    ? 'Update Address'
+                    : 'Add Address',
+                onPressed: submit,
               ),
             ],
           ),
@@ -268,36 +275,55 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     }
   }
 
-// Future<void> updateProduct() async {
-//   try {
-//     final querySnapshot = await FirebaseFirestore.instance
-//         .collection('address')
-//         .where('addressID', isEqualTo: widget.addressID)
-//         .get();
-//
-//     if (querySnapshot.docs.isNotEmpty) {
-//       final addressSnapShot = querySnapshot.docs.first;
-//       final addressData = addressSnapShot.data() as Map<String, dynamic>?;
-//
-//       if (addressData != null) {
-//         await addressSnapShot.reference.update({
-//           'Country/Region': countryNameController.text.trim(),
-//           'Mobile number': mobileNumberController.text.trim(),
-//           'Flat, House no., Building, Company, Apartment': flatHouseNumberController.text.trim(),
-//           'Area, Street, Village': areaStreetController.text.trim(),
-//           'Pin code': pinCodeController.text.trim(),
-//           'Town City': cityController.text.trim(),
-//           'State': selectedState,
-//           'modifiedAt': getFormattedDateTime(),
-//         });
-//       } else {
-//         throw ('Document data is null or empty');
-//       }
-//     } else {
-//       throw ('Address with ID ${widget.addressID} not found.');
-//     }
-//   } catch (e) {
-//     throw ('Error updating Address details: $e');
-//   }
-// }
+  Future<void> updateAddress() async {
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('address')
+          .where('addressID', isEqualTo: widget.addressID)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        final addressSnapShot = querySnapshot.docs.first;
+        final addressData = addressSnapShot.data() as Map<String, dynamic>?;
+
+        if (addressData != null) {
+          print('Address data found: $addressData');  // Debugging line
+          await addressSnapShot.reference.update({
+            'Country/Region': countryNameController.text.trim(),
+            'Mobile number': mobileNumberController.text.trim(),
+            'Flat, House no., Building, Company, Apartment':
+            flatHouseNumberController.text.trim(),
+            'Area, Street, Village': areaStreetController.text.trim(),
+            'Pin code': pinCodeController.text.trim(),
+            'Town City': cityController.text.trim(),
+            'State': selectedState,
+            'modifiedAt': getFormattedDateTime(),
+          });
+        } else {
+          throw ('Document data is null or empty');
+        }
+      } else {
+        throw ('Address with ID ${widget.addressID} not found.');
+      }
+    } catch (e) {
+      throw ('Error updating Address details: $e');
+    }
+  }
+
+  Future<void> submit() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        if (widget.addressID.isNotEmpty) {
+          await updateAddress();
+          SnackBarUtil.show(context: context, message: "Address Updated Successfully");
+        } else {
+          await addAddress();
+          SnackBarUtil.show(context: context, message: "Address Added Successfully");
+        }
+        Navigator.of(context).pop(); // Go back to the previous screen
+      } catch (e) {
+        SnackBarUtil.show(context: context, message: "Error: $e");
+      }
+    }
+  }
 }
