@@ -214,12 +214,12 @@ class Address {
     final data = doc.data() as Map<String, dynamic>;
     return Address(
       id: doc.id,
-      country: data['Country/Region'] ?? '',
-      mobileNumber: data['Mobile number'] ?? '',
-      flatHouseNo: data['Flat, House no., Building, Company, Apartment'] ?? '',
-      areaStreet: data['Area, Street, Village'] ?? '',
-      pinCode: data['Pin code'] ?? '',
-      townCity: data['Town City'] ?? '',
+      country: data['Country'] ?? '',
+      mobileNumber: data['PhoneNo'] ?? '',
+      flatHouseNo: data['HouseNo'] ?? '',
+      areaStreet: data['Area'] ?? '',
+      pinCode: data['PinCode'] ?? '',
+      townCity: data['City'] ?? '',
       state: data['State'] ?? '',
       userID: data['userID'] ?? '',
     );

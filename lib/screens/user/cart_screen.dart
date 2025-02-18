@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:link/components/custom_button.dart';
 import 'package:link/constants/color.dart';
-import 'package:link/screens/user/checkout_screen.dart';
 import 'package:link/screens/user/shipping_address_screen.dart';
 import '../../components/custom_circular_progress_indicator.dart';
 
@@ -197,7 +196,7 @@ class _CartScreenState extends State<CartScreen> {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) {
-                    return const CheckoutScreen();
+                    return ShippingAddressScreen();
                   },
                 ),
               );
