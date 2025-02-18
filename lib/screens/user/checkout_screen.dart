@@ -5,28 +5,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:link/components/custom_button.dart';
 import 'package:link/constants/color.dart';
-import 'package:link/screens/user/checkout_screen.dart';
 import '../../components/custom_circular_progress_indicator.dart';
 
-class CartScreen extends StatefulWidget {
-  const CartScreen({Key? key}) : super(key: key);
+class CheckoutScreen extends StatefulWidget {
+  const CheckoutScreen({Key? key}) : super(key: key);
 
   @override
-  State<CartScreen> createState() => _CartScreenState();
+  State<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
-class _CartScreenState extends State<CartScreen> {
+class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     final userID = FirebaseAuth.instance.currentUser?.uid;
-    if (userID == null) return _buildLoginMessage();
-
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(color: CupertinoColors.white),
         backgroundColor: kAppBarColor,
         title: const Text(
-          "Your Cart",
+          "Checkout Screen",
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -145,24 +142,6 @@ class _CartScreenState extends State<CartScreen> {
     }
   }
 
-  // Keep all your existing helper widgets below...
-  Widget _buildLoginMessage() {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: CupertinoColors.white),
-        backgroundColor: kAppBarColor,
-        title: const Text(
-          "Your Cart",
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: CupertinoColors.white,
-          ),
-        ),
-      ),
-      body: const Center(child: Text("Please log in to view your cart.")),
-    );
-  }
 
   Widget _buildTotalContainer({
     required double originalTotal,
@@ -189,7 +168,7 @@ class _CartScreenState extends State<CartScreen> {
           const Divider(height: 20, thickness: 1),
           _buildPricingRow('Total Price', finalAmount, isFinal: true),
           CustomButton(
-            buttonName: "Proceed to Checkout",
+            buttonName: "Confirm Order",
             backgroundColor: kAppBarColor,
             textColor: Colors.white,
             onPressed: () {
@@ -266,7 +245,7 @@ class _CartItemWidgetState extends State<CartItemWidget>
     final cartDoc = await _cartStream.first;
     _cartDocRef = cartDoc.reference;
     final productID = cartDoc['ProductID'];
-    return _CartScreenState().fetchProductDetails(productID);
+    return _CheckoutScreenState().fetchProductDetails(productID);
   }
 
   @override
@@ -303,6 +282,7 @@ class _CartItemWidgetState extends State<CartItemWidget>
             onPressed: (_) => _cartDocRef?.delete(),
             backgroundColor: Colors.red,
             icon: Icons.delete_rounded,
+            foregroundColor: Colors.white,
             borderRadius: BorderRadius.circular(12),
           ),
         ],
@@ -378,62 +358,9 @@ class _CartItemWidgetState extends State<CartItemWidget>
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildIconButton(
-                      Icons.remove, () => _updateQuantity(quantity - 1)),
-                  const SizedBox(height: 8),
-                  Container(
-                    width: 30,
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      '$quantity',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  _buildIconButton(
-                      Icons.add, () => _updateQuantity(quantity + 1)),
-                ],
-              ),
-            ),
           ],
         ),
       ),
     );
-  }
-
-  Widget _buildIconButton(IconData icon, VoidCallback onPressed) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        height: 23,
-        width: 23,
-        decoration: BoxDecoration(
-          color: Colors.grey.shade200,
-          borderRadius: BorderRadius.circular(5),
-        ),
-        child: Icon(icon, color: Colors.grey, size: 18),
-      ),
-    );
-  }
-
-  void _updateQuantity(int newQuantity) {
-    if (newQuantity < 1) {
-      _cartDocRef?.delete();
-    } else {
-      _cartDocRef?.update({
-        'Quantity': newQuantity,
-        'Modified': FieldValue.serverTimestamp(),
-      });
-    }
   }
 }
