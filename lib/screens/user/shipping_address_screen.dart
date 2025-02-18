@@ -54,27 +54,14 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
   }
 
   Widget _buildAddressSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Divider(thickness: 1),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: Text(
-            'Add delivery address',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: CustomButton(
-            backgroundColor: Colors.purple,
-            textColor: Colors.white,
-            buttonName: 'Add a new delivery address',
-            onPressed: () => _navigateToAddAddress(null),
-          ),
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: CustomButton(
+        backgroundColor: Colors.purple,
+        textColor: Colors.white,
+        buttonName: 'Add a new delivery address',
+        onPressed: () => _navigateToAddAddress(null),
+      ),
     );
   }
 
@@ -94,7 +81,7 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
       ),
       body: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
@@ -102,7 +89,6 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
                   style: const TextStyle(
                       fontSize: 20, fontWeight: FontWeight.bold)),
             ),
-            const Divider(thickness: 1),
             if (addresses.isEmpty) ...[
               const Padding(
                 padding: EdgeInsets.all(20),

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:link/components/custom_button.dart';
+import '../../components/custom_snackbar.dart';
 import '../../components/custom_textfiled.dart';
 import '../../components/dateFormat.dart';
 import '../../constants/color.dart';
@@ -120,8 +121,9 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                   return null;
                 },
                 keyboardType: TextInputType.name,
-                labelText: 'Country/Region',
+                labelText: 'Country',
                 obscureText: false,
+                prefixIcon: const Icon(Icons.public),
               ),
               CustomTextFormField(
                 controller: mobileNumberController,
@@ -134,6 +136,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                 keyboardType: TextInputType.name,
                 labelText: 'Mobile Number',
                 obscureText: false,
+                prefixIcon: const Icon(Icons.phone),
               ),
               CustomTextFormField(
                 controller: flatHouseNumberController,
@@ -144,8 +147,9 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                   return null;
                 },
                 keyboardType: TextInputType.name,
-                labelText: 'Flat, House no., Building, Company, Apartment',
+                labelText: 'Flat, House number',
                 obscureText: false,
+                prefixIcon: const Icon(Icons.house),
               ),
               CustomTextFormField(
                 controller: areaStreetController,
@@ -156,8 +160,9 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                   return null;
                 },
                 keyboardType: TextInputType.name,
-                labelText: 'Area, Street, Village',
+                labelText: 'Area, Street',
                 obscureText: false,
+                prefixIcon: const Icon(Icons.directions),
               ),
               CustomTextFormField(
                 controller: pinCodeController,
@@ -170,6 +175,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                 keyboardType: TextInputType.name,
                 labelText: 'Pin Code',
                 obscureText: false,
+                prefixIcon: const Icon(Icons.pin_drop),
               ),
               CustomTextFormField(
                 controller: cityController,
@@ -182,6 +188,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                 keyboardType: TextInputType.name,
                 labelText: 'Town/City',
                 obscureText: false,
+                prefixIcon: const Icon(Icons.location_city),
               ),
               // In your build method
               Padding(
@@ -230,8 +237,10 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
               CustomButton(
                 backgroundColor: kAppBarColor,
                 textColor: Colors.white,
-                buttonName: 'Add Address',
-                onPressed: addAddress,
+                buttonName: widget.countryName.isNotEmpty
+                    ? 'Update Address'
+                    : 'Add Address',
+                onPressed: submit,
               ),
             ],
           ),
@@ -255,8 +264,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
         "addressID": newIDString, // Store as a string
         'Country': countryNameController.text.trim(),
         'PhoneNo': mobileNumberController.text.trim(),
-        'HouseNo':
-            flatHouseNumberController.text.trim(),
+        'HouseNo': flatHouseNumberController.text.trim(),
         'Area': areaStreetController.text.trim(),
         'PinCode': pinCodeController.text.trim(),
         'City': cityController.text.trim(),
@@ -271,4 +279,55 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     }
   }
 
+  Future<void> updateAddress() async {
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('address')
+          .where('addressID', isEqualTo: widget.addressID)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        final addressSnapShot = querySnapshot.docs.first;
+        final addressData = addressSnapShot.data() as Map<String, dynamic>?;
+
+        if (addressData != null) {
+          await addressSnapShot.reference.update({
+            'Country': countryNameController.text.trim(),
+            'PhoneNo': mobileNumberController.text.trim(),
+            'HouseNo': flatHouseNumberController.text.trim(),
+            'Area': areaStreetController.text.trim(),
+            'PinCode': pinCodeController.text.trim(),
+            'City': cityController.text.trim(),
+            'State': selectedState,
+            'modifiedAt': getFormattedDateTime(),
+          });
+        } else {
+          throw ('Document data is null or empty');
+        }
+      } else {
+        throw ('Address with ID ${widget.addressID} not found.');
+      }
+    } catch (e) {
+      throw ('Error updating address details: $e');
+    }
+  }
+
+  Future<void> submit() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        if (widget.countryName.isNotEmpty) {
+          await updateAddress();
+          SnackBarUtil.show(
+              context: context, message: "Address Updated Successfully");
+        } else {
+          await addAddress();
+          SnackBarUtil.show(
+              context: context, message: "Address Added Successfully");
+        }
+        Navigator.of(context).pop();
+      } catch (e) {
+        SnackBarUtil.show(context: context, message: "Error: $e");
+      }
+    }
+  }
 }
