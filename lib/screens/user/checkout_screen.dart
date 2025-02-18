@@ -2,10 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:link/components/custom_button.dart';
 import 'package:link/constants/color.dart';
 import '../../components/custom_circular_progress_indicator.dart';
+import '../../components/custom_textfiled.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({Key? key}) : super(key: key);
@@ -142,7 +142,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
   }
 
-
   Widget _buildTotalContainer({
     required double originalTotal,
     required double discountTotal,
@@ -172,13 +171,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             backgroundColor: kAppBarColor,
             textColor: Colors.white,
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) {
-                    return const CheckoutScreen();
-                  },
-                ),
-              );
+              showCustomBottomSheet(context);
             },
           )
         ],
@@ -229,7 +222,6 @@ class _CartItemWidgetState extends State<CartItemWidget>
     with AutomaticKeepAliveClientMixin {
   late final Stream<DocumentSnapshot> _cartStream;
   late final Future<Map<String, dynamic>?> _productFuture;
-  DocumentReference? _cartDocRef;
 
   @override
   void initState() {
@@ -243,7 +235,6 @@ class _CartItemWidgetState extends State<CartItemWidget>
 
   Future<Map<String, dynamic>?> _fetchProductDetails() async {
     final cartDoc = await _cartStream.first;
-    _cartDocRef = cartDoc.reference;
     final productID = cartDoc['ProductID'];
     return _CheckoutScreenState().fetchProductDetails(productID);
   }
@@ -266,28 +257,10 @@ class _CartItemWidgetState extends State<CartItemWidget>
             if (!productSnapshot.hasData) return const SizedBox.shrink();
 
             final productData = productSnapshot.data!;
-            return _buildSlidableItem(productData, quantity);
+            return _buildCartCard(productData, quantity);
           },
         );
       },
-    );
-  }
-
-  Widget _buildSlidableItem(Map<String, dynamic> productData, int quantity) {
-    return Slidable(
-      endActionPane: ActionPane(
-        motion: const DrawerMotion(),
-        children: [
-          SlidableAction(
-            onPressed: (_) => _cartDocRef?.delete(),
-            backgroundColor: Colors.red,
-            icon: Icons.delete_rounded,
-            foregroundColor: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ],
-      ),
-      child: _buildCartCard(productData, quantity),
     );
   }
 
@@ -363,4 +336,138 @@ class _CartItemWidgetState extends State<CartItemWidget>
       ),
     );
   }
+}
+
+void showCustomBottomSheet(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    builder: (BuildContext context) {
+      final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+      TextEditingController nameController = TextEditingController();
+      TextEditingController phoneNoController = TextEditingController();
+      TextEditingController streetController = TextEditingController();
+      TextEditingController pinCodeController = TextEditingController();
+      TextEditingController cityController = TextEditingController();
+      TextEditingController stateController = TextEditingController();
+      TextEditingController countryController = TextEditingController();
+      return Container(
+        decoration: const BoxDecoration(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(16),
+          ),
+          color: Colors.white,
+        ),
+        height: MediaQuery.of(context).size.height * 0.8,
+        child: SingleChildScrollView(
+          child: Form(
+            key: formKey,
+            child: Column(
+              children: [
+                const SizedBox(height: 10),
+                CustomTextFormField(
+                  controller: nameController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Name is required";
+                    }
+                    return null;
+                  },
+                  keyboardType: TextInputType.name,
+                  labelText: 'Country/Region',
+                  obscureText: false,
+                  prefixIcon: const Icon(Icons.person),
+                ),
+                CustomTextFormField(
+                  controller: phoneNoController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Mobile Number is required";
+                    }
+                    return null;
+                  },
+                  keyboardType: TextInputType.number,
+                  labelText: 'Mobile Number',
+                  obscureText: false,
+                  prefixIcon: const Icon(Icons.phone),
+                ),
+                CustomTextFormField(
+                  controller: streetController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Street is required";
+                    }
+                    return null;
+                  },
+                  keyboardType: TextInputType.name,
+                  labelText: 'Street',
+                  obscureText: false,
+                  prefixIcon: const Icon(Icons.favorite),
+                ),
+                CustomTextFormField(
+                  controller: pinCodeController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Pin Code is required";
+                    }
+                    return null;
+                  },
+                  keyboardType: TextInputType.name,
+                  labelText: 'Pin Code',
+                  obscureText: false,
+                  prefixIcon: const Icon(Icons.post_add),
+                ),
+                CustomTextFormField(
+                  controller: cityController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Town or City is required";
+                    }
+                    return null;
+                  },
+                  keyboardType: TextInputType.name,
+                  labelText: 'Town/City',
+                  obscureText: false,
+                  prefixIcon: const Icon(Icons.location_city),
+                ),
+                CustomTextFormField(
+                  controller: stateController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "State is required";
+                    }
+                    return null;
+                  },
+                  keyboardType: TextInputType.name,
+                  labelText: 'State',
+                  obscureText: false,
+                  prefixIcon: const Icon(Icons.satellite),
+                ),
+                CustomTextFormField(
+                  controller: countryController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Country is required";
+                    }
+                    return null;
+                  },
+                  keyboardType: TextInputType.name,
+                  labelText: 'Country',
+                  obscureText: false,
+                  prefixIcon: const Icon(Icons.flag_circle),
+                ),
+                const SizedBox(height: 5),
+                CustomButton(
+                  backgroundColor: kAppBarColor,
+                  textColor: Colors.white,
+                  buttonName: 'Save Address',
+                  onPressed: () {},
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
 }

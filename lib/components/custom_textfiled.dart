@@ -40,6 +40,7 @@ class CustomTextFormField extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10),
       child: TextFormField(
+        textInputAction: TextInputAction.next,
         onChanged: onChanged,
         enabled: enabled,
         // Whether the field is enabled or disabled
@@ -88,7 +89,8 @@ class CustomTextFormField extends StatelessWidget {
             ),
             prefixIcon: prefixIcon,
             // Optional prefix icon
-            prefixIconColor: Colors.grey),
+            prefixIconColor: Colors.grey,
+        ),
       ),
     );
   }
