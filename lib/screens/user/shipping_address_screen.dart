@@ -3,11 +3,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:link/components/custom_button.dart';
+import 'package:link/screens/user/razorpay_payment.dart';
+import '../../components/custom_snackbar.dart';
 import '../../constants/color.dart';
 import 'add_address_screen.dart';
 
 class ShippingAddressScreen extends StatefulWidget {
-  const ShippingAddressScreen({super.key});
+  final double totalAmount;
+  const ShippingAddressScreen({super.key, required this.totalAmount});
 
   @override
   State<ShippingAddressScreen> createState() => _ShippingAddressScreenState();
@@ -40,17 +43,18 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AddAddressScreen(
-          addressID: address?.id ?? '',
-          countryName: address?.country ?? '',
-          mobileNumber: address?.mobileNumber ?? '',
-          flatHouseNumber: address?.flatHouseNo ?? '',
-          areaStreet: address?.areaStreet ?? '',
-          pinCode: address?.pinCode ?? '',
-          city: address?.townCity ?? '',
-          state: address?.state ?? '',
-          userID: address?.userID ?? '',
-        ),
+        builder: (context) =>
+            AddAddressScreen(
+              addressID: address?.id ?? '',
+              countryName: address?.country ?? '',
+              mobileNumber: address?.mobileNumber ?? '',
+              flatHouseNumber: address?.flatHouseNo ?? '',
+              areaStreet: address?.areaStreet ?? '',
+              pinCode: address?.pinCode ?? '',
+              city: address?.townCity ?? '',
+              state: address?.state ?? '',
+              userID: address?.userID ?? '',
+            ),
       ),
     ).then((_) => _fetchAddresses());
   }
@@ -77,15 +81,6 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
             // Prevent overlap with button
             child: Column(
               children: [
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                  child: Text(
-                    'All addresses (${addresses.length})',
-                    style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.w600),
-                  ),
-                ),
                 if (addresses.isEmpty) ...[
                   const Padding(
                     padding: EdgeInsets.all(20),
@@ -115,12 +110,12 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
                               children: [
                                 Row(
                                   mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  MainAxisAlignment.spaceBetween,
                                   children: [
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                         children: [
                                           Row(
                                             children: [
@@ -159,19 +154,25 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
                                     Radio<String>(
                                       value: address.id,
                                       groupValue: selectedAddressID,
-                                      onChanged: (value) => setState(
-                                          () => selectedAddressID = value!),
+                                      onChanged: (value) =>
+                                          setState(
+                                                  () =>
+                                              selectedAddressID = value!),
                                       fillColor:
-                                          WidgetStateProperty.all(Colors.black),
+                                      WidgetStateProperty.all(Colors.black),
                                     ),
                                   ],
                                 ),
                                 const SizedBox(height: 12),
                                 CustomButton(
-                                  buttonName: 'Deliver to this Address',
-                                  backgroundColor: Colors.white,
-                                  textColor: Colors.black,
-                                  onPressed: () {},
+                                    buttonName: 'Deliver to this Address',
+                                    backgroundColor: Colors.white,
+                                    textColor: Colors.black,
+                                    onPressed: () {
+                                      setState(() =>
+                                      selectedAddressID = address.id);
+                                      _proceedToPayment();
+                                    },
                                 ),
                                 const SizedBox(height: 5),
                                 CustomButton(
@@ -205,6 +206,62 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
         ],
       ),
     );
+  }
+  void _proceedToPayment() async {
+    if (selectedAddressID == null) {
+      SnackBarUtil.show(
+          context: context, message: "Please select an address");
+      return;
+    }
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final cartQuery = await FirebaseFirestore.instance
+        .collection('cart')
+        .where('UserID', isEqualTo: user.uid)
+        .get();
+
+    if (cartQuery.docs.isEmpty) {
+      SnackBarUtil.show(
+          context: context, message: "Your cart is empty");
+      return;
+    }
+
+    // Create order
+    final orderRef = FirebaseFirestore.instance.collection('orders').doc();
+    try {
+      await orderRef.set({
+        'orderID': orderRef.id,
+        'userID': user.uid,
+        'addressID': selectedAddressID,
+        'products': cartQuery.docs.map((doc) => doc.data()).toList(),
+        'totalAmount': widget.totalAmount,
+        'orderStatus': 'Pending',
+        'isCompleted': false,
+        'createdAt': FieldValue.serverTimestamp(),
+        'modifiedAt': FieldValue.serverTimestamp(),
+      });
+
+      // Clear cart
+      final batch = FirebaseFirestore.instance.batch();
+      cartQuery.docs.forEach((doc) => batch.delete(doc.reference));
+      await batch.commit();
+
+      // Navigate to payment
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => RazorpayPayment(
+            amount: widget.totalAmount.toDouble(),
+            orderID: orderRef.id,
+          ),
+        ),
+      );
+    } catch (e) {
+      SnackBarUtil.show(
+          context: context, message: "Error: $e");
+    }
   }
 }
 

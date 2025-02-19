@@ -184,7 +184,7 @@ class _CartScreenState extends State<CartScreen> {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) {
-                    return const ShippingAddressScreen();
+                    return ShippingAddressScreen(totalAmount: finalAmount);
                   },
                 ),
               );
