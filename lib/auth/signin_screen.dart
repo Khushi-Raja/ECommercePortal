@@ -12,9 +12,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
-
+  
   @override
-  _SignInScreenState createState() => _SignInScreenState();
+  State<SignInScreen> createState() => _SignInScreenState();
 }
 
 class _SignInScreenState extends State<SignInScreen> {
@@ -53,7 +53,7 @@ class _SignInScreenState extends State<SignInScreen> {
         context,
         MaterialPageRoute(
           builder: (context) =>
-              userRole == "admin" ? AdminDashboard() : UserDashboard(),
+              userRole == "admin" ? const AdminDashboard() : const UserDashboard(),
         ),
       );
     }
@@ -97,8 +97,8 @@ class _SignInScreenState extends State<SignInScreen> {
           .get();
 
       if (docSnapshot.exists) {
-        Map<String, dynamic> userData =
-            docSnapshot.data() as Map<String, dynamic>;
+        // Map<String, dynamic> userData =
+        //     docSnapshot.data() as Map<String, dynamic>;
 
         final role = docSnapshot.get('role');
 
@@ -108,7 +108,7 @@ class _SignInScreenState extends State<SignInScreen> {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) {
-            return role == "admin" ? AdminDashboard() : UserDashboard();
+            return role == "admin" ? const AdminDashboard() : const UserDashboard();
           }),
           (route) => false,
         );
@@ -244,7 +244,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       );
                     },
                     style: ButtonStyle(
-                      overlayColor: MaterialStateProperty.resolveWith<Color?>((states) => Colors.transparent),
+                      overlayColor: WidgetStateProperty.resolveWith<Color?>((states) => Colors.transparent),
                       splashFactory: NoSplash.splashFactory,
                     ),
                     child: const Text(
@@ -275,7 +275,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 );
               },
               style: ButtonStyle(
-                overlayColor: MaterialStateProperty.resolveWith<Color?>((states) => Colors.transparent),
+                overlayColor: WidgetStateProperty.resolveWith<Color?>((states) => Colors.transparent),
                 splashFactory: NoSplash.splashFactory,
               ),
               child: const Row(

@@ -194,7 +194,7 @@ class _ProductDetailState extends State<ProductDetail> {
           Expanded(
             child: Material(
               elevation: 8,
-              shadowColor: Colors.black.withOpacity(0.1),
+              shadowColor: const Color.fromRGBO(0, 0, 0, 0.1),
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
                 child: Column(

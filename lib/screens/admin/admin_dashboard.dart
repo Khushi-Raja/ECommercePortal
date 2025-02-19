@@ -10,7 +10,7 @@ import 'package:link/screens/admin/category/category_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminDashboard extends StatefulWidget {
-  AdminDashboard({Key? key});
+  const AdminDashboard({super.key});
 
   @override
   State<AdminDashboard> createState() => _AdminDashboardState();

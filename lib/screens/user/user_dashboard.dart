@@ -9,7 +9,7 @@ import 'package:link/screens/user/user_product_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserDashboard extends StatefulWidget {
-  UserDashboard({Key? key});
+  const UserDashboard({super.key});
 
   @override
   State<UserDashboard> createState() => _UserDashboardState();

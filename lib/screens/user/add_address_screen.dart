@@ -34,7 +34,7 @@ class AddAddressScreen extends StatefulWidget {
   });
 
   @override
-  _AddAddressScreenState createState() => _AddAddressScreenState();
+  State<AddAddressScreen> createState() => _AddAddressScreenState();
 }
 
 class _AddAddressScreenState extends State<AddAddressScreen> {

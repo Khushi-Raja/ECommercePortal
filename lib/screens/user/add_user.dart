@@ -202,26 +202,26 @@ class _AddUserState extends State<AddUser> {
   String generateRandomPassword() {
     const int minLength = 12; // Increase minimum length for better security
     const int maxLength = 16; // Increased max length
-    const _lowercase = 'abcdefghijklmnopqrstuvwxyz';
-    const _uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const _numbers = '0123456789';
-    const _specialChars =
+    const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+    const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const numbers = '0123456789';
+    const specialChars =
         '@#\$%^&*()-_=+{}[]|:;<>,.?/'; // Adding special characters
-    final _allChars = _lowercase + _uppercase + _numbers + _specialChars;
+    final allChars = lowercase + uppercase + numbers + specialChars;
 
-    final Random _random = Random.secure();
-    final length = minLength + _random.nextInt(maxLength - minLength + 1);
+    final Random random = Random.secure();
+    final length = minLength + random.nextInt(maxLength - minLength + 1);
 
     // Ensure password contains at least one lowercase, uppercase, number, and special character
     String generateRandomChar(String source) =>
-        source[_random.nextInt(source.length)];
+        source[random.nextInt(source.length)];
 
     final password = [
-      generateRandomChar(_lowercase),
-      generateRandomChar(_uppercase),
-      generateRandomChar(_numbers),
-      generateRandomChar(_specialChars),
-      ...List.generate(length - 4, (_) => generateRandomChar(_allChars)),
+      generateRandomChar(lowercase),
+      generateRandomChar(uppercase),
+      generateRandomChar(numbers),
+      generateRandomChar(specialChars),
+      ...List.generate(length - 4, (_) => generateRandomChar(allChars)),
     ];
 
     // Shuffle the password to avoid predictable character positions

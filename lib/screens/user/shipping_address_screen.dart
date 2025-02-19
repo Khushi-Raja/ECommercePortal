@@ -7,20 +7,16 @@ import '../../constants/color.dart';
 import 'add_address_screen.dart';
 
 class ShippingAddressScreen extends StatefulWidget {
+  const ShippingAddressScreen({super.key});
+
   @override
-  _ShippingAddressScreenState createState() => _ShippingAddressScreenState();
+  State<ShippingAddressScreen> createState() => _ShippingAddressScreenState();
 }
 
 class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
   final userID = FirebaseAuth.instance.currentUser?.uid;
   List<Address> addresses = [];
   String? selectedAddressID;
-  final List<List<Color>> gradients = [
-    [Colors.orangeAccent, Colors.deepOrange],
-    [Colors.pinkAccent, Colors.redAccent],
-    [Colors.purpleAccent, Colors.deepPurple],
-    [Colors.greenAccent, Colors.teal],
-  ];
 
   @override
   void initState() {
@@ -59,26 +55,6 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
     ).then((_) => _fetchAddresses());
   }
 
-  Widget _buildAddressSection() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        gradient: const LinearGradient(
-          colors: [Colors.blueAccent, Colors.lightBlueAccent],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: CustomButton(
-        backgroundColor: Colors.transparent,
-        textColor: Colors.white,
-        buttonName: 'Add a new delivery address',
-        onPressed: () => _navigateToAddAddress(null),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,148 +64,142 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
         title: const Text(
           'Select a delivery address',
           style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: CupertinoColors.white),
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: CupertinoColors.white,
+          ),
         ),
       ),
       body: Stack(
         children: [
-          SingleChildScrollView(
+          Padding(
+            padding: const EdgeInsets.only(bottom: 70),
+            // Prevent overlap with button
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                  child: Text('All addresses (${addresses.length})',
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold)),
+                  child: Text(
+                    'All addresses (${addresses.length})',
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.w600),
+                  ),
                 ),
                 if (addresses.isEmpty) ...[
                   const Padding(
                     padding: EdgeInsets.all(20),
                     child: Text(
-                        'No saved addresses found. Please add a delivery address.',
-                        style: TextStyle(fontSize: 16)),
-                  ),
-                  _buildAddressSection(),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 10),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: CustomButton(
-                        backgroundColor: Colors.transparent,
-                        textColor: Colors.black,
-                        buttonName: 'Back to cart',
-                        onPressed: () => Navigator.pop(context),
-                      ),
+                      'No saved addresses found. Please add a delivery address.',
+                      style: TextStyle(fontSize: 16),
                     ),
-                  )
-                ] else ...[
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: addresses.length,
-                    itemBuilder: (context, index) {
-                      final address = addresses[index];
-                      final gradient = gradients[index % gradients.length];
-                      return Container(
-                        margin: const EdgeInsets.symmetric(
-                            vertical: 8, horizontal: 15),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          gradient: LinearGradient(
-                            colors: gradient,
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(15),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            const Icon(Icons.location_on,
-                                                color: Colors.white70,
-                                                size: 16),
-                                            const SizedBox(width: 5),
-                                            Expanded(
-                                              child: Text(
-                                                address.fullAddress,
-                                                style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 16),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Row(
-                                          children: [
-                                            const Icon(Icons.call,
-                                                color: Colors.white70,
-                                                size: 16),
-                                            const SizedBox(width: 5),
-                                            Text(
-                                              address.mobileNumber,
-                                              style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 14),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Radio<String>(
-                                    value: address.id,
-                                    groupValue: selectedAddressID,
-                                    onChanged: (value) => setState(
-                                        () => selectedAddressID = value!),
-                                    fillColor:
-                                        MaterialStateProperty.all(Colors.white),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              CustomButton(
-                                buttonName: 'Deliver to this Address',
-                                backgroundColor: Colors.white,
-                                textColor: Colors.black,
-                                onPressed: () {},
-                              ),
-                              const SizedBox(width: 8),
-                              CustomButton(
-                                buttonName: 'Edit Address',
-                                backgroundColor: Colors.transparent,
-                                textColor: Colors.white,
-                                onPressed: () => _navigateToAddAddress(address),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
                   ),
-                  _buildAddressSection(),
-                ]
+                ] else
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      itemCount: addresses.length,
+                      itemBuilder: (context, index) {
+                        final address = addresses[index];
+                        return Container(
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 15),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            color: Colors.grey.shade100,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(15),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.location_on,
+                                                  color: Colors.black,
+                                                  size: 16),
+                                              const SizedBox(width: 5),
+                                              Expanded(
+                                                child: Text(
+                                                  address.fullAddress,
+                                                  style: const TextStyle(
+                                                      color: Colors.black,
+                                                      fontSize: 16),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.call,
+                                                  color: Colors.black,
+                                                  size: 16),
+                                              const SizedBox(width: 5),
+                                              Text(
+                                                address.mobileNumber,
+                                                style: const TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 14),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Radio<String>(
+                                      value: address.id,
+                                      groupValue: selectedAddressID,
+                                      onChanged: (value) => setState(
+                                          () => selectedAddressID = value!),
+                                      fillColor:
+                                          WidgetStateProperty.all(Colors.black),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                CustomButton(
+                                  buttonName: 'Deliver to this Address',
+                                  backgroundColor: Colors.white,
+                                  textColor: Colors.black,
+                                  onPressed: () {},
+                                ),
+                                const SizedBox(height: 5),
+                                CustomButton(
+                                  buttonName: 'Edit Address',
+                                  backgroundColor: Colors.black,
+                                  textColor: Colors.white,
+                                  onPressed: () =>
+                                      _navigateToAddAddress(address),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
               ],
+            ),
+          ),
+          Positioned(
+            bottom: 10,
+            left: 20,
+            right: 20,
+            child: CustomButton(
+              backgroundColor: kAppBarColor,
+              textColor: Colors.white,
+              buttonName: 'Add a new delivery address',
+              onPressed: () => _navigateToAddAddress(null),
             ),
           ),
         ],

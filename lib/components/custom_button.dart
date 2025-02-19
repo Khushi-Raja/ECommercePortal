@@ -4,33 +4,37 @@ class CustomButton extends StatelessWidget {
   final String buttonName; // Button text label
   final Color backgroundColor; // Background color of the button
   final Color textColor; // Text color of the button
-  final VoidCallback onPressed; // Function to execute when the button is pressed
+  final VoidCallback
+      onPressed; // Function to execute when the button is pressed
 
-  // Constructor to receive required properties
   const CustomButton({
-    Key? key,
+    super.key,
     required this.buttonName,
     required this.backgroundColor,
     required this.textColor,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 5, 10, 0), // Padding around the button
+      padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
+      // Padding around the button
       child: Container(
         height: 45, // Fixed height for the button
         width: double.infinity, // Full width to stretch across available space
         decoration: BoxDecoration(
           color: backgroundColor, // Set the background color of the button
-          borderRadius: BorderRadius.circular(10), // No border radius for a rectangular button
+          borderRadius: BorderRadius.circular(
+              10), // No border radius for a rectangular button
         ),
         child: TextButton(
           style: ButtonStyle(
-            overlayColor: MaterialStateProperty.all(Colors.transparent), // Remove the overlay effect
+            overlayColor: WidgetStateProperty.all(
+                Colors.transparent), // Remove the overlay effect
           ),
-          onPressed: onPressed, // The action performed when the button is pressed
+          onPressed: onPressed,
+          // The action performed when the button is pressed
           child: Text(
             buttonName, // The text label on the button
             style: TextStyle(

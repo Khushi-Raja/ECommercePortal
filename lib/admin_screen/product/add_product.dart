@@ -292,12 +292,9 @@ class _AddProductState extends State<AddProduct> {
   Future<void> addProduct() async {
     try {
       int? lastID = await getLastID(collectionName: "product", primaryKey: "productID");
-      print("Last ID: $lastID");
 
       int newID = (lastID ?? 0) + 1; // Generate next ID
       String newIDString = newID.toString().padLeft(3, '0'); // Convert to zero-padded string
-
-      print("New ID: $newIDString");
 
       final productImageURL = await uploadImageFile(imageFile!);
 

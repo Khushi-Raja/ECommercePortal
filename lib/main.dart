@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:link/screens/user/shipping_address_screen.dart';
 import 'package:link/splash/splash_screen.dart';
 import 'firebase_options.dart';
 
@@ -11,7 +10,7 @@ void main() async {
   );
   runApp(
     MaterialApp(
-      home: ShippingAddressScreen(),
+      home: const Splash(),
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
