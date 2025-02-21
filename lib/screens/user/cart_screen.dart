@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:link/components/custom_button.dart';
 import 'package:link/constants/color.dart';
-import 'package:link/screens/user/shipping_address_screen.dart';
+import 'package:link/screens/user/checkout_screen.dart';
 import '../../components/custom_circular_progress_indicator.dart';
 
 class CartScreen extends StatefulWidget {
@@ -94,7 +94,8 @@ class _CartScreenState extends State<CartScreen> {
                           final discount = productData['discount'] as double;
 
                           originalTotal += price * quantity;
-                          discountTotal += (price * (discount / 100)) * quantity;
+                          discountTotal +=
+                              (price * (discount / 100)) * quantity;
                         }
 
                         return _buildTotalContainer(
@@ -184,7 +185,11 @@ class _CartScreenState extends State<CartScreen> {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) {
-                    return ShippingAddressScreen(totalAmount: finalAmount);
+                    return CheckOutScreen(
+                      originalTotal: originalTotal,
+                      discountTotal: discountTotal,
+                      finalAmount: finalAmount,
+                    );
                   },
                 ),
               );
@@ -288,7 +293,8 @@ class _CartItemWidgetState extends State<CartItemWidget>
                 ],
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8),
                 child: Container(
                   height: 130,
                   decoration: BoxDecoration(
@@ -358,8 +364,8 @@ class _CartItemWidgetState extends State<CartItemWidget>
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            _buildIconButton(
-                                Icons.remove, () => _updateQuantity(quantity - 1)),
+                            _buildIconButton(Icons.remove,
+                                () => _updateQuantity(quantity - 1)),
                             const SizedBox(height: 8),
                             Container(
                               width: 30,
