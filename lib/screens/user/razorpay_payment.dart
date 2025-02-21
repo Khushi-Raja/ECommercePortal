@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:link/components/custom_circular_progress_indicator.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 import '../../components/custom_snackbar.dart';
@@ -31,7 +32,7 @@ class _RazorpayPaymentState extends State<RazorpayPayment> {
     WidgetsBinding.instance.addPostFrameCallback((_) => openCheckout());
   }
 
-  void openCheckout() async{
+  void openCheckout() async {
     var options = {
       'key': 'rzp_test_1DP5mmOlF5G5ag',
       'amount': widget.amount * 100,
@@ -65,7 +66,6 @@ class _RazorpayPaymentState extends State<RazorpayPayment> {
   void _handlePaymentError(PaymentFailureResponse response) {
     SnackBarUtil.show(
         context: context, message: "Payment Failed: ${response.message}");
-
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
@@ -81,21 +81,9 @@ class _RazorpayPaymentState extends State<RazorpayPayment> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Complete Payment')),
+    return const Scaffold(
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Amount to Pay: ₹${widget.amount}',
-                style: const TextStyle(fontSize: 20)),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: openCheckout,
-              child: const Text('Pay Now'),
-            ),
-          ],
-        ),
+        child: CustomCupertinoActivityIndicator(),
       ),
     );
   }
