@@ -82,12 +82,12 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                   child: FutureBuilder<QuerySnapshot>(
                     future: FirebaseFirestore.instance
                         .collection('address')
-                        .where('userID',
-                            isEqualTo: userID)
+                        .where('userID', isEqualTo: userID)
                         .get(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CustomCupertinoActivityIndicator());
+                        return const Center(
+                            child: CustomCupertinoActivityIndicator());
                       }
                       return addresses.isEmpty
                           ? const Center(
@@ -98,91 +98,109 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                               ),
                             )
                           : SizedBox(
-                        child: ListView.builder(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          itemCount: addresses.length,
-                          itemBuilder: (context, index) {
-                            final address = addresses[index];
-                            return Container(
-                              margin: const EdgeInsets.symmetric(
-                                  vertical: 8, horizontal: 15),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15),
-                                color: Colors.grey.shade100,
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(15),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
+                              child: ListView.builder(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                itemCount: addresses.length,
+                                itemBuilder: (context, index) {
+                                  final address = addresses[index];
+                                  return Container(
+                                    margin: const EdgeInsets.symmetric(
+                                        vertical: 8, horizontal: 15),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15),
+                                      color: Colors.white,
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(15),
+                                      child: Column(
+                                        crossAxisAlignment:
                                             CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Row(
-                                                children: [
-                                                  const Icon(Icons.location_on,
-                                                      color: Colors.black,
-                                                      size: 16),
-                                                  const SizedBox(width: 5),
-                                                  Expanded(
-                                                    child: Text(
-                                                      address.fullAddress,
-                                                      style: const TextStyle(
-                                                          color: Colors.black,
-                                                          fontSize: 16),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        const Icon(
+                                                            Icons.location_on,
+                                                            color: Colors.black,
+                                                            size: 16),
+                                                        const SizedBox(
+                                                            width: 5),
+                                                        Expanded(
+                                                          child: Text(
+                                                            address.fullAddress,
+                                                            style: const TextStyle(
+                                                                color: Colors
+                                                                    .black,
+                                                                fontSize: 16),
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
-                                                  ),
-                                                ],
+                                                    const SizedBox(height: 4),
+                                                    Row(
+                                                      children: [
+                                                        const Icon(Icons.call,
+                                                            color: Colors.black,
+                                                            size: 16),
+                                                        const SizedBox(
+                                                            width: 5),
+                                                        Text(
+                                                          address.mobileNumber,
+                                                          style:
+                                                              const TextStyle(
+                                                                  color: Colors
+                                                                      .black,
+                                                                  fontSize: 14),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
-                                              const SizedBox(height: 4),
-                                              Row(
+                                              Column(
                                                 children: [
-                                                  const Icon(Icons.call,
-                                                      color: Colors.black,
-                                                      size: 16),
-                                                  const SizedBox(width: 5),
-                                                  Text(
-                                                    address.mobileNumber,
-                                                    style: const TextStyle(
-                                                        color: Colors.black,
-                                                        fontSize: 14),
+                                                  Radio<String>(
+                                                    value: address.id,
+                                                    groupValue:
+                                                        selectedAddressID,
+                                                    onChanged: (value) {
+                                                      setSheetState(() =>
+                                                          selectedAddressID =
+                                                              value.toString());
+                                                      setState(() =>
+                                                          selectedAddressID =
+                                                              value.toString());
+                                                      Navigator.pop(context);
+                                                    },
+                                                    fillColor:
+                                                        WidgetStateProperty.all(
+                                                            Colors.black),
                                                   ),
+                                                  IconButton(
+                                                      onPressed: () =>
+                                                          _navigateToAddAddress(
+                                                              address),
+                                                      icon: const Icon(
+                                                          Icons.edit))
                                                 ],
                                               ),
                                             ],
                                           ),
-                                        ),
-                                        Column(
-                                          children: [
-                                            Radio<String>(
-                                              value: address.id,
-                                              groupValue: selectedAddressID,
-                                              onChanged: (value) {
-                                                setSheetState(() => selectedAddressID = value.toString());
-                                                setState(() => selectedAddressID = value.toString());
-                                                Navigator.pop(context);
-                                              },
-                                              fillColor:
-                                              WidgetStateProperty.all(Colors.black),
-                                            ),
-                                            IconButton(onPressed: () => _navigateToAddAddress(address), icon: const Icon(Icons.edit))
-                                          ],
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ],
-                                ),
+                                  );
+                                },
                               ),
                             );
-                          },
-                        ),
-                      );
                     },
                   ),
                 ),
@@ -194,7 +212,8 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                     textColor: Colors.white,
                     onPressed: () {
                       Navigator.pop(context); // Close the bottom sheet
-                      _navigateToAddAddress(null); // Navigate to add address screen
+                      _navigateToAddAddress(
+                          null); // Navigate to add address screen
                     },
                   ),
                 ),
@@ -229,6 +248,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                   const Text("Order Summary",
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
                   _buildPricingRow('Original Total', widget.originalTotal),
                   _buildPricingRow('Discount Total', -widget.discountTotal),
                   const Divider(height: 20, thickness: 1),
@@ -250,27 +270,42 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                     const SizedBox(height: 10),
                     selectedAddressID != null
                         ? Text(
-                      addresses.firstWhere((address) => address.id == selectedAddressID).fullAddress,
-                      style: const TextStyle(fontSize: 16, color: Colors.black),
-                    )
+                            addresses
+                                .firstWhere((address) =>
+                                    address.id == selectedAddressID)
+                                .fullAddress,
+                            style: const TextStyle(
+                                fontSize: 16, color: Colors.black),
+                          )
                         : const Text(
-                      "Tap to select an address",
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
+                            "Tap to select an address",
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 8),
-            CustomButton(
-              onPressed: () {
-                _proceedToPayment();
-              },
-              backgroundColor: kAppBarColor,
-              textColor: Colors.white,
-              buttonName: 'Pay Now ₹${widget.finalAmount.toStringAsFixed(2)}',
-            ),
+            // CustomButton(
+            //   onPressed: () {
+            //     _proceedToPayment();
+            //   },
+            //   backgroundColor: kAppBarColor,
+            //   textColor: Colors.white,
+            //   buttonName: 'Pay Now ₹${widget.finalAmount.toStringAsFixed(2)}',
+            // ),
           ],
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.white,
+        child: CustomButton(
+          onPressed: () {
+            _proceedToPayment();
+          },
+          backgroundColor: kAppBarColor,
+          textColor: Colors.white,
+          buttonName: 'Pay Now ₹${widget.finalAmount.toStringAsFixed(2)}',
         ),
       ),
     );
@@ -324,22 +359,16 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
 
   void _proceedToPayment() async {
     if (selectedAddressID == null) {
-      SnackBarUtil.show(
-          context: context, message: "Please select an address");
+      SnackBarUtil.show(context: context, message: "Please select an address");
       return;
     }
-
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
+    if (userID == null) return;
     final cartQuery = await FirebaseFirestore.instance
         .collection('cart')
-        .where('UserID', isEqualTo: user.uid)
+        .where('UserID', isEqualTo: userID)
         .get();
-
     if (cartQuery.docs.isEmpty) {
-      SnackBarUtil.show(
-          context: context, message: "Your cart is empty");
+      SnackBarUtil.show(context: context, message: "Your cart is empty");
       return;
     }
 
@@ -348,7 +377,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
     try {
       await orderRef.set({
         'orderID': orderRef.id,
-        'userID': user.uid,
+        'userID': userID,
         'addressID': selectedAddressID,
         'products': cartQuery.docs.map((doc) => doc.data()).toList(),
         'totalAmount': widget.finalAmount,
@@ -374,8 +403,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
         ),
       );
     } catch (e) {
-      SnackBarUtil.show(
-          context: context, message: "Error: $e");
+      SnackBarUtil.show(context: context, message: "Error: $e");
     }
   }
 }
