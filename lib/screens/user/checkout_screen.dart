@@ -184,12 +184,19 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                                                         WidgetStateProperty.all(
                                                             Colors.black),
                                                   ),
-                                                  IconButton(
-                                                      onPressed: () =>
-                                                          _navigateToAddAddress(
-                                                              address),
-                                                      icon: const Icon(
-                                                          Icons.edit))
+                                                  _buildIconButton(
+                                                    Icons.edit,
+                                                    () =>
+                                                        _navigateToAddAddress(
+                                                            address),
+                                                  ),
+                                                  const SizedBox(height: 8),
+                                                  _buildIconButton(
+                                                    Icons.delete,
+                                                    () =>
+                                                        _navigateToAddAddress(
+                                                            address),
+                                                  ),
                                                 ],
                                               ),
                                             ],
@@ -353,6 +360,21 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildIconButton(IconData icon, VoidCallback onPressed) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        width: 30,
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Icon(icon, color: Colors.grey, size: 18),
       ),
     );
   }
