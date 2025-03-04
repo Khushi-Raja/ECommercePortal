@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:link/components/custom_circular_progress_indicator.dart';
 import 'package:link/components/custom_snackbar.dart';
 import 'package:link/screens/user/add_address_screen.dart';
@@ -49,7 +50,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
     });
   }
 
-  void _navigateToAddAddress(Address? address) async{
+  void _navigateToAddAddress(Address? address) async {
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -70,7 +71,10 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
 
   void _deleteAddress(String addressID) async {
     try {
-      await FirebaseFirestore.instance.collection('address').doc(addressID).delete();
+      await FirebaseFirestore.instance
+          .collection('address')
+          .doc(addressID)
+          .delete();
       setState(() {
         addresses.removeWhere((address) => address.id == addressID);
         if (selectedAddressID == addressID) {
@@ -130,100 +134,142 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                         .snapshots(), // Listen to real-time changes
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CustomCupertinoActivityIndicator());
+                        return const Center(
+                            child: CustomCupertinoActivityIndicator());
                       }
 
                       final addressDocs = snapshot.data?.docs ?? [];
-                      addresses = addressDocs.map((doc) => Address.fromFirestore(doc)).toList();
+                      addresses = addressDocs
+                          .map((doc) => Address.fromFirestore(doc))
+                          .toList();
 
                       return addresses.isEmpty
                           ? const Center(
-                        child: Text(
-                          "No saved addresses found. Please add a delivery address.",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      )
+                              child: Text(
+                                "No saved addresses found. Please add a delivery address.",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            )
                           : ListView.builder(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        itemCount: addresses.length,
-                        itemBuilder: (context, index) {
-                          final address = addresses[index];
-                          return Container(
-                            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
-                              color: Colors.white,
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(15),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              padding: const EdgeInsets.only(bottom: 10),
+                              itemCount: addresses.length,
+                              itemBuilder: (context, index) {
+                                final address = addresses[index];
+                                return Slidable(
+                                  key: Key(address.id),
+                                  endActionPane: ActionPane(
+                                    motion: const DrawerMotion(),
                                     children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                const Icon(Icons.location_on, color: Colors.black, size: 16),
-                                                const SizedBox(width: 5),
-                                                Expanded(
-                                                  child: Text(
-                                                    address.fullAddress,
-                                                    style: const TextStyle(color: Colors.black, fontSize: 16),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Row(
-                                              children: [
-                                                const Icon(Icons.call, color: Colors.black, size: 16),
-                                                const SizedBox(width: 5),
-                                                Text(
-                                                  address.mobileNumber,
-                                                  style: const TextStyle(color: Colors.black, fontSize: 14),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
+                                      SlidableAction(
+                                        onPressed: (context) =>
+                                            _navigateToAddAddress(address),
+                                        backgroundColor: Colors.blue,
+                                        // foregroundColor: Colors.white,
+                                        icon: Icons.edit,
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
-                                      Column(
+                                      SlidableAction(
+                                        onPressed: (context) => _confirmDeleteAddress(address.id),
+                                        backgroundColor: Colors.red,
+                                        foregroundColor: Colors.white,
+                                        icon: Icons.delete,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ]
+                                  ),
+                                  child: Container(
+                                    margin: const EdgeInsets.symmetric(
+                                        vertical: 8, horizontal: 15),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15),
+                                      color: Colors.white,
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(15),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          Radio<String>(
-                                            value: address.id,
-                                            groupValue: selectedAddressID,
-                                            onChanged: (value) {
-                                              setSheetState(() => selectedAddressID = value.toString());
-                                              setState(() => selectedAddressID = value.toString());
-                                              Navigator.pop(context);
-                                            },
-                                            fillColor: WidgetStateProperty.all(Colors.black),
-                                          ),
-                                          _buildIconButton(
-                                            Icons.edit,
-                                                () => _navigateToAddAddress(address),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          _buildIconButton(
-                                            Icons.delete,
-                                                () => _confirmDeleteAddress(address.id), // Show confirmation before deletion
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        const Icon(
+                                                            Icons.location_on,
+                                                            color: Colors.black,
+                                                            size: 16),
+                                                        const SizedBox(
+                                                            width: 5),
+                                                        Expanded(
+                                                          child: Text(
+                                                            address.fullAddress,
+                                                            style: const TextStyle(
+                                                                color: Colors
+                                                                    .black,
+                                                                fontSize: 16),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    const SizedBox(height: 4),
+                                                    Row(
+                                                      children: [
+                                                        const Icon(Icons.call,
+                                                            color: Colors.black,
+                                                            size: 16),
+                                                        const SizedBox(
+                                                            width: 5),
+                                                        Text(
+                                                          address.mobileNumber,
+                                                          style:
+                                                              const TextStyle(
+                                                                  color: Colors
+                                                                      .black,
+                                                                  fontSize: 14),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Column(
+                                                children: [
+                                                  Radio<String>(
+                                                    value: address.id,
+                                                    groupValue:
+                                                        selectedAddressID,
+                                                    onChanged: (value) {
+                                                      setSheetState(() =>
+                                                          selectedAddressID =
+                                                              value.toString());
+                                                      setState(() =>
+                                                          selectedAddressID =
+                                                              value.toString());
+                                                      Navigator.pop(context);
+                                                    },
+                                                    fillColor:
+                                                        WidgetStateProperty.all(
+                                                            Colors.black),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
-                                    ],
+                                    ),
                                   ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      );
+                                );
+                              },
+                            );
                     },
                   ),
                 ),
@@ -246,7 +292,6 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
       ),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -374,21 +419,6 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildIconButton(IconData icon, VoidCallback onPressed) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        width: 30,
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        decoration: BoxDecoration(
-          color: Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Icon(icon, color: Colors.grey, size: 18),
       ),
     );
   }
