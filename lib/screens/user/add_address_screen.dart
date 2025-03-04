@@ -65,6 +65,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     'Assam',
     'Bihar',
     'Chhattisgarh',
+    'Delhi',
     'Goa',
     'Gujarat',
     'Haryana',

@@ -73,11 +73,43 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
       await FirebaseFirestore.instance.collection('address').doc(addressID).delete();
       setState(() {
         addresses.removeWhere((address) => address.id == addressID);
+        if (selectedAddressID == addressID) {
+          selectedAddressID = addresses.isNotEmpty ? addresses.first.id : null;
+        }
       });
-      SnackBarUtil.show(context: context, message: "Address deleted successfully");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Address deleted successfully")),
+      );
     } catch (e) {
-      SnackBarUtil.show(context: context, message: "Error deleting address: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error deleting address: $e")),
+      );
     }
+  }
+
+  void _confirmDeleteAddress(String addressID) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Confirm Delete"),
+          content: const Text("Are you sure you want to delete this address?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context), // Cancel deletion
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close dialog
+                _deleteAddress(addressID); // Proceed with deletion
+              },
+              child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showAddressSelection() {
@@ -180,7 +212,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                                           const SizedBox(height: 8),
                                           _buildIconButton(
                                             Icons.delete,
-                                                () => _deleteAddress(address.id), // Add delete function
+                                                () => _confirmDeleteAddress(address.id), // Show confirmation before deletion
                                           ),
                                         ],
                                       ),
@@ -280,15 +312,21 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.white,
-        child: CustomButton(
-          onPressed: () {
-            _proceedToPayment();
-          },
-          backgroundColor: kAppBarColor,
-          textColor: Colors.white,
-          buttonName: 'Pay Now ₹${widget.finalAmount.toStringAsFixed(2)}',
+      bottomNavigationBar: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
+        ),
+        child: BottomAppBar(
+          color: Colors.white,
+          child: CustomButton(
+            onPressed: () {
+              _proceedToPayment();
+            },
+            backgroundColor: kAppBarColor,
+            textColor: Colors.white,
+            buttonName: 'Pay Now ₹${widget.finalAmount.toStringAsFixed(2)}',
+          ),
         ),
       ),
     );
