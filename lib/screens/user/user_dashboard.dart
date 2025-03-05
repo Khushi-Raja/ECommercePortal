@@ -153,7 +153,7 @@ class _UserDashboardState extends State<UserDashboard> {
             ),
             ListTile(
               leading: const Icon(
-                Icons.shopping_cart,
+                Icons.shopping_cart_outlined,
                 color: kAppBarColor,
               ),
               onTap: () {

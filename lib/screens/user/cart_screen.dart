@@ -284,11 +284,22 @@ class _CartItemWidgetState extends State<CartItemWidget>
               endActionPane: ActionPane(
                 motion: const DrawerMotion(),
                 children: [
-                  SlidableAction(
-                    onPressed: (_) => _cartDocRef?.delete(),
-                    backgroundColor: Colors.red,
-                    icon: Icons.delete_rounded,
-                    borderRadius: BorderRadius.circular(12),
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      outlinedButtonTheme: const OutlinedButtonThemeData(
+                        style: ButtonStyle(
+                          iconColor: WidgetStatePropertyAll(
+                            Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    child: SlidableAction(
+                      onPressed: (_) => _cartDocRef?.delete(),
+                      backgroundColor: Colors.red,
+                      icon: Icons.delete_rounded,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ],
               ),

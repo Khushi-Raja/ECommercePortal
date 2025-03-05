@@ -161,22 +161,47 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                                   endActionPane: ActionPane(
                                     motion: const DrawerMotion(),
                                     children: [
-                                      SlidableAction(
-                                        onPressed: (context) =>
-                                            _navigateToAddAddress(address),
-                                        backgroundColor: Colors.blue,
-                                        // foregroundColor: Colors.white,
-                                        icon: Icons.edit,
-                                        borderRadius: BorderRadius.circular(8),
+                                      Theme(
+                                        data: Theme.of(context).copyWith(
+                                          outlinedButtonTheme:
+                                              const OutlinedButtonThemeData(
+                                            style: ButtonStyle(
+                                              iconColor: WidgetStatePropertyAll(
+                                                Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        child: SlidableAction(
+                                          onPressed: (context) =>
+                                              _navigateToAddAddress(address),
+                                          backgroundColor: Colors.blue,
+                                          icon: Icons.edit,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
                                       ),
-                                      SlidableAction(
-                                        onPressed: (context) => _confirmDeleteAddress(address.id),
-                                        backgroundColor: Colors.red,
-                                        foregroundColor: Colors.white,
-                                        icon: Icons.delete,
-                                        borderRadius: BorderRadius.circular(8),
+                                      Theme(
+                                        data: Theme.of(context).copyWith(
+                                          outlinedButtonTheme:
+                                              const OutlinedButtonThemeData(
+                                            style: ButtonStyle(
+                                              iconColor: WidgetStatePropertyAll(
+                                                Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        child: SlidableAction(
+                                          onPressed: (context) =>
+                                              _confirmDeleteAddress(address.id),
+                                          backgroundColor: Colors.red,
+                                          icon: Icons.delete,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
                                       ),
-                                    ]
+                                    ],
                                   ),
                                   child: Container(
                                     margin: const EdgeInsets.symmetric(
@@ -231,9 +256,9 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                                                           address.mobileNumber,
                                                           style:
                                                               const TextStyle(
-                                                                  color: Colors
-                                                                      .black,
-                                                                  fontSize: 14),
+                                                            color: Colors.black,
+                                                            fontSize: 14,
+                                                          ),
                                                         ),
                                                       ],
                                                     ),
@@ -281,7 +306,8 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                     textColor: Colors.white,
                     onPressed: () {
                       Navigator.pop(context); // Close the bottom sheet
-                      _navigateToAddAddress(null); // Navigate to add address screen
+                      _navigateToAddAddress(
+                          null); // Navigate to add address screen
                     },
                   ),
                 ),
