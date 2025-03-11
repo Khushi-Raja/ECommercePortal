@@ -6,13 +6,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../components/custom_button.dart';
-import '../../components/custom_circular_progress_indicator.dart';
-import '../../components/custom_snackbar.dart';
-import '../../components/custom_textfiled.dart';
-import '../../components/dateFormat.dart';
-import '../../constants/color.dart';
-import '../../constants/generate_id.dart';
+import '../../../components/custom_button.dart';
+import '../../../components/custom_circular_progress_indicator.dart';
+import '../../../components/custom_snackbar.dart';
+import '../../../components/custom_textfiled.dart';
+import '../../../components/dateFormat.dart';
+import '../../../constants/color.dart';
+import '../../../constants/generate_id.dart';
 
 class AddProduct extends StatefulWidget {
   final String productID;

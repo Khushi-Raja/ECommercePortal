@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:link/admin_screen/product/add_product.dart';
-import '../../components/custom_circular_progress_indicator.dart';
-import '../../components/custom_confirmation_popup.dart';
-import '../../constants/color.dart';
+import 'package:link/screens/admin/product/add_product.dart';
+import '../../../components/custom_circular_progress_indicator.dart';
+import '../../../components/custom_confirmation_popup.dart';
+import '../../../constants/color.dart';
 
 class ProductList extends StatefulWidget {
   const ProductList({super.key});

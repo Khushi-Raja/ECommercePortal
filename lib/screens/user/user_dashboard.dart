@@ -6,6 +6,7 @@ import 'package:link/auth/signin_screen.dart';
 import 'package:link/components/custom_circular_progress_indicator.dart';
 import 'package:link/constants/color.dart';
 import 'package:link/screens/user/cart_screen.dart';
+import 'package:link/screens/user/my_order.dart';
 import 'package:link/screens/user/user_product_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -167,6 +168,27 @@ class _UserDashboardState extends State<UserDashboard> {
               },
               title: const Text(
                 'Cart',
+                style: TextStyle(
+                  color: CupertinoColors.black,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.local_shipping_outlined,
+                color: kAppBarColor,
+              ),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return const MyOrder();
+                    },
+                  ),
+                );
+              },
+              title: const Text(
+                'My Orders',
                 style: TextStyle(
                   color: CupertinoColors.black,
                 ),
