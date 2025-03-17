@@ -136,33 +136,25 @@ class _UserDashboardState extends State<UserDashboard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Align(
-              alignment: Alignment.center,
-              child: Text(
-                "Summary",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-            ),
             const SizedBox(height: 10),
-
             DashboardTile(
-              title: "💰 Total Money Spent",
+              title: "Total Money Spent",
               value: "₹${totalSpent.toStringAsFixed(2)}",
             ),
             DashboardTile(
-              title: "📦 Total Orders Placed",
+              title: "Total Orders Placed",
               value: "$totalOrders",
             ),
             DashboardTile(
-              title: "📊 Total Items Ordered",
+              title: "Total Items Ordered",
               value: "$totalItemsOrdered",
             ),
             DashboardTile(
-              title: "💵 Most Expensive Purchase",
+              title: "Most Expensive Purchase",
               value: "₹${mostExpensivePurchase.toStringAsFixed(2)}",
             ),
             DashboardTile(
-              title: "🛒 Cheapest Purchase",
+              title: "Cheapest Purchase",
               value: "₹${cheapestPurchase.toStringAsFixed(2)}",
             ),
           ],
