@@ -61,7 +61,8 @@ class _MyOrderState extends State<MyOrder> {
         });
       }
 
-      Map<String, Map<String, dynamic>> products = await getProductDetails(productIDs);
+      Map<String, Map<String, dynamic>> products =
+          await getProductDetails(productIDs);
 
       for (var order in orders) {
         List<Map<String, dynamic>> productsList = [];
@@ -87,7 +88,8 @@ class _MyOrderState extends State<MyOrder> {
     }
   }
 
-  Future<Map<String, Map<String, dynamic>>> getProductDetails(List<String> productIDs) async {
+  Future<Map<String, Map<String, dynamic>>> getProductDetails(
+      List<String> productIDs) async {
     Map<String, Map<String, dynamic>> productData = {};
     if (productIDs.isEmpty) return productData;
 
@@ -120,48 +122,109 @@ class _MyOrderState extends State<MyOrder> {
         backgroundColor: kAppBarColor,
         title: const Text(
           'My Orders',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: CupertinoColors.white),
+          style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: CupertinoColors.white),
         ),
       ),
       body: isLoading
           ? const Center(child: CustomCupertinoActivityIndicator())
           : ordersList.isEmpty
-          ? const Center(child: Text("No orders found."))
-          : ListView.builder(
-        itemCount: ordersList.length,
-        itemBuilder: (context, index) {
-          var order = ordersList[index];
-          var products = order['products'] as List<Map<String, dynamic>>;
-
-          return Column(
-            children: products.map((product) {
-              return Card(
-                margin: const EdgeInsets.all(8),
-                child: ListTile(
-                  leading: Image.network(
-                    product['image'],
-                    width: 50,
-                    height: 50,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                        Image.network("https://via.placeholder.com/50"),
-                  ),
-                  title: Text(product['name']),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Price: \$${product['price']}"),
-                      Text("Quantity: ${product['quantity']}"),
-                      Text("Created: ${order['createdDate']}"),
-                      Text("Status: ${order['orderStatus']}"),
-                    ],
-                  ),
+              ? const Center(child: Text("No orders found."))
+              : ListView.builder(
+                  itemCount: ordersList.length,
+                  itemBuilder: (context, index) {
+                    var order = ordersList[index];
+                    var products =
+                        order['products'] as List<Map<String, dynamic>>;
+                    return Column(
+                      children: products.map((product) {
+                        return Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Container(
+                            height: 130,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Color.fromRGBO(128, 128, 128, 0.1),
+                                  blurRadius: 6,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Image.network(
+                                      product['image'],
+                                      width: 100,
+                                      height: 100,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 8),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          product['name'],
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          '${product['quantity']} x ₹${product['price']}',
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                          "${order['createdDate']}",
+                                          style: const TextStyle(
+                                            color: Color(0xFF9E9E9E),
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          "${order['orderStatus']}",
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            color: Color(0xFFFFA726),
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  },
                 ),
-              );
-            }).toList(),
-          );
-        },
-      ),
     );
   }
 }
