@@ -9,8 +9,6 @@ import 'package:link/screens/user/my_order.dart';
 import 'package:link/screens/user/user_product_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../components/custom_circular_progress_indicator.dart';
-
 class UserDashboard extends StatefulWidget {
   const UserDashboard({super.key});
 
@@ -28,6 +26,7 @@ class _UserDashboardState extends State<UserDashboard> {
   void initState() {
     super.initState();
     _initializeUserData(); // Load user data on initialization
+    fetchOrderStats(); // Fetch order stats when dashboard loads
   }
 
   Future<void> _initializeUserData() async {
@@ -70,6 +69,51 @@ class _UserDashboardState extends State<UserDashboard> {
     }
   }
 
+  double totalSpent = 0.0;
+  int totalOrders = 0;
+  int totalItemsOrdered = 0;
+  double mostExpensivePurchase = 0.0;
+  double cheapestPurchase = 0.0;
+
+  Future<void> fetchOrderStats() async {
+    try {
+      QuerySnapshot ordersSnapshot = await FirebaseFirestore.instance
+          .collection('orders')
+          .where('userID', isEqualTo: firebaseAuth.currentUser?.uid)
+          .get();
+
+      double spent = 0;
+      int orderCount = ordersSnapshot.docs.length;
+      int itemsCount = 0;
+      double maxPurchase = 0.0;
+      double minPurchase = double.infinity;
+
+      for (var doc in ordersSnapshot.docs) {
+        var data = doc.data() as Map<String, dynamic>;
+        double price = (data['price'] ?? 0).toDouble();
+        spent += price;
+
+        // Count total items
+        List<String> quantities = (data['quantities'] as String).split(",");
+        itemsCount += quantities.map(int.parse).reduce((a, b) => a + b);
+
+        // Check for most expensive and cheapest purchase
+        if (price > maxPurchase) maxPurchase = price;
+        if (price < minPurchase) minPurchase = price;
+      }
+
+      setState(() {
+        totalSpent = spent;
+        totalOrders = orderCount;
+        totalItemsOrdered = itemsCount;
+        mostExpensivePurchase = maxPurchase;
+        cheapestPurchase = minPurchase == double.infinity ? 0.0 : minPurchase;
+      });
+    } catch (e) {
+      debugPrint("Error fetching order stats: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,14 +131,44 @@ class _UserDashboardState extends State<UserDashboard> {
           ),
         ),
       ),
-      body: isLoading
-          ? const Center(child: CustomCupertinoActivityIndicator())
-          : Center(
-        child: Text(
-          'Logged in as $userEmail',
-          style: const TextStyle(fontSize: 18),
+      body: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Align(
+              alignment: Alignment.center,
+              child: Text(
+                "Summary",
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            DashboardTile(
+              title: "💰 Total Money Spent",
+              value: "₹${totalSpent.toStringAsFixed(2)}",
+            ),
+            DashboardTile(
+              title: "📦 Total Orders Placed",
+              value: "$totalOrders",
+            ),
+            DashboardTile(
+              title: "📊 Total Items Ordered",
+              value: "$totalItemsOrdered",
+            ),
+            DashboardTile(
+              title: "💵 Most Expensive Purchase",
+              value: "₹${mostExpensivePurchase.toStringAsFixed(2)}",
+            ),
+            DashboardTile(
+              title: "🛒 Cheapest Purchase",
+              value: "₹${cheapestPurchase.toStringAsFixed(2)}",
+            ),
+          ],
         ),
       ),
+
       drawer: Drawer(
         child: ListView(
           padding: const EdgeInsets.all(0),
@@ -210,6 +284,34 @@ class _UserDashboardState extends State<UserDashboard> {
         text,
         style: const TextStyle(
           color: CupertinoColors.black,
+        ),
+      ),
+    );
+  }
+}
+class DashboardTile extends StatelessWidget {
+  final String title;
+  final String value;
+
+  const DashboardTile({super.key, required this.title, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(8),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: Colors.white,
+      ),
+      child: ListTile(
+        title: Text(
+          title,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+        trailing: Text(
+          value,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.pink),
         ),
       ),
     );
