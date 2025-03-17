@@ -196,7 +196,7 @@ class _OrdersState extends State<OrdersList> {
                                 Expanded(
                                   child: Padding(
                                     padding:
-                                        const EdgeInsets.symmetric(vertical: 8),
+                                        const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -212,14 +212,6 @@ class _OrdersState extends State<OrdersList> {
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
                                         ),
-                                        Text(
-                                          "${order['userName']}",
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.blueAccent,
-                                          ),
-                                        ), // Display User ID here
                                         const SizedBox(height: 6),
                                         Text(
                                           '${product['quantity']} x ₹${product['price']}',
@@ -237,13 +229,26 @@ class _OrdersState extends State<OrdersList> {
                                           ),
                                         ),
                                         const SizedBox(height: 4),
-                                        Text(
-                                          "${order['orderStatus']}",
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            color: Color(0xFFFFA726),
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "${order['userName']}",
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.blueAccent,
+                                              ),
+                                            ),
+                                            Text(
+                                              "${order['orderStatus']}",
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                color: Color(0xFFFFA726),
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
