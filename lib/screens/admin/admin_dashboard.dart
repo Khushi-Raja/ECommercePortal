@@ -27,6 +27,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     super.initState();
     _initializeUserData(); // Load user data on initialization
     fetchUserStats(); // Fetch user statistics on dashboard load
+    fetchOrderStats(); // Fetch order summary
   }
 
   Future<void> _initializeUserData() async {
@@ -118,6 +119,86 @@ class _AdminDashboardState extends State<AdminDashboard> {
     }
   }
 
+  double totalRevenue = 0.0;
+  int totalOrders = 0;
+  int totalItemsOrdered = 0;
+  double highestOrderValue = 0.0;
+  double lowestOrderValue = 0.0;
+  int pendingOrders = 0;
+  int completedOrders = 0;
+
+  Future<void> fetchOrderStats() async {
+    try {
+      QuerySnapshot ordersSnapshot = await FirebaseFirestore.instance
+          .collection('orders')
+          .get();
+
+      print("Orders found: ${ordersSnapshot.docs.length}");
+
+      double revenue = 0;
+      int orderCount = 0; // Start counting only valid orders
+      int itemCount = 0;
+      double maxOrder = 0.0;
+      double minOrder = double.infinity;
+      int pending = 0;
+      int completed = 0;
+
+      for (var doc in ordersSnapshot.docs) {
+        var data = doc.data() as Map<String, dynamic>;
+
+        // Skip invalid documents (e.g., placeholder)
+        if (!data.containsKey('price') || !data.containsKey('quantities') || data.containsKey('placeholder')) {
+          print("Skipping invalid document: ${doc.id}");
+          continue;
+        }
+
+        orderCount++; // Only count valid orders
+
+        // Handle price safely
+        double orderPrice = (data['price'] ?? 0).toDouble();
+        revenue += orderPrice;
+
+        // Handle quantities safely (if stored as a comma-separated string)
+        int orderItemCount = 0;
+        if (data['quantities'] is String) {
+          orderItemCount = (data['quantities'] as String)
+              .split(",")
+              .map((e) => int.tryParse(e.trim()) ?? 0)
+              .reduce((a, b) => a + b);
+        } else if (data['quantities'] is int) {
+          orderItemCount = data['quantities']; // If stored as a single number
+        }
+        itemCount += orderItemCount;
+
+        // Track max and min order values
+        if (orderPrice > maxOrder) maxOrder = orderPrice;
+        if (orderPrice < minOrder) minOrder = orderPrice;
+
+        // Handle order status safely (ensure lowercase comparison)
+        String status = (data['orderStatus'] ?? 'pending').toString().toLowerCase();
+        if (status == 'pending') {
+          pending++;
+        } else if (status == 'delivered' || status == 'completed') {
+          completed++;
+        }
+      }
+
+      print("Total Revenue: $revenue, Valid Orders: $orderCount, Items: $itemCount");
+
+      // Update UI
+      setState(() {
+        totalRevenue = revenue;
+        totalOrders = orderCount;
+        totalItemsOrdered = itemCount;
+        highestOrderValue = maxOrder;
+        lowestOrderValue = minOrder == double.infinity ? 0.0 : minOrder;
+        pendingOrders = pending;
+        completedOrders = completed;
+      });
+    } catch (e) {
+      print("Error fetching order stats: $e"); // Debugging
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -136,35 +217,66 @@ class _AdminDashboardState extends State<AdminDashboard> {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 10),
-            DashboardTile(
-              title: "Total Users",
-              value: "$totalUsers",
-            ),
-            DashboardTile(
-              title: "Total Admins",
-              value: "$totalAdmins",
-            ),
-            DashboardTile(
-              title: "Total Customers",
-              value: "$totalCustomers",
-            ),
-            DashboardTile(
-              title: "Verified Users",
-              value: "$verifiedUsers",
-            ),
-            DashboardTile(
-              title: "Unverified Users",
-              value: "$unverifiedUsers",
-            ),
-          ],
-        ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 10),
+              DashboardTile(
+                title: "Total Users",
+                value: "$totalUsers",
+              ),
+              DashboardTile(
+                title: "Total Admins",
+                value: "$totalAdmins",
+              ),
+              DashboardTile(
+                title: "Total Customers",
+                value: "$totalCustomers",
+              ),
+              DashboardTile(
+                title: "Verified Users",
+                value: "$verifiedUsers",
+              ),
+              DashboardTile(
+                title: "Unverified Users",
+                value: "$unverifiedUsers",
+              ),
 
+              DashboardTile(
+                title: "Total Orders",
+                value: "$totalOrders",
+              ),
+              DashboardTile(
+                title: "Total Revenue",
+                value: "₹${totalRevenue.toStringAsFixed(2)}",
+              ),
+              DashboardTile(
+                title: "Total Items Ordered",
+                value: "$totalItemsOrdered",
+              ),
+              DashboardTile(
+                title: "Highest Order Value",
+                value: "₹${highestOrderValue.toStringAsFixed(2)}",
+              ),
+              DashboardTile(
+                title: "Lowest Order Value",
+                value: "₹${lowestOrderValue.toStringAsFixed(2)}",
+              ),
+              DashboardTile(
+                title: "Pending Orders",
+                value: "$pendingOrders",
+              ),
+              DashboardTile(
+                title: "Completed Orders",
+                value: "$completedOrders",
+              ),
+            ],
+          ),
+        
+        ),
       ),
       drawer: Drawer(
         child: ListView(
@@ -311,7 +423,7 @@ class DashboardTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(8),
+      margin: const EdgeInsets.only(top: 8),
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
