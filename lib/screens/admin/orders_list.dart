@@ -25,9 +25,8 @@ class _OrdersState extends State<OrdersList> {
 
   Future<void> getOrders() async {
     try {
-      QuerySnapshot orderSnapshot = await FirebaseFirestore.instance
-          .collection('orders')
-          .get(); // Removed user filter
+      QuerySnapshot orderSnapshot =
+          await FirebaseFirestore.instance.collection('orders').get();
 
       if (orderSnapshot.docs.isEmpty) {
         setState(() => isLoading = false);
@@ -36,6 +35,7 @@ class _OrdersState extends State<OrdersList> {
 
       List<Map<String, dynamic>> orders = [];
       List<String> productIDs = [];
+      List<String> userIDs = [];
 
       for (var doc in orderSnapshot.docs) {
         var data = doc.data() as Map<String, dynamic>;
@@ -47,10 +47,11 @@ class _OrdersState extends State<OrdersList> {
         List<String> pIDs = data['productIDs'].toString().split(',');
         List<String> quantities = data['quantities'].toString().split(',');
         productIDs.addAll(pIDs);
+        userIDs.add(data['userID'] ?? 'Unknown'); // Collect user IDs
 
         orders.add({
           'id': doc.id,
-          'userID': data['userID'] ?? 'Unknown', // Add userID here
+          'userID': data['userID'] ?? 'Unknown',
           'createdDate': createdDate,
           'productIDs': pIDs,
           'quantities': quantities,
@@ -58,7 +59,10 @@ class _OrdersState extends State<OrdersList> {
         });
       }
 
-      Map<String, Map<String, dynamic>> products = await getProductDetails(productIDs);
+      Map<String, Map<String, dynamic>> products =
+          await getProductDetails(productIDs);
+      Map<String, String> userNames =
+          await getUserDetails(userIDs); // Fetch user names
 
       for (var order in orders) {
         List<Map<String, dynamic>> productsList = [];
@@ -72,6 +76,8 @@ class _OrdersState extends State<OrdersList> {
           }
         }
         order['products'] = productsList;
+        order['userName'] = userNames[order['userID']] ??
+            'Unknown User'; // Add user name to order
       }
 
       setState(() {
@@ -84,7 +90,30 @@ class _OrdersState extends State<OrdersList> {
     }
   }
 
-  Future<Map<String, Map<String, dynamic>>> getProductDetails(List<String> productIDs) async {
+  Future<Map<String, String>> getUserDetails(List<String> userIDs) async {
+    Map<String, String> userData = {};
+    if (userIDs.isEmpty) return userData;
+
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where(FieldPath.documentId, whereIn: userIDs)
+          .get();
+
+      for (var doc in snapshot.docs) {
+        var data = doc.data() as Map<String, dynamic>;
+        userData[doc.id] =
+            data['name'] ?? "Unknown User"; // Store user name by user ID
+      }
+    } catch (e) {
+      debugPrint("Error fetching user details: $e");
+    }
+
+    return userData;
+  }
+
+  Future<Map<String, Map<String, dynamic>>> getProductDetails(
+      List<String> productIDs) async {
     Map<String, Map<String, dynamic>> productData = {};
     if (productIDs.isEmpty) return productData;
 
@@ -117,107 +146,117 @@ class _OrdersState extends State<OrdersList> {
         backgroundColor: kAppBarColor,
         title: const Text(
           'Orders',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: CupertinoColors.white),
+          style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: CupertinoColors.white),
         ),
       ),
       body: isLoading
           ? const Center(child: CustomCupertinoActivityIndicator())
           : ordersList.isEmpty
-          ? const Center(child: Text("No orders found."))
-          : ListView.builder(
-        itemCount: ordersList.length,
-        itemBuilder: (context, index) {
-          var order = ordersList[index];
-          var products =
-          order['products'] as List<Map<String, dynamic>>;
-          return Column(
-            children: products.map((product) {
-              return Padding(
-                padding: const EdgeInsets.all(8),
-                child: Container(
-                  // height: 130,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color.fromRGBO(128, 128, 128, 0.1),
-                        blurRadius: 6,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.network(
-                            product['image'],
-                            width: 100,
-                            height: 100,
-                            fit: BoxFit.cover,
+              ? const Center(child: Text("No orders found."))
+              : ListView.builder(
+                  itemCount: ordersList.length,
+                  itemBuilder: (context, index) {
+                    var order = ordersList[index];
+                    var products =
+                        order['products'] as List<Map<String, dynamic>>;
+                    return Column(
+                      children: products.map((product) {
+                        return Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Container(
+                            // height: 130,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Color.fromRGBO(128, 128, 128, 0.1),
+                                  blurRadius: 6,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Image.network(
+                                      product['image'],
+                                      width: 100,
+                                      height: 100,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 8),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          product['name'],
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        Text(
+                                          "${order['userName']}",
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.blueAccent,
+                                          ),
+                                        ), // Display User ID here
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          '${product['quantity']} x ₹${product['price']}',
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                          "${order['createdDate']}",
+                                          style: const TextStyle(
+                                            color: Color(0xFF9E9E9E),
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          "${order['orderStatus']}",
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            color: Color(0xFFFFA726),
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding:
-                          const EdgeInsets.symmetric(vertical: 8),
-                          child: Column(
-                            crossAxisAlignment:
-                            CrossAxisAlignment.start,
-                            mainAxisAlignment:
-                            MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                product['name'],
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                '${product['quantity']} x ₹${product['price']}',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                "${order['createdDate']}",
-                                style: const TextStyle(
-                                  color: Color(0xFF9E9E9E),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                "${order['orderStatus']}",
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  color: Color(0xFFFFA726),
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              Text("User ID: ${order['userID']}"), // Display User ID here
-                            ],
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
+                        );
+                      }).toList(),
+                    );
+                  },
                 ),
-              );
-            }).toList(),
-          );
-        },
-      ),
     );
   }
 }
