@@ -464,6 +464,10 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
       return;
     }
 
+    // Extract product IDs and quantities
+    final productIDs = cartQuery.docs.map((doc) => doc['ProductID'].toString()).toList();
+    final quantities = cartQuery.docs.map((doc) => doc['Quantity'].toString()).toList();
+
     // Create order
     final orderRef = FirebaseFirestore.instance.collection('orders').doc();
     try {
@@ -471,12 +475,14 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
         'orderID': orderRef.id,
         'userID': userID,
         'addressID': selectedAddressID,
-        'products': cartQuery.docs.map((doc) => doc.data()).toList(),
-        'totalAmount': widget.finalAmount,
+        'productIDs': productIDs.join(','),
+        'quantities': quantities.join(','),
         'orderStatus': 'Pending',
         'isCompleted': false,
-        'createdAt': FieldValue.serverTimestamp(),
-        'modifiedAt': FieldValue.serverTimestamp(),
+        'created': FieldValue.serverTimestamp(),
+        'modified': FieldValue.serverTimestamp(),
+        'completed': null,
+        'price': widget.finalAmount,
       });
 
       // Clear cart
