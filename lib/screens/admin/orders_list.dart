@@ -50,6 +50,7 @@ class _OrdersState extends State<OrdersList> {
 
         orders.add({
           'id': doc.id,
+          'userID': data['userID'] ?? 'Unknown', // Add userID here
           'createdDate': createdDate,
           'productIDs': pIDs,
           'quantities': quantities,
@@ -82,7 +83,6 @@ class _OrdersState extends State<OrdersList> {
       setState(() => isLoading = false);
     }
   }
-
 
   Future<Map<String, Map<String, dynamic>>> getProductDetails(List<String> productIDs) async {
     Map<String, Map<String, dynamic>> productData = {};
@@ -128,29 +128,88 @@ class _OrdersState extends State<OrdersList> {
         itemCount: ordersList.length,
         itemBuilder: (context, index) {
           var order = ordersList[index];
-          var products = order['products'] as List<Map<String, dynamic>>;
-
+          var products =
+          order['products'] as List<Map<String, dynamic>>;
           return Column(
             children: products.map((product) {
-              return Card(
-                margin: const EdgeInsets.all(8),
-                child: ListTile(
-                  leading: Image.network(
-                    product['image'],
-                    width: 50,
-                    height: 50,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                        Image.network("https://via.placeholder.com/50"),
+              return Padding(
+                padding: const EdgeInsets.all(8),
+                child: Container(
+                  // height: 130,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color.fromRGBO(128, 128, 128, 0.1),
+                        blurRadius: 6,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
                   ),
-                  title: Text(product['name']),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
                     children: [
-                      Text("Price: \$${product['price']}"),
-                      Text("Quantity: ${product['quantity']}"),
-                      Text("Created: ${order['createdDate']}"),
-                      Text("Status: ${order['orderStatus']}"),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.network(
+                            product['image'],
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding:
+                          const EdgeInsets.symmetric(vertical: 8),
+                          child: Column(
+                            crossAxisAlignment:
+                            CrossAxisAlignment.start,
+                            mainAxisAlignment:
+                            MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                product['name'],
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                '${product['quantity']} x ₹${product['price']}',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                              Text(
+                                "${order['createdDate']}",
+                                style: const TextStyle(
+                                  color: Color(0xFF9E9E9E),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                "${order['orderStatus']}",
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Color(0xFFFFA726),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Text("User ID: ${order['userID']}"), // Display User ID here
+                            ],
+                          ),
+                        ),
+                      )
                     ],
                   ),
                 ),
