@@ -83,19 +83,42 @@ class _MyOrderState extends State<MyOrder> {
 
               return Column(
                 children: List.generate(productIDs.length, (i) {
-                  return Card(
-                    margin: const EdgeInsets.all(8),
-                    child: ListTile(
-                      title: Text("Product ID: ${productIDs[i].trim()}"),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Quantity: ${quantities[i].trim()}"),
-                          Text("Created: $createdDate"),
-                          Text("Status: ${order['orderStatus']}"),
-                        ],
-                      ),
-                    ),
+                  return FutureBuilder<Map<String, dynamic>?>(
+                    future: fetchProductDetails(productIDs[i].trim()),
+                    builder: (context, productSnapshot) {
+                      if (productSnapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (!productSnapshot.hasData || productSnapshot.data == null) {
+                        return const Center(child: Text("Product details not found."));
+                      }
+
+                      var productData = productSnapshot.data!;
+                      return Card(
+                        margin: const EdgeInsets.all(8),
+                        child: ListTile(
+                          leading: Image.network(
+                            productData['image'],
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Image.network("https://via.placeholder.com/50"),
+                          ),
+                          title: Text(productData['name']),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Price: \$${productData['price']}"),
+                              Text("Quantity: ${quantities[i].trim()}"),
+                              Text("Created: $createdDate"),
+                              Text("Status: ${order['orderStatus']}"),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
                   );
                 }),
               );
