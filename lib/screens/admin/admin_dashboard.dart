@@ -133,8 +133,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
           .collection('orders')
           .get();
 
-      print("Orders found: ${ordersSnapshot.docs.length}");
-
       double revenue = 0;
       int orderCount = 0; // Start counting only valid orders
       int itemCount = 0;
@@ -148,7 +146,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
         // Skip invalid documents (e.g., placeholder)
         if (!data.containsKey('price') || !data.containsKey('quantities') || data.containsKey('placeholder')) {
-          print("Skipping invalid document: ${doc.id}");
           continue;
         }
 
@@ -183,8 +180,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
         }
       }
 
-      print("Total Revenue: $revenue, Valid Orders: $orderCount, Items: $itemCount");
-
       // Update UI
       setState(() {
         totalRevenue = revenue;
@@ -196,7 +191,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         completedOrders = completed;
       });
     } catch (e) {
-      print("Error fetching order stats: $e"); // Debugging
+      throw("Error fetching order stats: $e"); // Debugging
     }
   }
 
@@ -223,7 +218,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 10),
+              const Align(
+                alignment: Alignment.center,
+                child: Text(
+                  "User Stats",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(height: 5),
               DashboardTile(
                 title: "Total Users",
                 value: "$totalUsers",
@@ -244,7 +246,15 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 title: "Unverified Users",
                 value: "$unverifiedUsers",
               ),
-
+              const SizedBox(height: 10),
+              const Align(
+                alignment: Alignment.center,
+                child: Text(
+                  "Order Stats",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(height: 5),
               DashboardTile(
                 title: "Total Orders",
                 value: "$totalOrders",
