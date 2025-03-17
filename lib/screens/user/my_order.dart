@@ -14,142 +14,180 @@ class MyOrder extends StatefulWidget {
 }
 
 class _MyOrderState extends State<MyOrder> {
+  List<Map<String, dynamic>> ordersWithProducts = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchOrdersWithProducts();
+  }
+
+  Future<void> fetchOrdersWithProducts() async {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return;
+
+    try {
+      final ordersSnapshot = await FirebaseFirestore.instance
+          .collection('orders')
+          .where('userID', isEqualTo: currentUser.uid)
+          .get();
+
+      if (ordersSnapshot.docs.isEmpty) {
+        setState(() => isLoading = false);
+        return;
+      }
+
+      List<Map<String, dynamic>> orders = [];
+      Set<String> productIDsSet = {}; // Unique product IDs for batch fetching
+
+      for (var orderDoc in ordersSnapshot.docs) {
+        var order = orderDoc.data();
+        Timestamp? createdTimestamp = order['created'];
+        String createdDate = createdTimestamp != null
+            ? getFormattedDateTime(dateToFormat: createdTimestamp.toDate())
+            : "No Date";
+
+        List<String> productIDs = order['productIDs'].toString().split(',');
+        List<String> quantities = order['quantities'].toString().split(',');
+
+        // Collect all product IDs for batch fetching
+        productIDsSet.addAll(productIDs.map((id) => id.trim()));
+
+        orders.add({
+          ...order,
+          'createdDate': createdDate,
+          'productIDs': productIDs.map((id) => id.trim()).toList(),
+          'quantities': quantities.map((q) => q.trim()).toList(),
+        });
+      }
+
+      // Fetch product details in a single query
+      Map<String, Map<String, dynamic>> productDetailsMap = await fetchProductDetailsBatch(productIDsSet);
+
+      // Map product details to each order
+      for (var order in orders) {
+        List<Map<String, dynamic>> products = [];
+        for (int i = 0; i < order['productIDs'].length; i++) {
+          String productID = order['productIDs'][i];
+          if (productDetailsMap.containsKey(productID)) {
+            products.add({
+              ...productDetailsMap[productID]!,
+              'quantity': order['quantities'][i],
+            });
+          }
+        }
+        order['products'] = products;
+      }
+
+      setState(() {
+        ordersWithProducts = orders;
+        isLoading = false;
+      });
+    } catch (e) {
+      debugPrint("Error fetching orders: $e");
+      setState(() => isLoading = false);
+    }
+  }
+
+  Future<Map<String, Map<String, dynamic>>> fetchProductDetailsBatch(Set<String> productIDs) async {
+    Map<String, Map<String, dynamic>> productsMap = {};
+
+    if (productIDs.isEmpty) return productsMap;
+
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('product')
+          .where('productID', whereIn: productIDs.toList())
+          .get();
+
+      for (var doc in snapshot.docs) {
+        var data = doc.data();
+        productsMap[data['productID']] = {
+          'name': data['productName'] ?? "Unknown Product",
+          'image': data['displayImage'] ?? "https://via.placeholder.com/50",
+          'price': data['price'] is String ? double.tryParse(data['price']) ?? 0 : data['price'],
+        };
+      }
+    } catch (e) {
+      debugPrint("Error fetching products: $e");
+    }
+
+    return productsMap;
+  }
+
   @override
   Widget build(BuildContext context) {
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
       return Scaffold(
-        appBar: AppBar(
-          iconTheme: const IconThemeData(
-            color: CupertinoColors.white,
-          ),
-          backgroundColor: kAppBarColor,
-          title: const Text(
-            'My Orders',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: CupertinoColors.white,
-            ),
-          ),
-        ),
+        appBar: _buildAppBar(),
         body: const Center(child: Text("Please log in to view your orders.")),
       );
     }
+
+    if (isLoading) {
+      return Scaffold(
+        appBar: _buildAppBar(),
+        body: const Center(child: CustomCupertinoActivityIndicator()),
+      );
+    }
+
+    if (ordersWithProducts.isEmpty) {
+      return Scaffold(
+        appBar: _buildAppBar(),
+        body: const Center(child: Text("No orders found.")),
+      );
+    }
+
     return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(
-          color: CupertinoColors.white,
-        ),
-        backgroundColor: kAppBarColor,
-        title: const Text(
-          'My Orders',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: CupertinoColors.white,
-          ),
-        ),
-      ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('orders')
-            .where('userID', isEqualTo: currentUser.uid)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CustomCupertinoActivityIndicator());
-          }
+      appBar: _buildAppBar(),
+      body: ListView.builder(
+        itemCount: ordersWithProducts.length,
+        itemBuilder: (context, index) {
+          var order = ordersWithProducts[index];
+          var products = order['products'] as List<Map<String, dynamic>>;
 
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text("No orders found."));
-          }
-
-          var orders = snapshot.data!.docs;
-
-          return ListView.builder(
-            itemCount: orders.length,
-            itemBuilder: (context, index) {
-              var order = orders[index].data() as Map<String, dynamic>;
-
-              Timestamp? createdTimestamp = order['created'];
-              String createdDate = createdTimestamp != null
-                  ? getFormattedDateTime(dateToFormat: createdTimestamp.toDate())
-                  : "No Date";
-
-              // Convert stored String into List
-              List<String> productIDs = order['productIDs'].toString().split(',');
-              List<String> quantities = order['quantities'].toString().split(',');
-
-              return Column(
-                children: List.generate(productIDs.length, (i) {
-                  return FutureBuilder<Map<String, dynamic>?>(
-                    future: fetchProductDetails(productIDs[i].trim()),
-                    builder: (context, productSnapshot) {
-                      if (productSnapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-
-                      if (!productSnapshot.hasData || productSnapshot.data == null) {
-                        return const Center(child: Text("Product details not found."));
-                      }
-
-                      var productData = productSnapshot.data!;
-                      return Card(
-                        margin: const EdgeInsets.all(8),
-                        child: ListTile(
-                          leading: Image.network(
-                            productData['image'],
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                Image.network("https://via.placeholder.com/50"),
-                          ),
-                          title: Text(productData['name']),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("Price: \$${productData['price']}"),
-                              Text("Quantity: ${quantities[i].trim()}"),
-                              Text("Created: $createdDate"),
-                              Text("Status: ${order['orderStatus']}"),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                }),
+          return Column(
+            children: products.map((product) {
+              return Card(
+                margin: const EdgeInsets.all(8),
+                child: ListTile(
+                  leading: Image.network(
+                    product['image'],
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        Image.network("https://via.placeholder.com/50"),
+                  ),
+                  title: Text(product['name']),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Price: \$${product['price']}"),
+                      Text("Quantity: ${product['quantity']}"),
+                      Text("Created: ${order['createdDate']}"),
+                      Text("Status: ${order['orderStatus']}"),
+                    ],
+                  ),
+                ),
               );
-            },
+            }).toList(),
           );
         },
       ),
     );
   }
 
-  Future<Map<String, dynamic>?> fetchProductDetails(String productID) async {
-    try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('product')
-          .where('productID', isEqualTo: productID)
-          .limit(1)
-          .get();
-
-      if (snapshot.docs.isEmpty) return null;
-      final data = snapshot.docs.first.data();
-
-      return {
-        'name': data['productName'] ?? "Unknown Product",
-        'image': data['displayImage'] ?? "https://via.placeholder.com/50",
-        'price': data['price'] is String
-            ? double.tryParse(data['price']) ?? 0
-            : data['price'],
-      };
-    } catch (e) {
-      debugPrint("Error fetching product: $e");
-      return null;
-    }
+  AppBar _buildAppBar() {
+    return AppBar(
+      iconTheme: const IconThemeData(color: CupertinoColors.white),
+      backgroundColor: kAppBarColor,
+      title: const Text(
+        'My Orders',
+        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: CupertinoColors.white),
+      ),
+    );
   }
 }
