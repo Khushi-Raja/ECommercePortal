@@ -210,12 +210,11 @@ class _MyOrderState extends State<MyOrder> {
                                           style: TextStyle(
                                             fontSize: 16,
                                             color: order['orderStatus'] == 'Pending' ? const Color(0xFFFFA726) :
-                                            order['orderStatus'] == 'Delivered' ? Colors.lightGreenAccent :
+                                            order['orderStatus'] == 'Delivered' ? Colors.green :
                                             Colors.transparent, // Default color if not Pending or Delivered
                                             fontWeight: FontWeight.w600,
                                           ),
                                         ),
-
                                       ],
                                     ),
                                   ),

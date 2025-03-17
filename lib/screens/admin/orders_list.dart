@@ -267,7 +267,6 @@ class _OrdersState extends State<OrdersList> {
                                             "${order['createdDate']}",
                                             style: const TextStyle(
                                               color: Color(0xFF9E9E9E),
-                                              fontWeight: FontWeight.w500,
                                             ),
                                           ),
                                           const SizedBox(height: 4),
@@ -276,19 +275,21 @@ class _OrdersState extends State<OrdersList> {
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
                                               Text(
+                                                "${order['orderStatus']}",
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: order['orderStatus'] == 'Pending' ? const Color(0xFFFFA726) :
+                                                  order['orderStatus'] == 'Delivered' ? Colors.green :
+                                                  Colors.transparent, // Default color if not Pending or Delivered
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                              Text(
                                                 "${order['userName']}",
                                                 style: const TextStyle(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w600,
                                                   color: Colors.blueAccent,
-                                                ),
-                                              ),
-                                              Text(
-                                                "${order['orderStatus']}",
-                                                style: const TextStyle(
-                                                  fontSize: 16,
-                                                  color: Color(0xFFFFA726),
-                                                  fontWeight: FontWeight.w600,
                                                 ),
                                               ),
                                             ],
