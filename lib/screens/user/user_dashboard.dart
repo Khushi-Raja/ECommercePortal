@@ -160,7 +160,6 @@ class _UserDashboardState extends State<UserDashboard> {
           ],
         ),
       ),
-
       drawer: Drawer(
         child: ListView(
           padding: const EdgeInsets.all(0),

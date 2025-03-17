@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:link/screens/admin/orders_list.dart';
 import 'package:link/screens/admin/product/product_list.dart';
 import 'package:link/auth/signin_screen.dart';
-import 'package:link/components/custom_circular_progress_indicator.dart';
 import 'package:link/constants/color.dart';
 import 'package:link/screens/admin/category/category_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,6 +26,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   void initState() {
     super.initState();
     _initializeUserData(); // Load user data on initialization
+    fetchUserStats(); // Fetch user statistics on dashboard load
   }
 
   Future<void> _initializeUserData() async {
@@ -49,8 +49,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Future<void> _fetchAndSaveUserData() async {
     User? user = firebaseAuth.currentUser;
     if (user != null) {
-      DocumentSnapshot<Map<String, dynamic>> snapshot =
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
 
       if (snapshot.exists) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -65,6 +68,56 @@ class _AdminDashboardState extends State<AdminDashboard> {
       }
     }
   }
+
+  int totalUsers = 0;
+  int totalAdmins = 0;
+  int totalCustomers = 0;
+  int verifiedUsers = 0;
+  int unverifiedUsers = 0;
+
+  Future<void> fetchUserStats() async {
+    try {
+      QuerySnapshot usersSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .get();
+
+      int adminCount = 0;
+      int customerCount = 0;
+      int verifiedCount = 0;
+      int unverifiedCount = 0;
+
+      for (var doc in usersSnapshot.docs) {
+        var data = doc.data() as Map<String, dynamic>;
+
+        // Count role-based users
+        String role = data['role'] ?? 'customer';
+        if (role == 'admin') {
+          adminCount++;
+        } else {
+          customerCount++;
+        }
+
+        // Email verification check
+        bool isVerified = data['emailVerified'] ?? false;
+        if (isVerified) {
+          verifiedCount++;
+        } else {
+          unverifiedCount++;
+        }
+      }
+
+      setState(() {
+        totalUsers = usersSnapshot.docs.length;
+        totalAdmins = adminCount;
+        totalCustomers = customerCount;
+        verifiedUsers = verifiedCount;
+        unverifiedUsers = unverifiedCount;
+      });
+    } catch (e) {
+      debugPrint("Error fetching user stats: $e");
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -83,13 +136,35 @@ class _AdminDashboardState extends State<AdminDashboard> {
           ),
         ),
       ),
-      body: isLoading
-          ? const Center(child: CustomCupertinoActivityIndicator())
-          : Center(
-        child: Text(
-          'Logged in as $userEmail',
-          style: const TextStyle(fontSize: 18),
+      body: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 10),
+            DashboardTile(
+              title: "Total Users",
+              value: "$totalUsers",
+            ),
+            DashboardTile(
+              title: "Total Admins",
+              value: "$totalAdmins",
+            ),
+            DashboardTile(
+              title: "Total Customers",
+              value: "$totalCustomers",
+            ),
+            DashboardTile(
+              title: "Verified Users",
+              value: "$verifiedUsers",
+            ),
+            DashboardTile(
+              title: "Unverified Users",
+              value: "$unverifiedUsers",
+            ),
+          ],
         ),
+
       ),
       drawer: Drawer(
         child: ListView(
@@ -109,7 +184,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       radius: 35,
                       backgroundColor: CupertinoColors.white,
                       child: Text(
-                        displayName != null ? displayName![0].toUpperCase() : "?",
+                        displayName != null
+                            ? displayName![0].toUpperCase()
+                            : "?",
                         style: const TextStyle(
                           fontSize: 30,
                           color: Colors.black,
@@ -219,6 +296,36 @@ class _AdminDashboardState extends State<AdminDashboard> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class DashboardTile extends StatelessWidget {
+  final String title;
+  final String value;
+
+  const DashboardTile({super.key, required this.title, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(8),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: Colors.white,
+      ),
+      child: ListTile(
+        title: Text(
+          title,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+        trailing: Text(
+          value,
+          style: const TextStyle(
+              fontSize: 16, fontWeight: FontWeight.bold, color: Colors.pink),
         ),
       ),
     );
