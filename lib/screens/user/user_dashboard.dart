@@ -3,12 +3,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:link/auth/signin_screen.dart';
-import 'package:link/components/custom_circular_progress_indicator.dart';
 import 'package:link/constants/color.dart';
 import 'package:link/screens/user/cart_screen.dart';
 import 'package:link/screens/user/my_order.dart';
 import 'package:link/screens/user/user_product_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../components/custom_circular_progress_indicator.dart';
 
 class UserDashboard extends StatefulWidget {
   const UserDashboard({super.key});
@@ -89,32 +90,11 @@ class _UserDashboardState extends State<UserDashboard> {
       body: isLoading
           ? const Center(child: CustomCupertinoActivityIndicator())
           : Center(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('category')
-                    .orderBy('categoryName')
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const Center(
-                        child: CustomCupertinoActivityIndicator());
-                  }
-
-                  List<DocumentSnapshot> categoryDocs = snapshot.data!.docs;
-
-                  return ListView.builder(
-                    // Use IndexedListView for better lazy loading with large lists
-                    itemCount: categoryDocs.length,
-                    itemBuilder: (context, index) {
-                      DocumentSnapshot doc = categoryDocs[index];
-                      Map<String, dynamic> data =
-                          doc.data() as Map<String, dynamic>;
-                      return buildGridItem(context, doc, data);
-                    },
-                  );
-                },
-              ),
-            ),
+        child: Text(
+          'Logged in as $userEmail',
+          style: const TextStyle(fontSize: 18),
+        ),
+      ),
       drawer: Drawer(
         child: ListView(
           padding: const EdgeInsets.all(0),
@@ -214,65 +194,6 @@ class _UserDashboardState extends State<UserDashboard> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget buildGridItem(BuildContext context, DocumentSnapshot document,
-      Map<String, dynamic> data) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-                child: Image.network(
-                  data['categoryImage'],
-                  height: 200,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ],
-          ),
-          // Product Details
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  data['categoryName'],
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey.shade900,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                if (data['categoryDescription'] != null)
-                  Text(
-                    data['categoryDescription']!,
-                    maxLines: 1,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
-                    ),
-                  ),
-              ],
-            ),
-          )
-        ],
       ),
     );
   }

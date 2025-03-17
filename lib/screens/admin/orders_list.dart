@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:link/components/dateFormat.dart';
 
 import '../../components/custom_circular_progress_indicator.dart';
@@ -164,97 +165,140 @@ class _OrdersState extends State<OrdersList> {
                         order['products'] as List<Map<String, dynamic>>;
                     return Column(
                       children: products.map((product) {
-                        return Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: Container(
-                            // height: 130,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Color.fromRGBO(128, 128, 128, 0.1),
-                                  blurRadius: 6,
-                                  offset: Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(10),
-                                    child: Image.network(
-                                      product['image'],
-                                      width: 100,
-                                      height: 100,
-                                      fit: BoxFit.cover,
+                        return Slidable(
+                          endActionPane: ActionPane(
+                            motion: const DrawerMotion(),
+                            children: [
+                              Theme(
+                                data: Theme.of(context).copyWith(
+                                  outlinedButtonTheme:
+                                  const OutlinedButtonThemeData(
+                                    style: ButtonStyle(
+                                      iconColor: WidgetStatePropertyAll(
+                                        Colors.white,
+                                      ),
                                     ),
                                   ),
                                 ),
-                                Expanded(
-                                  child: Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          product['name'],
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const SizedBox(height: 6),
-                                        Text(
-                                          '${product['quantity']} x ₹${product['price']}',
-                                          style: TextStyle(
-                                            fontSize: 15,
-                                            color: Colors.grey.shade600,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 5),
-                                        Text(
-                                          "${order['createdDate']}",
-                                          style: const TextStyle(
-                                            color: Color(0xFF9E9E9E),
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              "${order['userName']}",
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w600,
-                                                color: Colors.blueAccent,
-                                              ),
-                                            ),
-                                            Text(
-                                              "${order['orderStatus']}",
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                color: Color(0xFFFFA726),
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                                child: SlidableAction(
+                                  onPressed: (context) {},
+                                  backgroundColor: Colors.lightBlue,
+                                  icon: Icons.edit,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              Theme(
+                                data: Theme.of(context).copyWith(
+                                  outlinedButtonTheme:
+                                      const OutlinedButtonThemeData(
+                                    style: ButtonStyle(
+                                      iconColor: WidgetStatePropertyAll(
+                                        Colors.white,
+                                      ),
                                     ),
                                   ),
-                                )
-                              ],
+                                ),
+                                child: SlidableAction(
+                                  onPressed: (context) {},
+                                  backgroundColor: Colors.red,
+                                  icon: Icons.delete_rounded,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ],
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Color.fromRGBO(128, 128, 128, 0.1),
+                                    blurRadius: 6,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Image.network(
+                                        product['image'],
+                                        width: 100,
+                                        height: 100,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8, horizontal: 8),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            product['name'],
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            '${product['quantity']} x ₹${product['price']}',
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              color: Colors.grey.shade600,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 5),
+                                          Text(
+                                            "${order['createdDate']}",
+                                            style: const TextStyle(
+                                              color: Color(0xFF9E9E9E),
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                "${order['userName']}",
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.blueAccent,
+                                                ),
+                                              ),
+                                              Text(
+                                                "${order['orderStatus']}",
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  color: Color(0xFFFFA726),
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
                             ),
                           ),
                         );

@@ -121,7 +121,7 @@ class _MyOrderState extends State<MyOrder> {
         iconTheme: const IconThemeData(color: CupertinoColors.white),
         backgroundColor: kAppBarColor,
         title: const Text(
-          'My Orders',
+          'My Orders History',
           style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -207,12 +207,15 @@ class _MyOrderState extends State<MyOrder> {
                                         const SizedBox(height: 4),
                                         Text(
                                           "${order['orderStatus']}",
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontSize: 16,
-                                            color: Color(0xFFFFA726),
+                                            color: order['orderStatus'] == 'Pending' ? const Color(0xFFFFA726) :
+                                            order['orderStatus'] == 'Delivered' ? Colors.lightGreenAccent :
+                                            Colors.transparent, // Default color if not Pending or Delivered
                                             fontWeight: FontWeight.w600,
                                           ),
                                         ),
+
                                       ],
                                     ),
                                   ),
