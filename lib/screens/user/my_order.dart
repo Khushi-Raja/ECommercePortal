@@ -14,138 +14,123 @@ class MyOrder extends StatefulWidget {
 }
 
 class _MyOrderState extends State<MyOrder> {
-  List<Map<String, dynamic>> ordersWithProducts = [];
+  List<Map<String, dynamic>> ordersList = [];
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    fetchOrdersWithProducts();
+    getOrders();
   }
 
-  Future<void> fetchOrdersWithProducts() async {
-    User? currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser == null) return;
+  Future<void> getOrders() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
 
     try {
-      final ordersSnapshot = await FirebaseFirestore.instance
+      QuerySnapshot orderSnapshot = await FirebaseFirestore.instance
           .collection('orders')
-          .where('userID', isEqualTo: currentUser.uid)
+          .where('userID', isEqualTo: user.uid)
           .get();
 
-      if (ordersSnapshot.docs.isEmpty) {
+      if (orderSnapshot.docs.isEmpty) {
         setState(() => isLoading = false);
         return;
       }
 
       List<Map<String, dynamic>> orders = [];
-      Set<String> productIDsSet = {}; // Unique product IDs for batch fetching
+      List<String> productIDs = [];
 
-      for (var orderDoc in ordersSnapshot.docs) {
-        var order = orderDoc.data();
-        Timestamp? createdTimestamp = order['created'];
-        String createdDate = createdTimestamp != null
-            ? getFormattedDateTime(dateToFormat: createdTimestamp.toDate())
+      for (var doc in orderSnapshot.docs) {
+        var data = doc.data() as Map<String, dynamic>;
+        Timestamp? createdTime = data['created'];
+        String createdDate = createdTime != null
+            ? getFormattedDateTime(dateToFormat: createdTime.toDate())
             : "No Date";
 
-        List<String> productIDs = order['productIDs'].toString().split(',');
-        List<String> quantities = order['quantities'].toString().split(',');
-
-        // Collect all product IDs for batch fetching
-        productIDsSet.addAll(productIDs.map((id) => id.trim()));
+        List<String> pIDs = data['productIDs'].toString().split(',');
+        List<String> quantities = data['quantities'].toString().split(',');
+        productIDs.addAll(pIDs);
 
         orders.add({
-          ...order,
+          'id': doc.id,
           'createdDate': createdDate,
-          'productIDs': productIDs.map((id) => id.trim()).toList(),
-          'quantities': quantities.map((q) => q.trim()).toList(),
+          'productIDs': pIDs,
+          'quantities': quantities,
+          'orderStatus': data['orderStatus'] ?? 'Unknown',
         });
       }
 
-      // Fetch product details in a single query
-      Map<String, Map<String, dynamic>> productDetailsMap = await fetchProductDetailsBatch(productIDsSet);
+      Map<String, Map<String, dynamic>> products = await getProductDetails(productIDs);
 
-      // Map product details to each order
       for (var order in orders) {
-        List<Map<String, dynamic>> products = [];
+        List<Map<String, dynamic>> productsList = [];
         for (int i = 0; i < order['productIDs'].length; i++) {
-          String productID = order['productIDs'][i];
-          if (productDetailsMap.containsKey(productID)) {
-            products.add({
-              ...productDetailsMap[productID]!,
+          String pID = order['productIDs'][i];
+          if (products.containsKey(pID)) {
+            productsList.add({
+              ...products[pID]!,
               'quantity': order['quantities'][i],
             });
           }
         }
-        order['products'] = products;
+        order['products'] = productsList;
       }
 
       setState(() {
-        ordersWithProducts = orders;
+        ordersList = orders;
         isLoading = false;
       });
     } catch (e) {
-      debugPrint("Error fetching orders: $e");
+      debugPrint("Error: $e");
       setState(() => isLoading = false);
     }
   }
 
-  Future<Map<String, Map<String, dynamic>>> fetchProductDetailsBatch(Set<String> productIDs) async {
-    Map<String, Map<String, dynamic>> productsMap = {};
-
-    if (productIDs.isEmpty) return productsMap;
+  Future<Map<String, Map<String, dynamic>>> getProductDetails(List<String> productIDs) async {
+    Map<String, Map<String, dynamic>> productData = {};
+    if (productIDs.isEmpty) return productData;
 
     try {
-      final snapshot = await FirebaseFirestore.instance
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
           .collection('product')
-          .where('productID', whereIn: productIDs.toList())
+          .where('productID', whereIn: productIDs)
           .get();
 
       for (var doc in snapshot.docs) {
-        var data = doc.data();
-        productsMap[data['productID']] = {
+        var data = doc.data() as Map<String, dynamic>;
+        productData[data['productID']] = {
           'name': data['productName'] ?? "Unknown Product",
           'image': data['displayImage'] ?? "https://via.placeholder.com/50",
-          'price': data['price'] is String ? double.tryParse(data['price']) ?? 0 : data['price'],
+          'price': data['price'] ?? 0,
         };
       }
     } catch (e) {
       debugPrint("Error fetching products: $e");
     }
 
-    return productsMap;
+    return productData;
   }
 
   @override
   Widget build(BuildContext context) {
-    User? currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser == null) {
-      return Scaffold(
-        appBar: _buildAppBar(),
-        body: const Center(child: Text("Please log in to view your orders.")),
-      );
-    }
-
-    if (isLoading) {
-      return Scaffold(
-        appBar: _buildAppBar(),
-        body: const Center(child: CustomCupertinoActivityIndicator()),
-      );
-    }
-
-    if (ordersWithProducts.isEmpty) {
-      return Scaffold(
-        appBar: _buildAppBar(),
-        body: const Center(child: Text("No orders found.")),
-      );
-    }
-
     return Scaffold(
-      appBar: _buildAppBar(),
-      body: ListView.builder(
-        itemCount: ordersWithProducts.length,
+      appBar: AppBar(
+        iconTheme: const IconThemeData(color: CupertinoColors.white),
+        backgroundColor: kAppBarColor,
+        title: const Text(
+          'My Orders',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: CupertinoColors.white),
+        ),
+      ),
+      body: isLoading
+          ? const Center(child: CustomCupertinoActivityIndicator())
+          : ordersList.isEmpty
+          ? const Center(child: Text("No orders found."))
+          : ListView.builder(
+        itemCount: ordersList.length,
         itemBuilder: (context, index) {
-          var order = ordersWithProducts[index];
+          var order = ordersList[index];
           var products = order['products'] as List<Map<String, dynamic>>;
 
           return Column(
@@ -176,17 +161,6 @@ class _MyOrderState extends State<MyOrder> {
             }).toList(),
           );
         },
-      ),
-    );
-  }
-
-  AppBar _buildAppBar() {
-    return AppBar(
-      iconTheme: const IconThemeData(color: CupertinoColors.white),
-      backgroundColor: kAppBarColor,
-      title: const Text(
-        'My Orders',
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: CupertinoColors.white),
       ),
     );
   }
