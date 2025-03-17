@@ -156,7 +156,26 @@ class _OrdersState extends State<OrdersList> {
       body: isLoading
           ? const Center(child: CustomCupertinoActivityIndicator())
           : ordersList.isEmpty
-              ? const Center(child: Text("No orders found."))
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.receipt_long_outlined, // Cart empty icon
+                        size: 80,
+                        color: Colors.grey[400],
+                      ),
+                      const SizedBox(height: 10), // Spacing between icon and text
+                      const Text(
+                        "No orders yet!",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                ))
               : ListView.builder(
                   itemCount: ordersList.length,
                   itemBuilder: (context, index) {
@@ -172,7 +191,7 @@ class _OrdersState extends State<OrdersList> {
                               Theme(
                                 data: Theme.of(context).copyWith(
                                   outlinedButtonTheme:
-                                  const OutlinedButtonThemeData(
+                                      const OutlinedButtonThemeData(
                                     style: ButtonStyle(
                                       iconColor: WidgetStatePropertyAll(
                                         Colors.white,
@@ -278,9 +297,14 @@ class _OrdersState extends State<OrdersList> {
                                                 "${order['orderStatus']}",
                                                 style: TextStyle(
                                                   fontSize: 16,
-                                                  color: order['orderStatus'] == 'Pending' ? const Color(0xFFFFA726) :
-                                                  order['orderStatus'] == 'Delivered' ? Colors.green :
-                                                  Colors.transparent, // Default color if not Pending or Delivered
+                                                  color: order['orderStatus'] ==
+                                                          'Pending'
+                                                      ? const Color(0xFFFFA726)
+                                                      : order['orderStatus'] ==
+                                                              'Delivered'
+                                                          ? Colors.green
+                                                          : Colors.transparent,
+                                                  // Default color if not Pending or Delivered
                                                   fontWeight: FontWeight.w600,
                                                 ),
                                               ),

@@ -60,7 +60,27 @@ class _CartScreenState extends State<CartScreen> {
             return const Center(child: CustomCupertinoActivityIndicator());
           }
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text("Your cart is empty!"));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center, // Centers content vertically
+                children: [
+                  Icon(
+                    Icons.remove_shopping_cart, // Cart empty icon
+                    size: 80,
+                    color: Colors.grey[400],
+                  ),
+                  const SizedBox(height: 10), // Spacing between icon and text
+                  const Text(
+                    "Your cart is empty!",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            );
           }
 
           final cartItems = snapshot.data!.docs;
