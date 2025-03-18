@@ -3,11 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:link/components/custom_button.dart';
-import '../../components/custom_snackbar.dart';
-import '../../components/custom_textfiled.dart';
-import '../../components/dateFormat.dart';
-import '../../constants/color.dart';
-import '../../constants/generate_id.dart';
+import '../../../components/custom_snackbar.dart';
+import '../../../components/custom_textfiled.dart';
+import '../../../components/dateFormat.dart';
+import '../../../constants/color.dart';
+import '../../../constants/generate_id.dart';
 
 class AddAddressScreen extends StatefulWidget {
   final String addressID;

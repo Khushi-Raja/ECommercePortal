@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:link/components/custom_circular_progress_indicator.dart';
 import 'package:link/components/custom_snackbar.dart';
-import 'package:link/screens/user/add_address_screen.dart';
-import 'package:link/screens/user/razorpay_payment.dart';
-import '../../components/custom_button.dart';
-import '../../constants/color.dart';
+import 'package:link/screens/user/checkout/add_address_screen.dart';
+import 'package:link/screens/user/checkout/razorpay_payment.dart';
+import '../../../components/custom_button.dart';
+import '../../../constants/color.dart';
 
 class CheckOutScreen extends StatefulWidget {
   final double originalTotal;

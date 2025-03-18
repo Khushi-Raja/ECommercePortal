@@ -3,8 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:link/components/custom_circular_progress_indicator.dart';
-import '../../components/dateFormat.dart';
-import '../../constants/color.dart';
+import '../../../components/dateFormat.dart';
+import '../../../constants/color.dart';
 
 class MyOrder extends StatefulWidget {
   const MyOrder({super.key});

@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:link/components/custom_button.dart';
 import 'package:link/constants/color.dart';
-import 'package:link/screens/user/checkout_screen.dart';
-import '../../components/custom_circular_progress_indicator.dart';
+import 'package:link/screens/user/checkout/checkout_screen.dart';
+import '../../../components/custom_circular_progress_indicator.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:link/components/custom_circular_progress_indicator.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
-import '../../components/custom_snackbar.dart';
+import '../../../components/custom_snackbar.dart';
 
 class RazorpayPayment extends StatefulWidget {
   final double amount;

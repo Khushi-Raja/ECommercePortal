@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:link/auth/signin_screen.dart';
 import 'package:link/constants/color.dart';
-import 'package:link/screens/user/cart_screen.dart';
-import 'package:link/screens/user/my_orders.dart';
-import 'package:link/screens/user/user_product_list.dart';
+import 'package:link/screens/user/checkout/cart_screen.dart';
+import 'package:link/screens/user/orders/my_orders.dart';
+import 'package:link/screens/user/product/user_product_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserDashboard extends StatefulWidget {

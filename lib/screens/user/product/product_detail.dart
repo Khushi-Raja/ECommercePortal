@@ -3,9 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:link/constants/color.dart';
-import 'package:link/screens/user/cart_screen.dart';
-import '../../components/custom_button.dart';
-import '../../constants/generate_id.dart';
+import 'package:link/screens/user/checkout/cart_screen.dart';
+import '../../../components/custom_button.dart';
+import '../../../constants/generate_id.dart';
 
 class ProductDetail extends StatefulWidget {
   final Map<String, dynamic> productData;

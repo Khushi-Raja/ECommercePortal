@@ -3,10 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:link/components/custom_textfiled.dart';
-import 'package:link/screens/user/cart_screen.dart';
-import 'package:link/screens/user/product_detail.dart';
-import '../../components/custom_circular_progress_indicator.dart';
-import '../../constants/color.dart';
+import 'package:link/screens/user/checkout/cart_screen.dart';
+import 'package:link/screens/user/product/product_detail.dart';
+import '../../../components/custom_circular_progress_indicator.dart';
+import '../../../constants/color.dart';
 
 class UserProductList extends StatefulWidget {
   const UserProductList({super.key});
