@@ -6,14 +6,14 @@ import 'package:link/components/custom_circular_progress_indicator.dart';
 import '../../components/dateFormat.dart';
 import '../../constants/color.dart';
 
-class MyOrder extends StatefulWidget {
-  const MyOrder({super.key});
+class MyOrders extends StatefulWidget {
+  const MyOrders({super.key});
 
   @override
-  State<MyOrder> createState() => _MyOrderState();
+  State<MyOrders> createState() => _MyOrdersState();
 }
 
-class _MyOrderState extends State<MyOrder> {
+class _MyOrdersState extends State<MyOrders> {
   List<Map<String, dynamic>> ordersList = [];
   bool isLoading = true;
 

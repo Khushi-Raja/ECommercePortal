@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:link/auth/signin_screen.dart';
 import 'package:link/constants/color.dart';
 import 'package:link/screens/user/cart_screen.dart';
-import 'package:link/screens/user/my_order.dart';
+import 'package:link/screens/user/my_orders.dart';
 import 'package:link/screens/user/user_product_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -234,7 +234,7 @@ class _UserDashboardState extends State<UserDashboard> {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) {
-                      return const MyOrder();
+                      return const MyOrders();
                     },
                   ),
                 );
