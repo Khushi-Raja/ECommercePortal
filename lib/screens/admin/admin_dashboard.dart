@@ -238,14 +238,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 title: "Total Customers",
                 value: "$totalCustomers",
               ),
-              DashboardTile(
-                title: "Verified Users",
-                value: "$verifiedUsers",
-              ),
-              DashboardTile(
-                title: "Unverified Users",
-                value: "$unverifiedUsers",
-              ),
+              // DashboardTile(
+              //   title: "Verified Users",
+              //   value: "$verifiedUsers",
+              // ),
+              // DashboardTile(
+              //   title: "Unverified Users",
+              //   value: "$unverifiedUsers",
+              // ),
               const SizedBox(height: 10),
               const Align(
                 alignment: Alignment.center,
@@ -433,7 +433,7 @@ class DashboardTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(top: 8),
+      margin: const EdgeInsets.only(bottom: 10),
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),

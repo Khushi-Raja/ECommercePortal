@@ -289,7 +289,7 @@ class DashboardTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(top: 8),
+      margin: const EdgeInsets.only(bottom: 10),
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
