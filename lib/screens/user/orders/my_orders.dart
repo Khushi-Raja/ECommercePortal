@@ -191,7 +191,7 @@ class _MyOrdersState extends State<MyOrders> {
             return Padding(
               padding: const EdgeInsets.all(8),
               child: Container(
-                height: 130,
+                // height: 130,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
