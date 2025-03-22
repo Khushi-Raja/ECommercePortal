@@ -116,148 +116,150 @@ class _UserDashboardState extends State<UserDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(
-          color: CupertinoColors.white,
-        ),
-        backgroundColor: kAppBarColor,
-        title: const Text(
-          'User Dashboard',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          iconTheme: const IconThemeData(
             color: CupertinoColors.white,
           ),
+          backgroundColor: kAppBarColor,
+          title: const Text(
+            'User Dashboard',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: CupertinoColors.white,
+            ),
+          ),
         ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 10),
-            DashboardTile(
-              title: "Total Money Spent",
-              value: "₹${totalSpent.toStringAsFixed(2)}",
-            ),
-            DashboardTile(
-              title: "Total Orders Placed",
-              value: "$totalOrders",
-            ),
-            DashboardTile(
-              title: "Total Items Ordered",
-              value: "$totalItemsOrdered",
-            ),
-            DashboardTile(
-              title: "Most Expensive Purchase",
-              value: "₹${mostExpensivePurchase.toStringAsFixed(2)}",
-            ),
-            DashboardTile(
-              title: "Cheapest Purchase",
-              value: "₹${cheapestPurchase.toStringAsFixed(2)}",
-            ),
-          ],
+        body: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 10),
+              DashboardTile(
+                title: "Total Money Spent",
+                value: "₹${totalSpent.toStringAsFixed(2)}",
+              ),
+              DashboardTile(
+                title: "Total Orders Placed",
+                value: "$totalOrders",
+              ),
+              DashboardTile(
+                title: "Total Items Ordered",
+                value: "$totalItemsOrdered",
+              ),
+              DashboardTile(
+                title: "Most Expensive Purchase",
+                value: "₹${mostExpensivePurchase.toStringAsFixed(2)}",
+              ),
+              DashboardTile(
+                title: "Cheapest Purchase",
+                value: "₹${cheapestPurchase.toStringAsFixed(2)}",
+              ),
+            ],
+          ),
         ),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: const EdgeInsets.all(0),
-          children: [
-            Container(
-              color: kAppBarColor,
-              width: double.infinity,
-              height: 200,
-              padding: const EdgeInsets.only(top: 20.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Align(
-                    alignment: Alignment.center,
-                    child: CircleAvatar(
-                      radius: 35,
-                      backgroundColor: CupertinoColors.white,
-                      child: Text(
-                        displayName != null
-                            ? displayName![0].toUpperCase()
-                            : "?",
-                        style: const TextStyle(
-                          fontSize: 30,
-                          color: Colors.black,
+        drawer: Drawer(
+          child: ListView(
+            padding: const EdgeInsets.all(0),
+            children: [
+              Container(
+                color: kAppBarColor,
+                width: double.infinity,
+                height: 200,
+                padding: const EdgeInsets.only(top: 20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Align(
+                      alignment: Alignment.center,
+                      child: CircleAvatar(
+                        radius: 35,
+                        backgroundColor: CupertinoColors.white,
+                        child: Text(
+                          displayName != null
+                              ? displayName![0].toUpperCase()
+                              : "?",
+                          style: const TextStyle(
+                            fontSize: 30,
+                            color: Colors.black,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  Text(
-                    displayName ?? "Loading...",
-                    style: const TextStyle(color: Colors.white, fontSize: 20),
-                  ),
-                  Text(
-                    userEmail ?? "No email",
-                    style: TextStyle(
-                      color: Colors.grey[200],
-                      fontSize: 14,
+                    Text(
+                      displayName ?? "Loading...",
+                      style: const TextStyle(color: Colors.white, fontSize: 20),
                     ),
-                  ),
-                ],
+                    Text(
+                      userEmail ?? "No email",
+                      style: TextStyle(
+                        color: Colors.grey[200],
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            customListTile(
-              icon: Icons.category_outlined,
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return const UserProductList();
-                    },
-                  ),
-                );
-              },
-              text: 'Product',
-            ),
-            customListTile(
-              icon: Icons.shopping_cart_outlined,
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return const CartScreen();
-                    },
-                  ),
-                );
-              },
-              text: 'Cart',
-            ),
-            customListTile(
-              icon: Icons.local_shipping_outlined,
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return const MyOrders();
-                    },
-                  ),
-                );
-              },
-              text: 'My Orders',
-            ),
-            customListTile(
-              icon: Icons.logout,
-              onTap: () async {
-                await FirebaseAuth.instance.signOut();
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                await prefs.clear(); // Clear cached data on logout
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return const SignInScreen();
-                    },
-                  ),
-                );
-              },
-              text: 'Logout',
-            ),
-          ],
+              customListTile(
+                icon: Icons.category_outlined,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return const UserProductList();
+                      },
+                    ),
+                  );
+                },
+                text: 'Product',
+              ),
+              customListTile(
+                icon: Icons.shopping_cart_outlined,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return const CartScreen();
+                      },
+                    ),
+                  );
+                },
+                text: 'Cart',
+              ),
+              customListTile(
+                icon: Icons.local_shipping_outlined,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return const MyOrders();
+                      },
+                    ),
+                  );
+                },
+                text: 'My Orders',
+              ),
+              customListTile(
+                icon: Icons.logout,
+                onTap: () async {
+                  await FirebaseAuth.instance.signOut();
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  await prefs.clear(); // Clear cached data on logout
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return const SignInScreen();
+                      },
+                    ),
+                  );
+                },
+                text: 'Logout',
+              ),
+            ],
+          ),
         ),
       ),
     );

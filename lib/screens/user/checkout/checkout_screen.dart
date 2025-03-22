@@ -321,82 +321,84 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: CupertinoColors.white),
-        backgroundColor: kAppBarColor,
-        title: const Text("Checkout",
-            style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: CupertinoColors.white)),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          children: [
-            _buildContainer(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text("Order Summary",
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 10),
-                  _buildPricingRow('Original Total', widget.originalTotal),
-                  _buildPricingRow('Discount Total', -widget.discountTotal),
-                  const Divider(height: 20, thickness: 1),
-                  _buildPricingRow('Final Amount', widget.finalAmount,
-                      isFinal: true),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-            _buildContainer(
-              child: GestureDetector(
-                onTap: _showAddressSelection,
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          iconTheme: const IconThemeData(color: CupertinoColors.white),
+          backgroundColor: kAppBarColor,
+          title: const Text("Checkout",
+              style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: CupertinoColors.white)),
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            children: [
+              _buildContainer(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("Shipping Address",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    const Text("Order Summary",
+                        style:
+                            TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 10),
-                    selectedAddressID != null
-                        ? Text(
-                            addresses
-                                .firstWhere((address) =>
-                                    address.id == selectedAddressID)
-                                .fullAddress,
-                            style: const TextStyle(
-                                fontSize: 16, color: Colors.black),
-                          )
-                        : const Text(
-                            "Tap to select an address",
-                            style: TextStyle(fontSize: 16, color: Colors.grey),
-                          ),
+                    _buildPricingRow('Original Total', widget.originalTotal),
+                    _buildPricingRow('Discount Total', -widget.discountTotal),
+                    const Divider(height: 20, thickness: 1),
+                    _buildPricingRow('Final Amount', widget.finalAmount,
+                        isFinal: true),
                   ],
                 ),
               ),
+              const SizedBox(height: 10),
+              _buildContainer(
+                child: GestureDetector(
+                  onTap: _showAddressSelection,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text("Shipping Address",
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 10),
+                      selectedAddressID != null
+                          ? Text(
+                              addresses
+                                  .firstWhere((address) =>
+                                      address.id == selectedAddressID)
+                                  .fullAddress,
+                              style: const TextStyle(
+                                  fontSize: 16, color: Colors.black),
+                            )
+                          : const Text(
+                              "Tap to select an address",
+                              style: TextStyle(fontSize: 16, color: Colors.grey),
+                            ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+        bottomNavigationBar: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(16),
+            topRight: Radius.circular(16),
+          ),
+          child: BottomAppBar(
+            color: Colors.white,
+            child: CustomButton(
+              onPressed: () {
+                _proceedToPayment();
+              },
+              backgroundColor: kAppBarColor,
+              textColor: Colors.white,
+              buttonName: 'Pay Now ₹${widget.finalAmount.toStringAsFixed(2)}',
             ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
-      bottomNavigationBar: ClipRRect(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
-        ),
-        child: BottomAppBar(
-          color: Colors.white,
-          child: CustomButton(
-            onPressed: () {
-              _proceedToPayment();
-            },
-            backgroundColor: kAppBarColor,
-            textColor: Colors.white,
-            buttonName: 'Pay Now ₹${widget.finalAmount.toStringAsFixed(2)}',
           ),
         ),
       ),

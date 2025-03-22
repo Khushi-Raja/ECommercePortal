@@ -55,79 +55,81 @@ class _AddUserState extends State<AddUser> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: CupertinoColors.white),
-        backgroundColor: kAppBarColor,
-        title: Text(
-          widget.userID.isNotEmpty ? "Update User" : "Add User",
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: CupertinoColors.white,
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          iconTheme: const IconThemeData(color: CupertinoColors.white),
+          backgroundColor: kAppBarColor,
+          title: Text(
+            widget.userID.isNotEmpty ? "Update User" : "Add User",
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: CupertinoColors.white,
+            ),
           ),
         ),
-      ),
-      body: SingleChildScrollView(
-        child: Form(
-          key: formKey,
-          child: Column(
-            children: [
-              CustomTextFormField(
-                controller: nameController,
-                obscureText: false,
-                validator: (value) =>
-                    value!.trim().isEmpty ? "Name is required" : null,
-                keyboardType: TextInputType.name,
-                labelText: 'Name',
-              ),
-              CustomTextFormField(
-                controller: surNameController,
-                obscureText: false,
-                validator: (value) =>
-                    value!.trim().isEmpty ? "Surname is required" : null,
-                keyboardType: TextInputType.name,
-                labelText: 'Surname',
-              ),
-              CustomTextFormField(
-                controller: phoneNumberController,
-                obscureText: false,
-                validator: (value) =>
-                    value!.trim().isEmpty ? "Phone Number is required" : null,
-                inputFormatNumber: 10,
-                keyboardType: TextInputType.number,
-                labelText: 'Phone Number',
-              ),
-              CustomTextFormField(
-                controller: emailController,
-                enabled: widget.userID.isEmpty,
-                // Disable when updating user
-                obscureText: false,
-                validator: (value) =>
-                    value!.trim().isEmpty ? "Email is required" : null,
-                keyboardType: TextInputType.emailAddress,
-                labelText: 'Email',
-              ),
-              CustomTextFormField(
-                controller: addressController,
-                obscureText: false,
-                validator: (value) => null,
-                // Optional field
-                keyboardType: TextInputType.streetAddress,
-                labelText: 'Address (Optional)',
-              ),
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.all(15),
-                child: CustomButton(
-                  buttonName:
-                      widget.userID.isNotEmpty ? "Update User" : "Add User",
-                  backgroundColor: CupertinoColors.black,
-                  textColor: CupertinoColors.white,
-                  onPressed: submit,
+        body: SingleChildScrollView(
+          child: Form(
+            key: formKey,
+            child: Column(
+              children: [
+                CustomTextFormField(
+                  controller: nameController,
+                  obscureText: false,
+                  validator: (value) =>
+                      value!.trim().isEmpty ? "Name is required" : null,
+                  keyboardType: TextInputType.name,
+                  labelText: 'Name',
                 ),
-              ),
-            ],
+                CustomTextFormField(
+                  controller: surNameController,
+                  obscureText: false,
+                  validator: (value) =>
+                      value!.trim().isEmpty ? "Surname is required" : null,
+                  keyboardType: TextInputType.name,
+                  labelText: 'Surname',
+                ),
+                CustomTextFormField(
+                  controller: phoneNumberController,
+                  obscureText: false,
+                  validator: (value) =>
+                      value!.trim().isEmpty ? "Phone Number is required" : null,
+                  inputFormatNumber: 10,
+                  keyboardType: TextInputType.number,
+                  labelText: 'Phone Number',
+                ),
+                CustomTextFormField(
+                  controller: emailController,
+                  enabled: widget.userID.isEmpty,
+                  // Disable when updating user
+                  obscureText: false,
+                  validator: (value) =>
+                      value!.trim().isEmpty ? "Email is required" : null,
+                  keyboardType: TextInputType.emailAddress,
+                  labelText: 'Email',
+                ),
+                CustomTextFormField(
+                  controller: addressController,
+                  obscureText: false,
+                  validator: (value) => null,
+                  // Optional field
+                  keyboardType: TextInputType.streetAddress,
+                  labelText: 'Address (Optional)',
+                ),
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: CustomButton(
+                    buttonName:
+                        widget.userID.isNotEmpty ? "Update User" : "Add User",
+                    backgroundColor: CupertinoColors.black,
+                    textColor: CupertinoColors.white,
+                    onPressed: submit,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

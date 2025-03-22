@@ -46,90 +46,92 @@ class _AddCategoryState extends State<AddCategory> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(
-          color: CupertinoColors.white,
-        ),
-        backgroundColor: kAppBarColor,
-        title: Text(
-          widget.categoryID.isEmpty ? 'Add Category' : 'Update Category',
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          iconTheme: const IconThemeData(
             color: CupertinoColors.white,
           ),
+          backgroundColor: kAppBarColor,
+          title: Text(
+            widget.categoryID.isEmpty ? 'Add Category' : 'Update Category',
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: CupertinoColors.white,
+            ),
+          ),
         ),
-      ),
-      body: SingleChildScrollView(
-        child: Form(
-          key: formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 10),
-              GestureDetector(
-                onTap: pickImage,
-                child: Container(
-                  width: 150,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15), // Rounded corners
-                    border: Border.all(color: Colors.grey.shade400, width: 2), // Border style
-                    image: _imageBytes != null || imageFile != null || widget.categoryID.isNotEmpty
-                        ? DecorationImage(
-                      image: _imageBytes != null
-                          ? MemoryImage(_imageBytes!)
-                          : imageFile != null
-                          ? FileImage(imageFile!)
-                          : NetworkImage(widget.categoryImage) as ImageProvider,
-                      fit: BoxFit.cover, // Fill the box with the image
+        body: SingleChildScrollView(
+          child: Form(
+            key: formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 10),
+                GestureDetector(
+                  onTap: pickImage,
+                  child: Container(
+                    width: 150,
+                    height: 150,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15), // Rounded corners
+                      border: Border.all(color: Colors.grey.shade400, width: 2), // Border style
+                      image: _imageBytes != null || imageFile != null || widget.categoryID.isNotEmpty
+                          ? DecorationImage(
+                        image: _imageBytes != null
+                            ? MemoryImage(_imageBytes!)
+                            : imageFile != null
+                            ? FileImage(imageFile!)
+                            : NetworkImage(widget.categoryImage) as ImageProvider,
+                        fit: BoxFit.cover, // Fill the box with the image
+                      )
+                          : null,
+                    ),
+                    child: (_imageBytes == null && imageFile == null && widget.categoryID.isEmpty)
+                        ? const Center(
+                      child: Icon(Icons.camera_alt, color: Colors.grey)
                     )
                         : null,
                   ),
-                  child: (_imageBytes == null && imageFile == null && widget.categoryID.isEmpty)
-                      ? const Center(
-                    child: Icon(Icons.camera_alt, color: Colors.grey)
-                  )
-                      : null,
                 ),
-              ),
-              const SizedBox(height: 10),
-              CustomTextFormField(
-                controller: categoryNameController,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Category is required";
-                  }
-                  return null;
-                },
-                keyboardType: TextInputType.name,
-                labelText: 'Category Name',
-                obscureText: false,
-              ),
-              CustomTextFormField(
-                controller: categoryDescriptionController,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Category Description is required";
-                  }
-                  return null;
-                },
-                maxLines: 5,
-                keyboardType: TextInputType.name,
-                labelText: 'Category Description',
-                obscureText: false,
-              ),
-              const SizedBox(height: 5),
-              CustomButton(
-                buttonName: widget.categoryName.isNotEmpty
-                    ? 'Update Category'
-                    : 'Add Category',
-                onPressed: submit,
-                backgroundColor: kAppBarColor,
-                textColor: CupertinoColors.white,
-              ),
-            ],
+                const SizedBox(height: 10),
+                CustomTextFormField(
+                  controller: categoryNameController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Category is required";
+                    }
+                    return null;
+                  },
+                  keyboardType: TextInputType.name,
+                  labelText: 'Category Name',
+                  obscureText: false,
+                ),
+                CustomTextFormField(
+                  controller: categoryDescriptionController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Category Description is required";
+                    }
+                    return null;
+                  },
+                  maxLines: 5,
+                  keyboardType: TextInputType.name,
+                  labelText: 'Category Description',
+                  obscureText: false,
+                ),
+                const SizedBox(height: 5),
+                CustomButton(
+                  buttonName: widget.categoryName.isNotEmpty
+                      ? 'Update Category'
+                      : 'Add Category',
+                  onPressed: submit,
+                  backgroundColor: kAppBarColor,
+                  textColor: CupertinoColors.white,
+                ),
+              ],
+            ),
           ),
         ),
       ),

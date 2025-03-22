@@ -93,157 +93,159 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: kAppBarColor,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
-          'Add New Address',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: CupertinoColors.white,
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: kAppBarColor,
+          iconTheme: const IconThemeData(color: Colors.white),
+          title: const Text(
+            'Add New Address',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: CupertinoColors.white,
+            ),
           ),
         ),
-      ),
-      body: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 10),
-              CustomTextFormField(
-                controller: countryNameController,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Country Name is required";
-                  }
-                  return null;
-                },
-                keyboardType: TextInputType.name,
-                labelText: 'Country',
-                obscureText: false,
-                prefixIcon: const Icon(Icons.public),
-              ),
-              CustomTextFormField(
-                controller: mobileNumberController,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Mobile Number is required";
-                  }
-                  return null;
-                },
-                keyboardType: TextInputType.name,
-                labelText: 'Mobile Number',
-                obscureText: false,
-                prefixIcon: const Icon(Icons.phone),
-              ),
-              CustomTextFormField(
-                controller: flatHouseNumberController,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Flat, House no., Building, Company, Apartment is required";
-                  }
-                  return null;
-                },
-                keyboardType: TextInputType.name,
-                labelText: 'Flat, House number',
-                obscureText: false,
-                prefixIcon: const Icon(Icons.house),
-              ),
-              CustomTextFormField(
-                controller: areaStreetController,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Area, Street, Village is required";
-                  }
-                  return null;
-                },
-                keyboardType: TextInputType.name,
-                labelText: 'Area, Street',
-                obscureText: false,
-                prefixIcon: const Icon(Icons.directions),
-              ),
-              CustomTextFormField(
-                controller: pinCodeController,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Pin Code is required";
-                  }
-                  return null;
-                },
-                keyboardType: TextInputType.name,
-                labelText: 'Pin Code',
-                obscureText: false,
-                prefixIcon: const Icon(Icons.pin_drop),
-              ),
-              CustomTextFormField(
-                controller: cityController,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Town or City is required";
-                  }
-                  return null;
-                },
-                keyboardType: TextInputType.name,
-                labelText: 'Town/City',
-                obscureText: false,
-                prefixIcon: const Icon(Icons.location_city),
-              ),
-              // In your build method
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: DropdownButtonFormField<String>(
+        body: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 10),
+                CustomTextFormField(
+                  controller: countryNameController,
                   validator: (value) {
-                    if (value == null) {
-                      return "Please select a State";
+                    if (value == null || value.trim().isEmpty) {
+                      return "Country Name is required";
                     }
                     return null;
                   },
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: CupertinoColors.black),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: CupertinoColors.black),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  // Ensure that the selectedState is valid or null
-                  value:
-                      statesList.contains(selectedState) ? selectedState : null,
-                  hint: const Text(
-                    'Select State',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.black),
-                  ),
-                  items: statesList.map((state) {
-                    return DropdownMenuItem(
-                      value: state,
-                      child: Text(state),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedState = value;
-                    });
-                  },
+                  keyboardType: TextInputType.name,
+                  labelText: 'Country',
+                  obscureText: false,
+                  prefixIcon: const Icon(Icons.public),
                 ),
-              ),
-              const SizedBox(height: 5),
-              CustomButton(
-                backgroundColor: kAppBarColor,
-                textColor: Colors.white,
-                buttonName: widget.countryName.isNotEmpty
-                    ? 'Update Address'
-                    : 'Add Address',
-                onPressed: submit,
-              ),
-            ],
+                CustomTextFormField(
+                  controller: mobileNumberController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Mobile Number is required";
+                    }
+                    return null;
+                  },
+                  keyboardType: TextInputType.name,
+                  labelText: 'Mobile Number',
+                  obscureText: false,
+                  prefixIcon: const Icon(Icons.phone),
+                ),
+                CustomTextFormField(
+                  controller: flatHouseNumberController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Flat, House no., Building, Company, Apartment is required";
+                    }
+                    return null;
+                  },
+                  keyboardType: TextInputType.name,
+                  labelText: 'Flat, House number',
+                  obscureText: false,
+                  prefixIcon: const Icon(Icons.house),
+                ),
+                CustomTextFormField(
+                  controller: areaStreetController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Area, Street, Village is required";
+                    }
+                    return null;
+                  },
+                  keyboardType: TextInputType.name,
+                  labelText: 'Area, Street',
+                  obscureText: false,
+                  prefixIcon: const Icon(Icons.directions),
+                ),
+                CustomTextFormField(
+                  controller: pinCodeController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Pin Code is required";
+                    }
+                    return null;
+                  },
+                  keyboardType: TextInputType.name,
+                  labelText: 'Pin Code',
+                  obscureText: false,
+                  prefixIcon: const Icon(Icons.pin_drop),
+                ),
+                CustomTextFormField(
+                  controller: cityController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Town or City is required";
+                    }
+                    return null;
+                  },
+                  keyboardType: TextInputType.name,
+                  labelText: 'Town/City',
+                  obscureText: false,
+                  prefixIcon: const Icon(Icons.location_city),
+                ),
+                // In your build method
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: DropdownButtonFormField<String>(
+                    validator: (value) {
+                      if (value == null) {
+                        return "Please select a State";
+                      }
+                      return null;
+                    },
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderSide:
+                            const BorderSide(color: CupertinoColors.black),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide:
+                            const BorderSide(color: CupertinoColors.black),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    // Ensure that the selectedState is valid or null
+                    value:
+                        statesList.contains(selectedState) ? selectedState : null,
+                    hint: const Text(
+                      'Select State',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.black),
+                    ),
+                    items: statesList.map((state) {
+                      return DropdownMenuItem(
+                        value: state,
+                        child: Text(state),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedState = value;
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(height: 5),
+                CustomButton(
+                  backgroundColor: kAppBarColor,
+                  textColor: Colors.white,
+                  buttonName: widget.countryName.isNotEmpty
+                      ? 'Update Address'
+                      : 'Add Address',
+                  onPressed: submit,
+                ),
+              ],
+            ),
           ),
         ),
       ),

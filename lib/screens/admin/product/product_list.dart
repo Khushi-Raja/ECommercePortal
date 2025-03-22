@@ -35,69 +35,71 @@ class _ProductListState extends State<ProductList> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(
-          color: CupertinoColors.white,
-        ),
-        backgroundColor: kAppBarColor,
-        title: const Text(
-          'Product List',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          iconTheme: const IconThemeData(
             color: CupertinoColors.white,
           ),
-        ),
-      ),
-      body: StreamBuilder<QuerySnapshot>(
-        // Directly sorting by 'isDisabled' and 'skillName' in Firestore to reduce manual sorting in the app
-        stream: FirebaseFirestore.instance
-            .collection('product')
-            .orderBy('productName')
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(
-              child: CustomCupertinoActivityIndicator(),
-            );
-          }
-
-          // List fetched from FireStore, already sorted as per our query
-          List<DocumentSnapshot> skillDocs = snapshot.data!.docs;
-
-          return ListView.builder(
-            // Use IndexedListView for better lazy loading with large lists
-            itemCount: skillDocs.length,
-            itemBuilder: (context, index) {
-              DocumentSnapshot doc = skillDocs[index];
-              Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-              return buildCard(context, doc, data);
-            },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const AddProduct(
-                  productID: '',
-                  productName: '',
-                  description: '',
-                  price: 0.0,
-                  code: '',
-                  displayImage: '',
-                  discount: 0.0,
-                  categoryID: ''),
+          backgroundColor: kAppBarColor,
+          title: const Text(
+            'Product List',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: CupertinoColors.white,
             ),
-          );
-        },
-        backgroundColor: kAppBarColor,
-        child: const Icon(
-          CupertinoIcons.add,
-          color: CupertinoColors.white,
+          ),
+        ),
+        body: StreamBuilder<QuerySnapshot>(
+          // Directly sorting by 'isDisabled' and 'skillName' in Firestore to reduce manual sorting in the app
+          stream: FirebaseFirestore.instance
+              .collection('product')
+              .orderBy('productName')
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(
+                child: CustomCupertinoActivityIndicator(),
+              );
+            }
+      
+            // List fetched from FireStore, already sorted as per our query
+            List<DocumentSnapshot> skillDocs = snapshot.data!.docs;
+      
+            return ListView.builder(
+              // Use IndexedListView for better lazy loading with large lists
+              itemCount: skillDocs.length,
+              itemBuilder: (context, index) {
+                DocumentSnapshot doc = skillDocs[index];
+                Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+                return buildCard(context, doc, data);
+              },
+            );
+          },
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AddProduct(
+                    productID: '',
+                    productName: '',
+                    description: '',
+                    price: 0.0,
+                    code: '',
+                    displayImage: '',
+                    discount: 0.0,
+                    categoryID: ''),
+              ),
+            );
+          },
+          backgroundColor: kAppBarColor,
+          child: const Icon(
+            CupertinoIcons.add,
+            color: CupertinoColors.white,
+          ),
         ),
       ),
     );

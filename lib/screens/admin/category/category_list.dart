@@ -17,63 +17,65 @@ class CategoryList extends StatefulWidget {
 class _CategoryListState extends State<CategoryList> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(
-          color: CupertinoColors.white,
-        ),
-        backgroundColor: kAppBarColor,
-        title: const Text(
-          'Category List',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          iconTheme: const IconThemeData(
             color: CupertinoColors.white,
           ),
-        ),
-      ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('category')
-            .orderBy('categoryName')
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CustomCupertinoActivityIndicator());
-          }
-
-          List<DocumentSnapshot> categoryDocs = snapshot.data!.docs;
-
-
-          return ListView.builder(
-            // Use IndexedListView for better lazy loading with large lists
-            itemCount: categoryDocs.length,
-            itemBuilder: (context, index) {
-              DocumentSnapshot doc = categoryDocs[index];
-              Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-              return buildGridItem(context, doc, data);
-            },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const AddCategory(
-                categoryID: '',
-                categoryName: '',
-                categoryDescription: '',
-                categoryImage: '',
-              ),
+          backgroundColor: kAppBarColor,
+          title: const Text(
+            'Category List',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: CupertinoColors.white,
             ),
-          );
-        },
-        backgroundColor: kAppBarColor,
-        child: const Icon(
-          CupertinoIcons.add,
-          color: CupertinoColors.white,
+          ),
+        ),
+        body: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('category')
+              .orderBy('categoryName')
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CustomCupertinoActivityIndicator());
+            }
+      
+            List<DocumentSnapshot> categoryDocs = snapshot.data!.docs;
+      
+      
+            return ListView.builder(
+              // Use IndexedListView for better lazy loading with large lists
+              itemCount: categoryDocs.length,
+              itemBuilder: (context, index) {
+                DocumentSnapshot doc = categoryDocs[index];
+                Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+                return buildGridItem(context, doc, data);
+              },
+            );
+          },
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AddCategory(
+                  categoryID: '',
+                  categoryName: '',
+                  categoryDescription: '',
+                  categoryImage: '',
+                ),
+              ),
+            );
+          },
+          backgroundColor: kAppBarColor,
+          child: const Icon(
+            CupertinoIcons.add,
+            color: CupertinoColors.white,
+          ),
         ),
       ),
     );

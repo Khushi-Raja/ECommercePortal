@@ -70,192 +70,194 @@ class _AddProductState extends State<AddProduct> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(
-          color: CupertinoColors.white,
-        ),
-        backgroundColor: kAppBarColor,
-        title: Text(
-          widget.productID.isEmpty ? 'Add Product' : 'Update Product',
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          iconTheme: const IconThemeData(
             color: CupertinoColors.white,
           ),
+          backgroundColor: kAppBarColor,
+          title: Text(
+            widget.productID.isEmpty ? 'Add Product' : 'Update Product',
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: CupertinoColors.white,
+            ),
+          ),
         ),
-      ),
-      body: SingleChildScrollView(
-        child: Form(
-          key: formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 10),
-              GestureDetector(
-                onTap: pickImage,
-                child: Container(
-                  width: 150, // Width of the square box
-                  height: 150, // Height of the square box
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15), // Rounded corners
-                    border: Border.all(color: Colors.grey.shade400, width: 2), // Border style
-                    image: _imageBytes != null || imageFile != null || widget.productID.isNotEmpty
-                        ? DecorationImage(
-                      image: _imageBytes != null
-                          ? MemoryImage(_imageBytes!)
-                          : imageFile != null
-                          ? FileImage(imageFile!)
-                          : NetworkImage(widget.displayImage) as ImageProvider,
-                      fit: BoxFit.cover, // Fill the box with the image
+        body: SingleChildScrollView(
+          child: Form(
+            key: formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 10),
+                GestureDetector(
+                  onTap: pickImage,
+                  child: Container(
+                    width: 150, // Width of the square box
+                    height: 150, // Height of the square box
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15), // Rounded corners
+                      border: Border.all(color: Colors.grey.shade400, width: 2), // Border style
+                      image: _imageBytes != null || imageFile != null || widget.productID.isNotEmpty
+                          ? DecorationImage(
+                        image: _imageBytes != null
+                            ? MemoryImage(_imageBytes!)
+                            : imageFile != null
+                            ? FileImage(imageFile!)
+                            : NetworkImage(widget.displayImage) as ImageProvider,
+                        fit: BoxFit.cover, // Fill the box with the image
+                      )
+                          : null,
+                    ),
+                    child: (_imageBytes == null && imageFile == null && widget.productID.isEmpty)
+                        ? const Center(
+                      child: Icon(Icons.camera_alt, color: Colors.grey)
                     )
                         : null,
                   ),
-                  child: (_imageBytes == null && imageFile == null && widget.productID.isEmpty)
-                      ? const Center(
-                    child: Icon(Icons.camera_alt, color: Colors.grey)
-                  )
-                      : null,
                 ),
-              ),
-              const SizedBox(height: 10),
-              CustomTextFormField(
-                controller: productNameController,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Product is required";
-                  }
-                  return null;
-                },
-                keyboardType: TextInputType.name,
-                labelText: 'Product Name',
-                obscureText: false,
-              ),
-              CustomTextFormField(
-                controller: descriptionController,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Product Description is required";
-                  }
-                  return null;
-                },
-                maxLines: 5,
-                keyboardType: TextInputType.name,
-                labelText: 'Product Description',
-                obscureText: false,
-              ),
-              CustomTextFormField(
-                controller: priceController,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Price is required";
-                  }
-                  return null;
-                },
-                keyboardType: TextInputType.number,
-                labelText: 'Product Price',
-                obscureText: false,
-              ),
-              CustomTextFormField(
-                controller: codeController,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Code is required";
-                  }
-                  return null;
-                },
-                keyboardType: TextInputType.name,
-                labelText: 'Product Code',
-                obscureText: false,
-              ),
-              CustomTextFormField(
-                controller: discountController,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Discount is required";
-                  }
-                  return null;
-                },
-                keyboardType: TextInputType.name,
-                labelText: 'Product Discount',
-                obscureText: false,
-              ),
-
-              // Dropdown code
-              StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('category')
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const Center(
-                        child:
-                            CustomCupertinoActivityIndicator()); // Show loading indicator until data is fetched
-                  }
-                  List<DocumentSnapshot> categoryDocs = snapshot.data!.docs;
-                  List<Map<String, String>> categories =
-                      categoryDocs.map((doc) {
-                    return {
-                      'id': doc['categoryID'].toString(),
-                      // Assuming 'id' and 'name' fields are available in Firestore
-                      'name': doc['categoryName'].toString(),
-                    };
-                  }).toList();
-
-                  // Ensure that the selectedCategoryId is valid or null
-                  String? dropdownValue = categories.any(
-                          (category) => category['id'] == selectedCategoryId)
-                      ? selectedCategoryId
-                      : null;
-
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: DropdownButtonFormField<String>(
-                      value: dropdownValue,
-                      hint: const Text('Select Category', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),),
-                      items: categories.map((category) {
-                        return DropdownMenuItem<String>(
-                          value: category['id'],
-                          child: Text(category['name']!),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          selectedCategoryId = value;
-                        });
-                      },
-                      validator: (value) {
-                        if (value == null) {
-                          return "Please select a category";
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderSide:
-                          const BorderSide(color: CupertinoColors.black),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: CupertinoColors.black),
-                          borderRadius: BorderRadius.circular(8),
+                const SizedBox(height: 10),
+                CustomTextFormField(
+                  controller: productNameController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Product is required";
+                    }
+                    return null;
+                  },
+                  keyboardType: TextInputType.name,
+                  labelText: 'Product Name',
+                  obscureText: false,
+                ),
+                CustomTextFormField(
+                  controller: descriptionController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Product Description is required";
+                    }
+                    return null;
+                  },
+                  maxLines: 5,
+                  keyboardType: TextInputType.name,
+                  labelText: 'Product Description',
+                  obscureText: false,
+                ),
+                CustomTextFormField(
+                  controller: priceController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Price is required";
+                    }
+                    return null;
+                  },
+                  keyboardType: TextInputType.number,
+                  labelText: 'Product Price',
+                  obscureText: false,
+                ),
+                CustomTextFormField(
+                  controller: codeController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Code is required";
+                    }
+                    return null;
+                  },
+                  keyboardType: TextInputType.name,
+                  labelText: 'Product Code',
+                  obscureText: false,
+                ),
+                CustomTextFormField(
+                  controller: discountController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Discount is required";
+                    }
+                    return null;
+                  },
+                  keyboardType: TextInputType.name,
+                  labelText: 'Product Discount',
+                  obscureText: false,
+                ),
+      
+                // Dropdown code
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('category')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(
+                          child:
+                              CustomCupertinoActivityIndicator()); // Show loading indicator until data is fetched
+                    }
+                    List<DocumentSnapshot> categoryDocs = snapshot.data!.docs;
+                    List<Map<String, String>> categories =
+                        categoryDocs.map((doc) {
+                      return {
+                        'id': doc['categoryID'].toString(),
+                        // Assuming 'id' and 'name' fields are available in Firestore
+                        'name': doc['categoryName'].toString(),
+                      };
+                    }).toList();
+      
+                    // Ensure that the selectedCategoryId is valid or null
+                    String? dropdownValue = categories.any(
+                            (category) => category['id'] == selectedCategoryId)
+                        ? selectedCategoryId
+                        : null;
+      
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: DropdownButtonFormField<String>(
+                        value: dropdownValue,
+                        hint: const Text('Select Category', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),),
+                        items: categories.map((category) {
+                          return DropdownMenuItem<String>(
+                            value: category['id'],
+                            child: Text(category['name']!),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedCategoryId = value;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null) {
+                            return "Please select a category";
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderSide:
+                            const BorderSide(color: CupertinoColors.black),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: CupertinoColors.black),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                },
-              ),
-
-              const SizedBox(height: 5),
-              CustomButton(
-                buttonName: widget.productName.isNotEmpty
-                    ? 'Update Product'
-                    : 'Add Product',
-                onPressed: submit,
-                backgroundColor: kAppBarColor,
-                textColor: CupertinoColors.white,
-              ),
-            ],
+                    );
+                  },
+                ),
+      
+                const SizedBox(height: 5),
+                CustomButton(
+                  buttonName: widget.productName.isNotEmpty
+                      ? 'Update Product'
+                      : 'Add Product',
+                  onPressed: submit,
+                  backgroundColor: kAppBarColor,
+                  textColor: CupertinoColors.white,
+                ),
+              ],
+            ),
           ),
         ),
       ),

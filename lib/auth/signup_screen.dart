@@ -72,112 +72,114 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        elevation: 0,
+    return SafeArea(
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: Colors.white,
-      ),
-      body: Form(
-        key: formSignUpKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Image.asset("assets/images/ecommerce1.webp", height: 120,width: 120,),
-            const Text(
-              "Get On Board,",
-              style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.white,
+        ),
+        body: Form(
+          key: formSignUpKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Image.asset("assets/images/ecommerce1.webp", height: 120,width: 120,),
+              const Text(
+                "Get On Board,",
+                style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const Text(
-              "Create account to start your journey with us!",
-              style: TextStyle(
-                fontSize: 15,
-                color: Colors.grey,
+              const Text(
+                "Create account to start your journey with us!",
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.grey,
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Column(
-              children: <Widget>[
-                CustomTextFormField(
-                  labelText: "Name",
-                  controller: nameController,
-                  obscureText: false,
-                  validator: (value) => value == null || value.trim().isEmpty
-                      ? "Name is required"
-                      : null,
-                  keyboardType: TextInputType.text,
-                  prefixIcon: const Icon(Icons.person),
-                ),
-                CustomTextFormField(
-                  labelText: "Email",
-                  controller: emailController,
-                  obscureText: false,
-                  validator: (value) => value == null || value.trim().isEmpty
-                      ? "Email is required"
-                      : null,
-                  keyboardType: TextInputType.text,
-                  prefixIcon: const Icon(Icons.email),
-                ),
-                CustomTextFormField(
-                  labelText: "Password",
-                  controller: passwordController,
-                  obscureText: true,
-                  validator: (value) => value == null || value.trim().isEmpty
-                      ? "Password is required"
-                      : value.length < 6
-                          ? "Password must be at least 6 characters"
-                          : null,
-                  keyboardType: TextInputType.text,
-                  prefixIcon: const Icon(Icons.key),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            CustomButton(
-              onPressed: registerUser,
-              backgroundColor: CupertinoColors.black,
-              textColor: CupertinoColors.white,
-              buttonName: "Sign Up",
-            ),
-            const SizedBox(height: 8),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const SignInScreen(),
+              const SizedBox(height: 20),
+              Column(
+                children: <Widget>[
+                  CustomTextFormField(
+                    labelText: "Name",
+                    controller: nameController,
+                    obscureText: false,
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? "Name is required"
+                        : null,
+                    keyboardType: TextInputType.text,
+                    prefixIcon: const Icon(Icons.person),
                   ),
-                );
-              },
-              style: ButtonStyle(
-                overlayColor: MaterialStateProperty.resolveWith<Color?>((states) => Colors.transparent),
-                splashFactory: NoSplash.splashFactory,
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Already have an account? ",
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.grey,
-                    ),
+                  CustomTextFormField(
+                    labelText: "Email",
+                    controller: emailController,
+                    obscureText: false,
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? "Email is required"
+                        : null,
+                    keyboardType: TextInputType.text,
+                    prefixIcon: const Icon(Icons.email),
                   ),
-                  Text(
-                    "Sign In",
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.blue,
-                    ),
+                  CustomTextFormField(
+                    labelText: "Password",
+                    controller: passwordController,
+                    obscureText: true,
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? "Password is required"
+                        : value.length < 6
+                            ? "Password must be at least 6 characters"
+                            : null,
+                    keyboardType: TextInputType.text,
+                    prefixIcon: const Icon(Icons.key),
                   ),
                 ],
               ),
-            ),
-          ],
+              const SizedBox(height: 20),
+              CustomButton(
+                onPressed: registerUser,
+                backgroundColor: CupertinoColors.black,
+                textColor: CupertinoColors.white,
+                buttonName: "Sign Up",
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SignInScreen(),
+                    ),
+                  );
+                },
+                style: ButtonStyle(
+                  overlayColor: MaterialStateProperty.resolveWith<Color?>((states) => Colors.transparent),
+                  splashFactory: NoSplash.splashFactory,
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Already have an account? ",
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    Text(
+                      "Sign In",
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

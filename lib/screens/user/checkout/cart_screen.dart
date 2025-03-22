@@ -20,7 +20,26 @@ class _CartScreenState extends State<CartScreen> {
   Widget build(BuildContext context) {
     final userID = FirebaseAuth.instance.currentUser?.uid;
     if (userID == null) {
-      return Scaffold(
+      return SafeArea(
+        child: Scaffold(
+          appBar: AppBar(
+            iconTheme: const IconThemeData(color: CupertinoColors.white),
+            backgroundColor: kAppBarColor,
+            title: const Text(
+              "Your Cart",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: CupertinoColors.white,
+              ),
+            ),
+          ),
+          body: const Center(child: Text("Please log in to view your cart.")),
+        ),
+      );
+    }
+    return SafeArea(
+      child: Scaffold(
         appBar: AppBar(
           iconTheme: const IconThemeData(color: CupertinoColors.white),
           backgroundColor: kAppBarColor,
@@ -33,104 +52,89 @@ class _CartScreenState extends State<CartScreen> {
             ),
           ),
         ),
-        body: const Center(child: Text("Please log in to view your cart.")),
-      );
-    }
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: CupertinoColors.white),
-        backgroundColor: kAppBarColor,
-        title: const Text(
-          "Your Cart",
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: CupertinoColors.white,
-          ),
-        ),
-      ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('cart')
-            .where('UserID', isEqualTo: userID)
-            .where('isOrderDone', isEqualTo: false)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CustomCupertinoActivityIndicator());
-          }
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center, // Centers content vertically
-                children: [
-                  Icon(
-                    Icons.remove_shopping_cart, // Cart empty icon
-                    size: 80,
-                    color: Colors.grey[400],
-                  ),
-                  const SizedBox(height: 10), // Spacing between icon and text
-                  const Text(
-                    "Your cart is empty!",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          final cartItems = snapshot.data!.docs;
-          return Stack(
-            children: [
-              ListView.builder(
-                padding: const EdgeInsets.only(bottom: 200),
-                itemCount: cartItems.length,
-                itemBuilder: (context, index) => CartItemWidget(
-                  cartDocId: cartItems[index].id,
-                  key: ValueKey(cartItems[index].id),
-                ),
-              ),
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
+        body: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('cart')
+              .where('UserID', isEqualTo: userID)
+              .where('isOrderDone', isEqualTo: false)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CustomCupertinoActivityIndicator());
+            }
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              return Center(
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center, // Centers content vertically
                   children: [
-                    FutureBuilder<List<Map<String, dynamic>>>(
-                      future: _getAllProductDetails(cartItems),
-                      builder: (context, snapshot) {
-                        if (!snapshot.hasData) return const SizedBox.shrink();
-
-                        double originalTotal = 0;
-                        double discountTotal = 0;
-                        for (int i = 0; i < cartItems.length; i++) {
-                          final productData = snapshot.data![i];
-                          final quantity = cartItems[i]['Quantity'] as int;
-                          final price = productData['price'] as double;
-                          final discount = productData['discount'] as double;
-
-                          originalTotal += price * quantity;
-                          discountTotal +=
-                              (price * (discount / 100)) * quantity;
-                        }
-
-                        return _buildTotalContainer(
-                          originalTotal: originalTotal,
-                          discountTotal: discountTotal,
-                          finalAmount: originalTotal - discountTotal,
-                        );
-                      },
+                    Icon(
+                      Icons.remove_shopping_cart, // Cart empty icon
+                      size: 80,
+                      color: Colors.grey[400],
+                    ),
+                    const SizedBox(height: 10), // Spacing between icon and text
+                    const Text(
+                      "Your cart is empty!",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey,
+                      ),
                     ),
                   ],
                 ),
-              ),
-            ],
-          );
-        },
+              );
+            }
+      
+            final cartItems = snapshot.data!.docs;
+            return Stack(
+              children: [
+                ListView.builder(
+                  padding: const EdgeInsets.only(bottom: 200),
+                  itemCount: cartItems.length,
+                  itemBuilder: (context, index) => CartItemWidget(
+                    cartDocId: cartItems[index].id,
+                    key: ValueKey(cartItems[index].id),
+                  ),
+                ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Column(
+                    children: [
+                      FutureBuilder<List<Map<String, dynamic>>>(
+                        future: _getAllProductDetails(cartItems),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) return const SizedBox.shrink();
+      
+                          double originalTotal = 0;
+                          double discountTotal = 0;
+                          for (int i = 0; i < cartItems.length; i++) {
+                            final productData = snapshot.data![i];
+                            final quantity = cartItems[i]['Quantity'] as int;
+                            final price = productData['price'] as double;
+                            final discount = productData['discount'] as double;
+      
+                            originalTotal += price * quantity;
+                            discountTotal +=
+                                (price * (discount / 100)) * quantity;
+                          }
+      
+                          return _buildTotalContainer(
+                            originalTotal: originalTotal,
+                            discountTotal: discountTotal,
+                            finalAmount: originalTotal - discountTotal,
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

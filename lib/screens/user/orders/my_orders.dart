@@ -116,44 +116,46 @@ class _MyOrdersState extends State<MyOrders> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3, // 3 Tabs
-      child: Scaffold(
-          appBar: AppBar(
-            iconTheme: const IconThemeData(color: CupertinoColors.white),
-            backgroundColor: kAppBarColor,
-            title: const Text(
-              'My Orders History',
-              style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: CupertinoColors.white),
+    return SafeArea(
+      child: DefaultTabController(
+        length: 3, // 3 Tabs
+        child: Scaffold(
+            appBar: AppBar(
+              iconTheme: const IconThemeData(color: CupertinoColors.white),
+              backgroundColor: kAppBarColor,
+              title: const Text(
+                'My Orders History',
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: CupertinoColors.white),
+              ),
+              bottom: const TabBar(
+                labelColor: Colors.white,
+                indicatorColor: Colors.white,
+                labelStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold), // Selected tab font size
+                unselectedLabelStyle: TextStyle(fontSize: 14, color: Colors.white), // Unselected tab font size
+                tabs: [
+                  Tab(text: "All Orders"),
+                  Tab(text: "Pending"),
+                  Tab(text: "Delivered"),
+                ],
+              ),
             ),
-            bottom: const TabBar(
-              labelColor: Colors.white,
-              indicatorColor: Colors.white,
-              labelStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold), // Selected tab font size
-              unselectedLabelStyle: TextStyle(fontSize: 14, color: Colors.white), // Unselected tab font size
-              tabs: [
-                Tab(text: "All Orders"),
-                Tab(text: "Pending"),
-                Tab(text: "Delivered"),
+            body: isLoading
+                ? const Center(child: CustomCupertinoActivityIndicator())
+                : TabBarView(
+              children: [
+                buildOrderList(ordersList), // All Orders
+                buildOrderList(ordersList
+                    .where((order) => order['orderStatus'] == 'Pending')
+                    .toList()), // Pending Orders
+                buildOrderList(ordersList
+                    .where((order) => order['orderStatus'] == 'Delivered')
+                    .toList()), // Delivered Orders
               ],
-            ),
-          ),
-          body: isLoading
-              ? const Center(child: CustomCupertinoActivityIndicator())
-              : TabBarView(
-            children: [
-              buildOrderList(ordersList), // All Orders
-              buildOrderList(ordersList
-                  .where((order) => order['orderStatus'] == 'Pending')
-                  .toList()), // Pending Orders
-              buildOrderList(ordersList
-                  .where((order) => order['orderStatus'] == 'Delivered')
-                  .toList()), // Delivered Orders
-            ],
-          )),
+            )),
+      ),
     );
   }
 

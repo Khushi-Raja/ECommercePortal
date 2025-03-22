@@ -197,227 +197,229 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(
-          color: CupertinoColors.white,
-        ),
-        backgroundColor: kAppBarColor,
-        title: const Text(
-          'Admin Dashboard',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          iconTheme: const IconThemeData(
             color: CupertinoColors.white,
           ),
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Align(
-                alignment: Alignment.center,
-                child: Text(
-                  "User Stats",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(height: 5),
-              DashboardTile(
-                title: "Total Users",
-                value: "$totalUsers",
-              ),
-              DashboardTile(
-                title: "Total Admins",
-                value: "$totalAdmins",
-              ),
-              DashboardTile(
-                title: "Total Customers",
-                value: "$totalCustomers",
-              ),
-              // DashboardTile(
-              //   title: "Verified Users",
-              //   value: "$verifiedUsers",
-              // ),
-              // DashboardTile(
-              //   title: "Unverified Users",
-              //   value: "$unverifiedUsers",
-              // ),
-              const SizedBox(height: 10),
-              const Align(
-                alignment: Alignment.center,
-                child: Text(
-                  "Order Stats",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(height: 5),
-              DashboardTile(
-                title: "Total Orders",
-                value: "$totalOrders",
-              ),
-              DashboardTile(
-                title: "Total Revenue",
-                value: "₹${totalRevenue.toStringAsFixed(2)}",
-              ),
-              DashboardTile(
-                title: "Total Items Ordered",
-                value: "$totalItemsOrdered",
-              ),
-              DashboardTile(
-                title: "Highest Order Value",
-                value: "₹${highestOrderValue.toStringAsFixed(2)}",
-              ),
-              DashboardTile(
-                title: "Lowest Order Value",
-                value: "₹${lowestOrderValue.toStringAsFixed(2)}",
-              ),
-              DashboardTile(
-                title: "Pending Orders",
-                value: "$pendingOrders",
-              ),
-              DashboardTile(
-                title: "Completed Orders",
-                value: "$completedOrders",
-              ),
-            ],
+          backgroundColor: kAppBarColor,
+          title: const Text(
+            'Admin Dashboard',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: CupertinoColors.white,
+            ),
           ),
-        
         ),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: const EdgeInsets.all(0),
-          children: [
-            Container(
-              color: kAppBarColor,
-              width: double.infinity,
-              height: 200,
-              padding: const EdgeInsets.only(top: 20.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Align(
-                    alignment: Alignment.center,
-                    child: CircleAvatar(
-                      radius: 35,
-                      backgroundColor: CupertinoColors.white,
-                      child: Text(
-                        displayName != null
-                            ? displayName![0].toUpperCase()
-                            : "?",
-                        style: const TextStyle(
-                          fontSize: 30,
-                          color: Colors.black,
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    "User Stats",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const SizedBox(height: 5),
+                DashboardTile(
+                  title: "Total Users",
+                  value: "$totalUsers",
+                ),
+                DashboardTile(
+                  title: "Total Admins",
+                  value: "$totalAdmins",
+                ),
+                DashboardTile(
+                  title: "Total Customers",
+                  value: "$totalCustomers",
+                ),
+                // DashboardTile(
+                //   title: "Verified Users",
+                //   value: "$verifiedUsers",
+                // ),
+                // DashboardTile(
+                //   title: "Unverified Users",
+                //   value: "$unverifiedUsers",
+                // ),
+                const SizedBox(height: 10),
+                const Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    "Order Stats",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const SizedBox(height: 5),
+                DashboardTile(
+                  title: "Total Orders",
+                  value: "$totalOrders",
+                ),
+                DashboardTile(
+                  title: "Total Revenue",
+                  value: "₹${totalRevenue.toStringAsFixed(2)}",
+                ),
+                DashboardTile(
+                  title: "Total Items Ordered",
+                  value: "$totalItemsOrdered",
+                ),
+                DashboardTile(
+                  title: "Highest Order Value",
+                  value: "₹${highestOrderValue.toStringAsFixed(2)}",
+                ),
+                DashboardTile(
+                  title: "Lowest Order Value",
+                  value: "₹${lowestOrderValue.toStringAsFixed(2)}",
+                ),
+                DashboardTile(
+                  title: "Pending Orders",
+                  value: "$pendingOrders",
+                ),
+                DashboardTile(
+                  title: "Completed Orders",
+                  value: "$completedOrders",
+                ),
+              ],
+            ),
+          
+          ),
+        ),
+        drawer: Drawer(
+          child: ListView(
+            padding: const EdgeInsets.all(0),
+            children: [
+              Container(
+                color: kAppBarColor,
+                width: double.infinity,
+                height: 200,
+                padding: const EdgeInsets.only(top: 20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Align(
+                      alignment: Alignment.center,
+                      child: CircleAvatar(
+                        radius: 35,
+                        backgroundColor: CupertinoColors.white,
+                        child: Text(
+                          displayName != null
+                              ? displayName![0].toUpperCase()
+                              : "?",
+                          style: const TextStyle(
+                            fontSize: 30,
+                            color: Colors.black,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  Text(
-                    displayName ?? "Loading...",
-                    style: const TextStyle(color: Colors.white, fontSize: 20),
-                  ),
-                  Text(
-                    userEmail ?? "No email",
-                    style: TextStyle(
-                      color: Colors.grey[200],
-                      fontSize: 14,
+                    Text(
+                      displayName ?? "Loading...",
+                      style: const TextStyle(color: Colors.white, fontSize: 20),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.category,
-                color: kAppBarColor,
-              ),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return const CategoryList();
-                    },
-                  ),
-                );
-              },
-              title: const Text(
-                'Category',
-                style: TextStyle(
-                  color: CupertinoColors.black,
+                    Text(
+                      userEmail ?? "No email",
+                      style: TextStyle(
+                        color: Colors.grey[200],
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.production_quantity_limits,
-                color: kAppBarColor,
-              ),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return const ProductList();
-                    },
+              ListTile(
+                leading: const Icon(
+                  Icons.category,
+                  color: kAppBarColor,
+                ),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return const CategoryList();
+                      },
+                    ),
+                  );
+                },
+                title: const Text(
+                  'Category',
+                  style: TextStyle(
+                    color: CupertinoColors.black,
                   ),
-                );
-              },
-              title: const Text(
-                'Product',
-                style: TextStyle(
-                  color: CupertinoColors.black,
                 ),
               ),
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.list_alt,
-                color: kAppBarColor,
-              ),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return const OrdersList();
-                    },
+              ListTile(
+                leading: const Icon(
+                  Icons.production_quantity_limits,
+                  color: kAppBarColor,
+                ),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return const ProductList();
+                      },
+                    ),
+                  );
+                },
+                title: const Text(
+                  'Product',
+                  style: TextStyle(
+                    color: CupertinoColors.black,
                   ),
-                );
-              },
-              title: const Text(
-                'Orders',
-                style: TextStyle(
-                  color: CupertinoColors.black,
                 ),
               ),
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.logout,
-                color: kAppBarColor,
-              ),
-              onTap: () async {
-                await FirebaseAuth.instance.signOut();
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                await prefs.clear(); // Clear cached data on logout
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return const SignInScreen();
-                    },
+              ListTile(
+                leading: const Icon(
+                  Icons.list_alt,
+                  color: kAppBarColor,
+                ),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return const OrdersList();
+                      },
+                    ),
+                  );
+                },
+                title: const Text(
+                  'Orders',
+                  style: TextStyle(
+                    color: CupertinoColors.black,
                   ),
-                );
-              },
-              title: const Text(
-                'Logout',
-                style: TextStyle(
-                  color: CupertinoColors.black,
                 ),
               ),
-            ),
-          ],
+              ListTile(
+                leading: const Icon(
+                  Icons.logout,
+                  color: kAppBarColor,
+                ),
+                onTap: () async {
+                  await FirebaseAuth.instance.signOut();
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  await prefs.clear(); // Clear cached data on logout
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return const SignInScreen();
+                      },
+                    ),
+                  );
+                },
+                title: const Text(
+                  'Logout',
+                  style: TextStyle(
+                    color: CupertinoColors.black,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

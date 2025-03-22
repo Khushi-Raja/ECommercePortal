@@ -53,83 +53,85 @@ class _UserProductListState extends State<UserProductList> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: CupertinoColors.white),
-        backgroundColor: kAppBarColor,
-        title: const Text(
-          'Products',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: CupertinoColors.white,
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          iconTheme: const IconThemeData(color: CupertinoColors.white),
+          backgroundColor: kAppBarColor,
+          title: const Text(
+            'Products',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: CupertinoColors.white,
+            ),
           ),
         ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: CustomTextFormField(
-                    controller: _searchController,
-                    prefixIcon: const Icon(Icons.search),
-                    obscureText: false,
-                    keyboardType: TextInputType.name,
-                    labelText: "Search Products or Categories",
-                    onChanged: (value) {
-                      _searchDebouncer.run(() {
-                        setState(
-                            () => _searchQuery = value.trim().toLowerCase());
-                      });
-                    },
-                    validator: (value) => null,
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomTextFormField(
+                      controller: _searchController,
+                      prefixIcon: const Icon(Icons.search),
+                      obscureText: false,
+                      keyboardType: TextInputType.name,
+                      labelText: "Search Products or Categories",
+                      onChanged: (value) {
+                        _searchDebouncer.run(() {
+                          setState(
+                              () => _searchQuery = value.trim().toLowerCase());
+                        });
+                      },
+                      validator: (value) => null,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                _buildIcon(
-                  Icons.shopping_cart_outlined,
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const CartScreen()),
+                  const SizedBox(width: 8),
+                  _buildIcon(
+                    Icons.shopping_cart_outlined,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const CartScreen()),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                _buildIcon(Icons.notifications_none),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Expanded(
-              child: FutureBuilder<Map<String, String>>(
-                future: _categoryMap,
-                builder: (context, categorySnapshot) {
-                  if (!categorySnapshot.hasData) {
-                    return const CustomCupertinoActivityIndicator();
-                  }
-
-                  return StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection('product')
-                        .orderBy('productName')
-                        .snapshots(),
-                    builder: (context, productSnapshot) {
-                      if (!productSnapshot.hasData) {
-                        return const CustomCupertinoActivityIndicator();
-                      }
-
-                      final products = productSnapshot.data!.docs;
-                      return _buildProductGrid(
-                        products: products,
-                        categories: categorySnapshot.data!,
-                      );
-                    },
-                  );
-                },
+                  const SizedBox(width: 8),
+                  _buildIcon(Icons.notifications_none),
+                ],
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Expanded(
+                child: FutureBuilder<Map<String, String>>(
+                  future: _categoryMap,
+                  builder: (context, categorySnapshot) {
+                    if (!categorySnapshot.hasData) {
+                      return const CustomCupertinoActivityIndicator();
+                    }
+      
+                    return StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('product')
+                          .orderBy('productName')
+                          .snapshots(),
+                      builder: (context, productSnapshot) {
+                        if (!productSnapshot.hasData) {
+                          return const CustomCupertinoActivityIndicator();
+                        }
+      
+                        final products = productSnapshot.data!.docs;
+                        return _buildProductGrid(
+                          products: products,
+                          categories: categorySnapshot.data!,
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

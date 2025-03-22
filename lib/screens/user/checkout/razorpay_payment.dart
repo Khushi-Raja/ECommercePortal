@@ -81,9 +81,11 @@ class _RazorpayPaymentState extends State<RazorpayPayment> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: CustomCupertinoActivityIndicator(),
+    return const SafeArea(
+      child: Scaffold(
+        body: Center(
+          child: CustomCupertinoActivityIndicator(),
+        ),
       ),
     );
   }
